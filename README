@@ -1,0 +1,3 @@
+Nitpick is a distributed issue tracker. It's intended to be used with source
+code such that the issues can follow the code via whatever VCS or distribution
+mechanism.
