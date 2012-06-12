@@ -1,0 +1,71 @@
+The design of the nitpick repository is meant to keep the amount of manual
+merging to a minimum. Some merging will undoubtedly be necessary.
+
+To effect this every file is named after the sha256 hash of the contents and
+are referrenced as such. Within the top level .nitpick directory of the project
+there is the following structure:
+
+.nitpick/
+        /config/
+               /config - configuration file for the repository
+	       /users  - list of users for this repository
+	/a - indirect issue directory
+	/b
+	/c
+	...
+	/f
+	/0
+	/1
+	...
+	/9/a
+	/9/b
+	...
+	/9/9/99abc...f879/issue - Root issue description
+	/9/9/99abc...f879/ab897..abc - comment 1
+	/9/9/99abc...f879/feb87..876 - comment 2
+
+Not all indirect issue directories will exist as they are created as needed.
+
+The file formats follow a simple, easily hand editted format of some metadata
+followed by two dashes, followed by the free form data. ie.
+
+"""
+Date: 2012-06-11 9:03PM (-800)
+Title: Sample Issue
+Severity: Minor
+Priority: 1
+Owner: travisb@travisbrown.ca
+State: Open
+Component: Documentation
+Seen_In_Build: 0.1.0
+Fix_By: 1.0
+--
+This is the description of the sample issue in nitpick.
+"""
+
+The specific metadata varies by object (o denotes the open ended data):
+
+Issue:
+	- Component
+	- Date
+	- Fix_By
+	- Owner
+	- Priority
+	- Seen_In_Build
+	- Severity
+	- State
+	- Title
+	o Description
+
+Comment:
+	- Attachment
+	- Date
+	- Parent
+	- User
+	o Comment
+
+Attachment:
+	- Date
+	- Short_Description
+	o Description
+
