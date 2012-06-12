@@ -56,4 +56,14 @@ def parse_file(path):
 
 	return data
 
+# Output to the given filename the data structure
+def format_file(path, data):
+	file = open(path, 'w')
+	for key in data.keys():
+		if key != 'content':
+			file.write("%s: %s\n" % (key, data[key]))
+	file.write('--\n')
+	file.write("%s" % data['content'])
+	file.close()
+
 
