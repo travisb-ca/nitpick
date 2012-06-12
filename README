@@ -1,3 +1,28 @@
 Nitpick is a distributed issue tracker. It's intended to be used with source
 code such that the issues can follow the code via whatever VCS or distribution
 mechanism.
+
+Once the repository has been created you will likely want to configure the
+repository. This is done by editing the files in .nitpick/config.
+
+The config file contains the bulk of the settings in the colon titled format
+with spaces between the item, eg. "components: Documentation UI Backend".
+
+The fields are as follows:
+components - The list of components which will be give as options
+	     Default: Documentation
+fix_by     - targets for when an issue should be closed by
+             Default: Next_Release
+priority   - Priority given to the issue
+             Default: 1 2 3 4 5
+severity   - Severity of the issue
+             Default: Blocker Critical Major Minor Trivial
+state      - Current state of the issue
+             Default: New Confirmed Open Diagnosed Fixed Closed
+resolution - Resolution of an issue after it has been dealt with
+             Default: Fixed WontFix Invalid WorksForMe
+type       - The various types of issues
+             Default: Bug Feature Regression
+
+The users file simply contains the list of selectable users, one per line, in a
+free form. By default the only user is the Unassigned user.

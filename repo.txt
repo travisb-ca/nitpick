@@ -39,6 +39,8 @@ State: Open
 Component: Documentation
 Seen_In_Build: 0.1.0
 Fix_By: 1.0
+Resolution:
+Type: Feature
 --
 This is the description of the sample issue in nitpick.
 """
@@ -51,10 +53,12 @@ Issue:
 	- Fix_By
 	- Owner
 	- Priority
+	- Resolution
 	- Seen_In_Build
 	- Severity
 	- State
 	- Title
+	- Type
 	o Description
 
 Comment:

@@ -3,6 +3,31 @@ import os
 import fileinput
 import string
 
+class config:
+	issues = {
+			'components' : ['Documentation'],
+			'fix_by' : ['Next_Release'],
+			'priority' : ['1', '2', '3', '4', '5'],
+			'state' : ['New', 'Confirmed', 'Open', 'Diagnosed', 'Fixed', 'Closed'],
+			'severity' : ['Blocker', 'Critical', 'Major', 'Minor', 'Trivial'],
+			'resolution': ['Fixed', 'WontFix', 'Invalid', 'WorksForMe'],
+			'type' : ['Bug', 'Feature', 'Regression'],
+		}
+	users = ['Unassigned']
+
+default_config = """
+components: Documentation
+fix_by: Next_Release
+priority: 1 2 3 4 5
+severity: Blocker Critical Major Minor Trivial
+state: New Confirmed Open Diagnosed Fixed Closed
+resolution: Fixed WontFix Invalid WorksForMe
+type: Bug Feature Regression
+"""
+
+default_users = """
+Unassigned
+"""
 
 # Root class of the VCS compatibility layer
 class VCS:
@@ -66,4 +91,12 @@ def format_file(path, data):
 	file.write("%s" % data['content'])
 	file.close()
 
+def load_config():
+	conf = parse_file('.nitpick/config/config')
+	for key in ['components', 'fix_by', 'priority', 'severity', 'state', 'resolution', 'type']:
+		if key in conf.keys():
+			config.issues[key] = string.split(conf[key], sep = ' ')
+
+	for line in fileinput.input('.nitpick/config/users'):
+		config.users.append(string.strip(line))
 
