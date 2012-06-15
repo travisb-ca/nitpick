@@ -1,5 +1,6 @@
 #!/opt/local/bin/python2.7
 import os
+import os.path
 import fileinput
 import string
 import argparse
@@ -101,12 +102,19 @@ def format_file(path, data):
 	file.close()
 
 def load_config():
-	conf = parse_file('.nitpick/config/config')
+	# First we need to seek up until we find the database. It should be at the root of the project
+	pwd = os.path.abspath('.')
+	while pwd != '/':
+		if os.path.exists(pwd + '/.nitpick') and os.path.isdir(pwd + '/.nitpick'):
+			config.db_path = pwd + '/.nitpick'
+		pwd = os.path.dirname(pwd)
+
+	conf = parse_file(config.db_path + '/config/config')
 	for key in ['components', 'fix_by', 'priority', 'severity', 'state', 'resolution', 'type']:
 		if key in conf.keys():
 			config.issues[key] = string.split(conf[key], sep = ' ')
 
-	for line in fileinput.input('.nitpick/config/users'):
+	for line in fileinput.input(config.db_path + '/config/users'):
 		config.users.append(string.strip(line))
 
 def cmd_init(args):
@@ -130,7 +138,6 @@ def cmd_init(args):
 
 def cmd_debug(args):
 	load_config()
-	print config.issues
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(prog='nitpick', description='Distributed Bug Tracker')
