@@ -16,6 +16,7 @@ class config:
 			'type' : ['Bug', 'Feature', 'Regression'],
 		}
 	users = ['Unassigned']
+	db_path = ''
 
 default_config = """
 components: Documentation
@@ -101,6 +102,9 @@ def format_file(path, data):
 	file.write("%s" % data['content'])
 	file.close()
 
+# Load the configuration out of the database.
+#
+# Returns True on success, False if the database couldn't be located
 def load_config():
 	# First we need to seek up until we find the database. It should be at the root of the project
 	pwd = os.path.abspath('.')
@@ -108,6 +112,8 @@ def load_config():
 		if os.path.exists(pwd + '/.nitpick') and os.path.isdir(pwd + '/.nitpick'):
 			config.db_path = pwd + '/.nitpick'
 		pwd = os.path.dirname(pwd)
+	if config.db_path == '':
+		return False
 
 	conf = parse_file(config.db_path + '/config/config')
 	for key in ['components', 'fix_by', 'priority', 'severity', 'state', 'resolution', 'type']:
@@ -116,6 +122,8 @@ def load_config():
 
 	for line in fileinput.input(config.db_path + '/config/users'):
 		config.users.append(string.strip(line))
+
+	return True
 
 def cmd_init(args):
 	backend = BACKENDS[args.vcs]
@@ -137,7 +145,7 @@ def cmd_init(args):
 	backend.commit([config_filename, users_filename])
 
 def cmd_debug(args):
-	load_config()
+	print load_config()
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(prog='nitpick', description='Distributed Bug Tracker')
