@@ -113,15 +113,20 @@ def cmd_init(args):
 	backend = BACKENDS[args.vcs]
 
 	backend.mkdir(args.dir + '/config')
-	config = open(args.dir + '/config/config', 'w')
+
+	config_filename = args.dir + '/config/config'
+	config = open(config_filename, 'w')
 	config.write(default_config)
 	config.close()
-	backend.add_changes(args.dir + '/config/config')
+	backend.add_changes(config_filename)
 
-	users = open(args.dir + '/config/users', 'w')
+	users_filename = args.dir + '/config/users'
+	users = open(users_filename, 'w')
 	users.write(default_users)
 	users.close()
-	backend.add_changes(args.dir + '/config/users')
+	backend.add_changes(users_filename)
+
+	backend.commit([config_filename, users_filename])
 
 def cmd_debug(args):
 	load_config()
