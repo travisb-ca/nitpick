@@ -80,7 +80,7 @@ def parse_file(path):
 	data = {}
 	for line in fileinput.input(path):
 		if 'content' not in data: # Process metadata
-			if line != '--\n':
+			if line != '--\n' and len(line) > 1 and line[0] != '#':
 				fields = string.split(line, sep = ':', maxsplit = 1)
 				data[string.strip(fields[0])] = string.strip(fields[1])
 			else:
