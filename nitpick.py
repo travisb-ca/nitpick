@@ -1,7 +1,8 @@
-#!/usr/bin/python
+#!/opt/local/bin/python2.7
 import os
 import fileinput
 import string
+import argparse
 
 class config:
 	issues = {
@@ -35,19 +36,22 @@ class VCS:
 	Simple VCS which uses basic unix filesystem commands
 	"""
 	
-	def mkdir(self, path):
+	@staticmethod
+	def mkdir(path):
 		"""
 		Create a directory, creating any parent directories if necessary
 		"""
 		os.system("mkdir -p " + path)
 
-	def add_changes(self, path):
+	@staticmethod
+	def add_changes(path):
 		"""
 		Ensure that any changes made are registered with the VCS
 		"""
 		return
 
-	def commit(self, path_list):
+	@staticmethod
+	def commit(path_list):
 		"""
 		Ensure that all the registered changes are committed to the VCS repository.
 
@@ -56,14 +60,19 @@ class VCS:
 		return
 
 class SVN(VCS):
-	def mkdir(self, path):
+	@staticmethod
+	def mkdir(path):
 		os.system("svn mkdir --parents " + path)
 
-	def add_changes(self, path):
+	@staticmethod
+	def add_changes(path):
 		os.system("svn add " + path);
 
-	def commit(self, path_list):
+	@staticmethod
+	def commit(path_list):
 		os.system("svn ci -m \"Nitpick commit\" " + " ".join(path_list))
+
+BACKENDS = { 'file': VCS, 'svn' : SVN }
 
 # A function which parses the given file into a dictionary with one entry for each piece of metadata
 # and a 'content' entry for the open ended content.
@@ -100,3 +109,36 @@ def load_config():
 	for line in fileinput.input('.nitpick/config/users'):
 		config.users.append(string.strip(line))
 
+def cmd_init(args):
+	backend = BACKENDS[args.vcs]
+
+	backend.mkdir(args.dir + '/config')
+	config = open(args.dir + '/config/config', 'w')
+	config.write(default_config)
+	config.close()
+	backend.add_changes(args.dir + '/config/config')
+
+	users = open(args.dir + '/config/users', 'w')
+	users.write(default_users)
+	users.close()
+	backend.add_changes(args.dir + '/config/users')
+
+def cmd_debug(args):
+	load_config()
+	print config.issues
+
+if __name__ == '__main__':
+	parser = argparse.ArgumentParser(prog='nitpick', description='Distributed Bug Tracker')
+	subcmds = parser.add_subparsers(help='commands help')
+
+	init_cmd = subcmds.add_parser('init', help='Initialize nitpick database')
+	init_cmd.add_argument('--vcs', default='file', help='Which VCS backend to use', choices=BACKENDS.keys())
+	init_cmd.add_argument('--dir', default='./.nitpick', required=False,
+			help='Directory to use as database, default ./.nitpick')
+	init_cmd.set_defaults(func=cmd_init)
+
+	debug_cmd = subcmds.add_parser('debug', help='Run the latest test code')
+	debug_cmd.set_defaults(func=cmd_debug)
+
+	args = parser.parse_args()
+	args.func(args)
