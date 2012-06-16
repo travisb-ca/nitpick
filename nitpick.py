@@ -11,6 +11,7 @@ import cPickle
 import pprint
 
 DATEFORMAT = '%Y-%m-%d %H:%M:%S'
+FILLWIDTH = 69
 
 # Contains the defaults used to initalize a database
 class config:
@@ -366,34 +367,68 @@ def cmd_cat(args):
 
 	issue = parse_file(config.db_path + hash[0] + '/' + hash[1] + '/' + hash + '/issue')
 
+	if not args.noformat:
+		print '+', '=' * FILLWIDTH
+
 	for key in issue.keys():
 		if key == 'content':
 			continue
 
+		if not args.noformat:
+			print '| ',
 		print "%s: %s" % (key, issue[key])
 
 	if 'content' in issue.keys():
-		print '--'
+		if not args.noformat:
+			print '+', '-' * FILLWIDTH
+			print '| ',
+		else:
+			print '--'
+
 		print issue['content']
+
+		if not args.noformat:
+			print '+', '=' * FILLWIDTH
 
 	comment_stack = produce_comment_tree(hash)
 	comment_stack.reverse()
+	comment_depth = [1] * len(comment_stack)
+	depth = 0
 
 	while len(comment_stack) > 0:
 		comment = comment_stack.pop()
+		old_depth = depth
+		depth = comment_depth.pop()
+
+		if not args.noformat and old_depth > depth:
+			print '  ' * depth,
+			print '+', '=' * FILLWIDTH
+
 		for key in comment.keys():
 			if key in ['content', 'children', 'Parent']:
 				continue
 			if key == 'Attachment' and comment['Attachment'] == '':
 				continue
 
+			if not args.noformat:
+				print '  ' * depth, '| ',
+
 			print "%s: %s" % (key, comment[key])
 		if 'content' in comment.keys():
-			print '--'
+			if not args.noformat:
+				print '  ' * depth, 
+				print '+', '-' * FILLWIDTH
+			else:
+				print '--'
 			print comment['content']
+
+			if not args.noformat:
+				print '  ' * depth, 
+				print '+', '=' * FILLWIDTH
 
 		comment['children'].reverse()
 		comment_stack.extend(comment['children'])
+		comment_depth.extend([depth + 1] * len(comment['children']))
 
 	return True
 
@@ -498,6 +533,7 @@ if __name__ == '__main__':
 
 	cat_cmd = subcmds.add_parser('cat', help='Print the given issue to the console')
 	cat_cmd.add_argument('issue')
+	cat_cmd.add_argument('--noformat', action='store_true', help='Disable formatting when displaying')
 	cat_cmd.set_defaults(func=cmd_cat)
 
 	comment_cmd = subcmds.add_parser('comment', help='Add a comment to an issue')
