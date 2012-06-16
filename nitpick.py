@@ -10,6 +10,8 @@ import hashlib
 import cPickle
 import pprint
 
+DATEFORMAT = '%Y-%m-%d %H:%M:%S'
+
 # Contains the defaults used to initalize a database
 class config:
 	issues = {
@@ -220,6 +222,40 @@ def editor_found():
 		print 'Editor not found in $EDITOR, please set this variable and try again'
 		return None
 
+# Load the entire comment tree for the given issue hash and return it as a tree.
+#
+# The direct object is a list of comments. Each comment is then a dictionary with all the usual
+# fields along with an additional field, 'children' which is a list of children comment.
+def produce_comment_tree(issue):
+	issue_path = config.issue_db[issue]['path'] + '/'
+
+	# Load all the comments
+	comments = {}
+	for file in os.listdir(issue_path):
+		if not os.path.isfile(issue_path + file):
+			continue
+		if '.' in file or file == 'issue': # Only select comments, not attachments or the root issue
+			continue
+
+		comments[file] = parse_file(issue_path + file)
+		comments[file]['children'] = []
+		comments[file]['hash'] = file
+
+	# Pack them into a tree
+	comment_tree = []
+	for comment in comments.values():
+		if comment['Parent'] == 'issue':
+			comment_tree.append(comment)
+		else:
+			comments[comment['Parent']]['children'].append(comment)
+
+	# Now order the tree based upon the dates
+	for comment in comments.values():
+		comment['children'].sort(key = lambda child: time.mktime(time.strptime(child['Date'], DATEFORMAT)))
+	comment_tree.sort(key = lambda comment: time.mktime(time.strptime(comment['Date'], DATEFORMAT)))
+
+	return comment_tree
+
 def cmd_init(args):
 	backend = BACKENDS[args.vcs]
 
@@ -265,7 +301,7 @@ def cmd_new(args):
 			'Component'     : ' '.join(config.issues['components']),
 			'Fix_By'        : ' '.join(config.issues['fix_by']),
 			'Seen_In_Build' : '',
-			'Date'          : time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
+			'Date'          : time.strftime(DATEFORMAT, time.gmtime()),
 			'Owner'         : config.users[0],
 			'Reported_By'   : config.username,
 			'content'       : 'Enter description here'
@@ -339,6 +375,26 @@ def cmd_cat(args):
 	if 'content' in issue.keys():
 		print '--'
 		print issue['content']
+
+	comment_stack = produce_comment_tree(hash)
+	comment_stack.reverse()
+
+	while len(comment_stack) > 0:
+		comment = comment_stack.pop()
+		for key in comment.keys():
+			if key in ['content', 'children', 'Parent']:
+				continue
+			if key == 'Attachment' and comment['Attachment'] == '':
+				continue
+
+			print "%s: %s" % (key, comment[key])
+		if 'content' in comment.keys():
+			print '--'
+			print comment['content']
+
+		comment['children'].reverse()
+		comment_stack.extend(comment['children'])
+
 	return True
 
 def cmd_comment(args):
@@ -369,7 +425,7 @@ def cmd_comment(args):
 		for file in os.listdir(config.issue_db[issue]['path']):
 			if not os.path.isfile(config.issue_db[issue]['path'] + '/' + file):
 				continue
-			if '.' in file: # Only support comments, attachments have a . in their filenames
+			if '.' in file or file == 'issue': # Only support comments, not attachments or the root issue
 				continue
 
 			if args.comment in file:
@@ -384,7 +440,7 @@ def cmd_comment(args):
 
 	comment = {
 			'Attachment' : '',
-			'Date'       : time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
+			'Date'       : time.strftime(DATEFORMAT, time.gmtime()),
 			'Parent'     : parent,
 			'User'       : config.username,
 			'content'    : 'Enter comment here'
