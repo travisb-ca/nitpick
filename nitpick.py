@@ -199,6 +199,7 @@ def cmd_new(args):
 	format_file(issue_dir + '/issue', issue)
 
 	config.vcs.add_changes(issue_dir + '/issue')
+	config.vcs.commit(issue_dir + '/issue')
 
 	return True
 
