@@ -140,6 +140,7 @@ def save_issue_db():
 # Returns a dict keyed on issue hash which contains the a dict with all the
 # fields in the issue files, except the content.
 #
+# An additional field of 'path' exists which is the directory of the issue
 # An internal field of 'issue_db_cached_date' also exists.
 def load_issue_db():
 	try:
@@ -167,6 +168,7 @@ def load_issue_db():
 					config.issue_db[hash] = parse_file(hash_path + '/issue')
 					del config.issue_db[hash]['content']
 					config.issue_db[hash]['issue_db_cached_date'] = os.path.getmtime(hash_path + '/issue')
+				config.issue_db[hash]['path'] = hash_path
 	save_issue_db()
 
 # Turn a partial hash into a full hash
@@ -186,6 +188,19 @@ def disambiguate_hash(partial_hash):
 	if fullhash == '':
 		return None
 	return fullhash
+
+# Ensure that there is an editor to use for editing files
+# Returns None and prints an error if no editor is found.
+# Otherwise returns the editor to use
+def editor_found():
+	editor = ''
+	if 'EDITOR' in os.environ:
+		return os.environ['EDITOR']
+	elif 'VISUAL' in os.environ:
+		return os.editor['VISUAL']
+	else:
+		print 'Editor not found in $EDITOR, please set this variable and try again'
+		return None
 
 def cmd_init(args):
 	backend = BACKENDS[args.vcs]
@@ -214,13 +229,8 @@ def cmd_new(args):
 	if config.db_path == '':
 		return False
 
-	editor = ''
-	if 'EDITOR' in os.environ:
-		editor = os.environ['EDITOR']
-	elif 'VISUAL' in os.environ:
-		editor = os.editor['VISUAL']
-	else:
-		print 'Editor not found in $EDITOR, please set this variable and try again'
+	editor = editor_found()
+	if edit == None:
 		return False
 
 	issue = {
@@ -308,6 +318,72 @@ def cmd_cat(args):
 		print issue['content']
 	return True
 
+def cmd_comment(args):
+	if config.db_path == '':
+		return False
+
+	editor = editor_found()
+	if editor == None:
+		return False
+
+	load_issue_db()
+
+	issue = disambiguate_hash(args.issue)
+	if issue == None:
+		print "No such issue"
+		return False
+	elif issue == '':
+		print "Ambiguous issue ID. Please use a longer string"
+		return False
+
+	parent = 'issue'
+
+	if args.comment:
+		for file in os.listdir(config.issue_db[issue]['path']):
+			if not os.path.isfile(config.issue_db[issue]['path'] + '/' + file):
+				continue
+			if '.' in file: # Only support comments, attachments have a . in their filenames
+				continue
+
+			if args.comment in file:
+				if parent != 'issue':
+					print 'Ambiguous comment ID. Please use a longer string'
+					return False
+				else:
+					parent = file
+		if parent == 'issue':
+			print "Comment doesn't exist"
+			return False
+
+	comment = {
+			'Attachment' : '',
+			'Date'       : time.strftime('%Y-%m-%d %H : %M : %S', time.gmtime()),
+			'Parent'     : parent,
+			'User'       : 'TODO',
+			'content'    : 'Enter comment here'
+		}
+	comment_filename = config.issue_db[issue]['path'] + '/comment.tmp'
+	format_file(comment_filename, comment)
+	result = os.system(editor + ' ' + comment_filename)
+
+	if result != 0:
+		print 'Comment aborted'
+		os.unlink(comment_filename)
+		return True
+
+	comment = {}
+	comment = parse_file(comment_filename)
+	os.unlink(comment_filename)
+
+	hash = hashlib.sha256(cPickle.dumps(comment)).hexdigest()
+
+	comment_filename = config.issue_db[issue]['path'] + '/' + hash
+	format_file(comment_filename, comment)
+
+	config.vcs.add_changes(comment_filename)
+	config.vcs.commit(comment_filename)
+	return True
+
 def cmd_debug(args):
 	load_issue_db()
 	pprint.pprint(config.issue_db)
@@ -340,6 +416,11 @@ if __name__ == '__main__':
 	cat_cmd = subcmds.add_parser('cat', help='Print the given issue to the console')
 	cat_cmd.add_argument('issue')
 	cat_cmd.set_defaults(func=cmd_cat)
+
+	comment_cmd = subcmds.add_parser('comment', help='Add a comment to an issue')
+	comment_cmd.add_argument('issue')
+	comment_cmd.add_argument('--comment', help='Respond to specific comment')
+	comment_cmd.set_defaults(func=cmd_comment)
 
 	debug_cmd = subcmds.add_parser('debug', help='Run the latest test code')
 	debug_cmd.set_defaults(func=cmd_debug)
