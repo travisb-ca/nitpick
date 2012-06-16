@@ -52,6 +52,7 @@ Issue:
 	- Date
 	- Fix_By
 	- Owner
+	- Reported_By
 	- Priority
 	- Resolution
 	- Seen_In_Build

@@ -24,6 +24,7 @@ class config:
 	users = ['Unassigned']
 	vcs = None
 	db_path = ''
+	username = ''
 
 default_users = """
 Unassigned
@@ -127,6 +128,23 @@ def load_config():
 
 	for line in fileinput.input(config.db_path + 'config/users'):
 		config.users.append(string.strip(line))
+
+	# Try to figure out the username to use.
+	if 'NITPICK_USERNAME' in os.environ:
+		config.username = os.environ['NITPICK_USERNAME']
+	else:
+		# Try to match the current user against the username list
+		if 'USER' not in os.environ:
+			print "Warning: Unable to determine username. Please set NITPICK_USERNAME"
+		else:
+			user = os.environ['USER']
+			for row in config.users:
+				if user in row:
+					if config.username != '':
+						print "Warning: Unable to determine username. Please set NITPICK_USERNAME"
+						break
+					else:
+						config.username = row
 
 	return True
 
@@ -233,6 +251,10 @@ def cmd_new(args):
 	if edit == None:
 		return False
 
+	if config.username == '':
+		print 'Failed to determine username, please set NITPICK_USERNAME'
+		return False
+
 	issue = {
 			'Title' : 'Issue title',
 			'Severity' : ' '.join(config.issues['severity']),
@@ -245,6 +267,7 @@ def cmd_new(args):
 			'Seen_In_Build' : '',
 			'Date' : time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
 			'Owner' : config.users[0],
+			'Reported_By' : config.username,
 			'content' : 'Enter description here'
 		}
 	format_file(config.db_path + 'new.tmp', issue)
@@ -326,6 +349,10 @@ def cmd_comment(args):
 	if editor == None:
 		return False
 
+	if config.username == '':
+		print 'Failed to determine username. Please set NITPICK_USERNAME'
+		return False
+
 	load_issue_db()
 
 	issue = disambiguate_hash(args.issue)
@@ -359,7 +386,7 @@ def cmd_comment(args):
 			'Attachment' : '',
 			'Date'       : time.strftime('%Y-%m-%d %H : %M : %S', time.gmtime()),
 			'Parent'     : parent,
-			'User'       : 'TODO',
+			'User'       : config.username,
 			'content'    : 'Enter comment here'
 		}
 	comment_filename = config.issue_db[issue]['path'] + '/comment.tmp'
