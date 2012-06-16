@@ -248,7 +248,7 @@ def cmd_new(args):
 		return False
 
 	editor = editor_found()
-	if edit == None:
+	if editor == None:
 		return False
 
 	if config.username == '':
