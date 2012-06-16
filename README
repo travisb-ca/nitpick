@@ -6,7 +6,9 @@ Once the repository has been created you will likely want to configure the
 repository. This is done by editing the files in .nitpick/config.
 
 The config file contains the bulk of the settings in the colon titled format
-with spaces between the item, eg. "components: Documentation UI Backend".
+with spaces between the item, eg. "components: Documentation UI Backend". The
+default will be the first item in the list. When presented as a list of options
+all the options will be presented in the order listed in the configuration.
 
 The fields are as follows:
 components - The list of components which will be give as options
@@ -20,7 +22,7 @@ severity   - Severity of the issue
 state      - Current state of the issue
              Default: New Confirmed Open Diagnosed Fixed Closed
 resolution - Resolution of an issue after it has been dealt with
-             Default: Fixed WontFix Invalid WorksForMe
+             Default: None Fixed WontFix Invalid WorksForMe
 type       - The various types of issues
              Default: Bug Feature Regression
 
