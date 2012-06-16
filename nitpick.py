@@ -8,6 +8,7 @@ import time
 import sys
 import hashlib
 import cPickle
+import pprint
 
 # Contains the defaults used to initalize a database
 class config:
@@ -129,6 +130,48 @@ def load_config():
 
 	return True
 
+# Save the issue_db cache after modifying it
+def save_issue_db():
+	cache_file = open(config.db_path + 'issue_cache', 'w')
+	cPickle.dump(config.issue_db, cache_file)
+	cache_file.close()
+
+# Load the list of issues and some basic information about each one.
+# Returns a dict keyed on issue hash which contains the a dict with all the
+# fields in the issue files, except the content.
+#
+# An internal field of 'issue_db_cached_date' also exists.
+def load_issue_db():
+	try:
+		cache_file = open(config.db_path + 'issue_cache', 'r')
+		config.issue_db = cPickle.load(cache_file)
+		cache_file.close()
+	except:
+		# Something is wrong with the cache, so start again
+		config.issue_db = {}
+
+	# Ensure that the cache is up to date
+	for outer_dir in os.listdir(config.db_path):
+		if len(outer_dir) != 1 or not os.path.isdir(config.db_path + outer_dir):
+			continue
+
+		for inner_dir in os.listdir(config.db_path + outer_dir):
+			if len(inner_dir) != 1 or not os.path.isdir(config.db_path + outer_dir + '/' + inner_dir):
+				continue
+
+			for hash in os.listdir(config.db_path + outer_dir + '/' + inner_dir):
+				hash_path = config.db_path + outer_dir + '/' + inner_dir + '/' + hash
+
+				if hash not in config.issue_db or \
+					config.issue_db[hash]['issue_db_cached_date'] != os.path.getmtime(hash_path + '/issue'):
+					config.issue_db[hash] = parse_file(hash_path + '/issue')
+					del config.issue_db[hash]['content']
+					config.issue_db[hash]['issue_db_cached_date'] = os.path.getmtime(hash_path + '/issue')
+
+					pprint.pprint(config.issue_db)
+	save_issue_db()
+
+
 def cmd_init(args):
 	backend = BACKENDS[args.vcs]
 
@@ -204,7 +247,9 @@ def cmd_new(args):
 	return True
 
 def cmd_debug(args):
-	print load_config()
+	load_config()
+	load_issue_db()
+	return True
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(prog='nitpick', description='Distributed Bug Tracker')
