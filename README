@@ -1,12 +1,17 @@
-Nitpick is a distributed issue tracker. It's intended to be used with source
-code such that the issues can follow the code via whatever VCS or distribution
-mechanism.
+Nitpick is a distributed issue tracker. It helps keep track of which nits you
+should pick. It's intended to be used with source code such that the issues can
+follow the code via whatever VCS or distribution mechanism.
 
 Once the repository has been created you will likely want to configure the
 repository. This is done by editing the files in .nitpick/config.
 
+Repository Configuration
+========================
+
 The config file contains the bulk of the settings in the colon titled format
-with spaces between the item, eg. "components: Documentation UI Backend".
+with spaces between the item, eg. "components: Documentation UI Backend". The
+default will be the first item in the list. When presented as a list of options
+all the options will be presented in the order listed in the configuration.
 
 The fields are as follows:
 components - The list of components which will be give as options
@@ -20,9 +25,19 @@ severity   - Severity of the issue
 state      - Current state of the issue
              Default: New Confirmed Open Diagnosed Fixed Closed
 resolution - Resolution of an issue after it has been dealt with
-             Default: Fixed WontFix Invalid WorksForMe
+             Default: None Fixed WontFix Invalid WorksForMe
 type       - The various types of issues
              Default: Bug Feature Regression
 
 The users file simply contains the list of selectable users, one per line, in a
 free form. By default the only user is the Unassigned user.
+
+User Configuration
+========================
+There are a few environment variables nitpick will query for per-user configuration information.
+
+EDITOR or VISUAL is checked to determine the editor which should be used when necessary
+NITPICK_USERNAME is checked to determine which username to use when creating comments or issues.
+
+If NITPICK_USERNAME isn't found then nitpick will attempt to match the current username against the
+list of users configured for the repository.
