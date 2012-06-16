@@ -291,7 +291,17 @@ def cmd_cat(args):
 		print "Ambiguous issue ID. Please use a longer string"
 		return False
 
-	print "Using full hash %s for %s" % (hash, args.issue)
+	issue = parse_file(config.db_path + hash[0] + '/' + hash[1] + '/' + hash + '/issue')
+
+	for key in issue.keys():
+		if key == 'content':
+			continue
+
+		print "%s: %s" % (key, issue[key])
+
+	if 'content' in issue.keys():
+		print '--'
+		print issue['content']
 	return True
 
 def cmd_debug(args):
