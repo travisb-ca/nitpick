@@ -368,20 +368,20 @@ def cmd_cat(args):
 	issue = parse_file(config.db_path + hash[0] + '/' + hash[1] + '/' + hash + '/issue')
 
 	if not args.noformat:
-		print '+', '=' * FILLWIDTH
+		print '+' + '=' * FILLWIDTH
 
 	for key in issue.keys():
 		if key == 'content':
 			continue
 
 		if not args.noformat:
-			print '| ',
+			print '|',
 		print "%s: %s" % (key, issue[key])
 
 	if 'content' in issue.keys():
 		if not args.noformat:
-			print '+', '-' * FILLWIDTH
-			print '| ',
+			print '+' + '-' * FILLWIDTH
+			print '|',
 		else:
 			print '--'
 
@@ -391,7 +391,7 @@ def cmd_cat(args):
 			print issue['content']
 
 		if not args.noformat:
-			print '+', '=' * FILLWIDTH
+			print '+' + '=' * FILLWIDTH
 
 	comment_stack = produce_comment_tree(hash)
 	comment_stack.reverse()
@@ -413,7 +413,7 @@ def cmd_cat(args):
 				continue
 
 			if not args.noformat:
-				print '  ' * depth + '| ',
+				print '  ' * depth + '|',
 
 			print "%s: %s" % (key, comment[key])
 		if 'content' in comment.keys():
