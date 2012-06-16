@@ -385,7 +385,10 @@ def cmd_cat(args):
 		else:
 			print '--'
 
-		print issue['content']
+		if not args.noformat:
+			print '\n| '.join(issue['content'].split('\n'))
+		else:
+			print issue['content']
 
 		if not args.noformat:
 			print '+', '=' * FILLWIDTH
@@ -401,8 +404,7 @@ def cmd_cat(args):
 		depth = comment_depth.pop()
 
 		if not args.noformat and old_depth > depth:
-			print '  ' * depth,
-			print '+', '=' * FILLWIDTH
+			print '  ' * depth + '+' + '=' * FILLWIDTH
 
 		for key in comment.keys():
 			if key in ['content', 'children', 'Parent']:
@@ -411,20 +413,23 @@ def cmd_cat(args):
 				continue
 
 			if not args.noformat:
-				print '  ' * depth, '| ',
+				print '  ' * depth + '| ',
 
 			print "%s: %s" % (key, comment[key])
 		if 'content' in comment.keys():
 			if not args.noformat:
-				print '  ' * depth, 
-				print '+', '-' * FILLWIDTH
+				print '  ' * depth + '+' + '-' * FILLWIDTH
 			else:
 				print '--'
-			print comment['content']
 
 			if not args.noformat:
-				print '  ' * depth, 
-				print '+', '=' * FILLWIDTH
+				print '  ' * depth + '| ',
+				print ('\n' + '  ' * depth + '| ').join(issue['content'].split('\n'))
+			else:
+				print comment['content']
+
+			if not args.noformat:
+				print '  ' * depth + '+' + '=' * FILLWIDTH
 
 		comment['children'].reverse()
 		comment_stack.extend(comment['children'])
