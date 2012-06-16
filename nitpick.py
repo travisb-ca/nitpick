@@ -167,10 +167,7 @@ def load_issue_db():
 					config.issue_db[hash] = parse_file(hash_path + '/issue')
 					del config.issue_db[hash]['content']
 					config.issue_db[hash]['issue_db_cached_date'] = os.path.getmtime(hash_path + '/issue')
-
-					pprint.pprint(config.issue_db)
 	save_issue_db()
-
 
 def cmd_init(args):
 	backend = BACKENDS[args.vcs]
@@ -196,7 +193,7 @@ def cmd_init(args):
 	return True
 
 def cmd_new(args):
-	if not load_config():
+	if config.db_path == '':
 		return False
 
 	editor = ''
@@ -246,12 +243,30 @@ def cmd_new(args):
 
 	return True
 
-def cmd_debug(args):
-	load_config()
+def cmd_list(args):
+	if config.db_path == '':
+		return False
+
 	load_issue_db()
+
+	for hash in config.issue_db.keys():
+		if not args.all and args.state != config.issue_db[hash]['State']:
+			continue
+
+		if not args.all and args.component and args.component != config.issue_db[hash]['Component']:
+			continue
+
+		print "%s(%s): %s" % (hash, config.issue_db[hash]['State'], config.issue_db[hash]['Title'])
+	return True
+
+def cmd_debug(args):
+	load_issue_db()
+	pprint.pprint(config.issue_db)
 	return True
 
 if __name__ == '__main__':
+	load_config()
+
 	parser = argparse.ArgumentParser(prog='nitpick', description='Distributed Bug Tracker')
 	subcmds = parser.add_subparsers(help='commands help')
 
@@ -263,6 +278,14 @@ if __name__ == '__main__':
 
 	new_cmd = subcmds.add_parser('new', help='Create a new issue')
 	new_cmd.set_defaults(func=cmd_new)
+
+	list_cmd = subcmds.add_parser('list', help='Print filtered list of issues')
+	list_cmd.add_argument('--all', action='store_true', help='List all issues')
+	list_cmd.add_argument('--state', default='Open', help='Display only issues in the given state',
+			choices=config.issues['state'])
+	list_cmd.add_argument('--component', help='Display only issues for the given component',
+			choices=config.issues['components'])
+	list_cmd.set_defaults(func=cmd_list)
 
 	debug_cmd = subcmds.add_parser('debug', help='Run the latest test code')
 	debug_cmd.set_defaults(func=cmd_debug)
