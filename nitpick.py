@@ -274,7 +274,11 @@ def cmd_list(args):
 		if not args.all and args.component and args.component != config.issue_db[hash]['Component']:
 			continue
 
-		print "%s(%s): %s" % (hash, config.issue_db[hash]['State'], config.issue_db[hash]['Title'])
+		if args.fullhash:
+			printhash = hash
+		else:
+			printhash = hash[:8]
+		print "%s (%s): %s" % (printhash, config.issue_db[hash]['State'], config.issue_db[hash]['Title'])
 	return True
 
 def cmd_cat(args):
@@ -326,6 +330,7 @@ if __name__ == '__main__':
 
 	list_cmd = subcmds.add_parser('list', help='Print filtered list of issues')
 	list_cmd.add_argument('--all', action='store_true', help='List all issues')
+	list_cmd.add_argument('--fullhash', action='store_true', help='Display the full hash instead of a truncation')
 	list_cmd.add_argument('--state', default='Open', help='Display only issues in the given state',
 			choices=config.issues['state'])
 	list_cmd.add_argument('--component', help='Display only issues for the given component',
