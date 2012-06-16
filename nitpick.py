@@ -169,6 +169,24 @@ def load_issue_db():
 					config.issue_db[hash]['issue_db_cached_date'] = os.path.getmtime(hash_path + '/issue')
 	save_issue_db()
 
+# Turn a partial hash into a full hash
+# Returns:
+# 	- None on hash not found
+# 	- '' on ambiguous result
+# 	- the hash on success
+def disambiguate_hash(partial_hash):
+	fullhash = ''
+
+	for hash in config.issue_db.keys():
+		if partial_hash in hash:
+			if fullhash != '':
+				return ''
+			else:
+				fullhash = hash
+	if fullhash == '':
+		return None
+	return fullhash
+
 def cmd_init(args):
 	backend = BACKENDS[args.vcs]
 
@@ -259,6 +277,23 @@ def cmd_list(args):
 		print "%s(%s): %s" % (hash, config.issue_db[hash]['State'], config.issue_db[hash]['Title'])
 	return True
 
+def cmd_cat(args):
+	if config.db_path == '':
+		return False
+
+	load_issue_db()
+
+	hash = disambiguate_hash(args.issue)
+	if hash == None:
+		print "No such issue"
+		return False
+	elif hash == '':
+		print "Ambiguous issue ID. Please use a longer string"
+		return False
+
+	print "Using full hash %s for %s" % (hash, args.issue)
+	return True
+
 def cmd_debug(args):
 	load_issue_db()
 	pprint.pprint(config.issue_db)
@@ -286,6 +321,10 @@ if __name__ == '__main__':
 	list_cmd.add_argument('--component', help='Display only issues for the given component',
 			choices=config.issues['components'])
 	list_cmd.set_defaults(func=cmd_list)
+
+	cat_cmd = subcmds.add_parser('cat', help='Print the given issue to the console')
+	cat_cmd.add_argument('issue')
+	cat_cmd.set_defaults(func=cmd_cat)
 
 	debug_cmd = subcmds.add_parser('debug', help='Run the latest test code')
 	debug_cmd.set_defaults(func=cmd_debug)
