@@ -9,6 +9,7 @@ import sys
 import hashlib
 import cPickle
 import pprint
+import BaseHTTPServer
 
 DATEFORMAT = '%Y-%m-%d %H:%M:%S'
 FILLWIDTH = 69
@@ -28,10 +29,74 @@ class config:
 	vcs = None
 	db_path = ''
 	username = ''
+	endweb = False
 
 default_users = """
 Unassigned
 """
+
+class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
+	def html_preamble(self, title):
+		return """
+			<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+			<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+				<head>
+					<title>%s</title>
+				</head>
+			<body>
+			""" % (title)
+
+	def html_postamble(self):
+		return """</body></html>"""
+
+	def start_doc(self, title):
+		self.send_response(200)
+		self.send_header('Content-type', 'text/html')
+		self.end_headers()
+		
+		if title != '':
+			title = ' - ' + title
+
+		self.wfile.write(self.html_preamble('Nitpick' + title))
+
+	def output(self, string):
+		self.wfile.write(string)
+
+	def end_doc(self):
+		self.wfile.write(self.html_postamble())
+
+	def root(self):
+		load_issue_db()
+
+		self.start_doc('')
+
+		self.output('<table> <tr> <th>ID</th> <th>State</th> <th>Severity</th> <th>Priority</th> <th>Owner</th> <th>Title</th> </tr>\n')
+		for issue in config.issue_db.keys():
+			self.output('<tr>')
+			self.output('<td><a href="issue/%s">%s</a></td> ' % (issue, issue[:8]))
+			self.output('<td><a href="issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['State']))
+			self.output('<td><a href="issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Severity']))
+			self.output('<td><a href="issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Priority']))
+			self.output('<td><a href="issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Owner']))
+			self.output('<td><a href="issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Title']))
+			self.output('</tr>\n')
+
+		self.output('</table>')
+
+		self.end_doc()
+
+	paths = {
+			'/' : root,
+		}
+
+	def do_GET(self):
+		print 'got path %s' % self.path
+
+		if self.path in self.paths:
+			self.paths[self.path](self)
+		else:
+			self.paths['/'](self)
+
 
 # Root class of the VCS compatibility layer
 class VCS:
@@ -578,9 +643,19 @@ def cmd_users(args):
 		print user
 	return True
 
-def cmd_debug(args):
+def cmd_web(args):
+	if config.db_path == '':
+		return False
+
 	load_issue_db()
-	pprint.pprint(config.issue_db)
+
+	server = BaseHTTPServer.HTTPServer(('localhost', args.port), nitpick_web)
+
+	print 'Starting server on localhost:%d' % args.port
+
+	while not config.endweb:
+		server.handle_request()
+
 	return True
 
 if __name__ == '__main__':
@@ -660,8 +735,10 @@ if __name__ == '__main__':
 	users_cmd = subcmds.add_parser('users', help='List configured users')
 	users_cmd.set_defaults(func=cmd_users)
 
-	debug_cmd = subcmds.add_parser('debug', help='Run the latest test code')
-	debug_cmd.set_defaults(func=cmd_debug)
+	web_cmd = subcmds.add_parser('web', help='Start nitpick web interface')
+	web_cmd.add_argument('--port', type=int, default=18080, help='Start the web server on the given port. Default 18080')
+	web_cmd.add_argument('--browser', help='Command to use to open web interface in browser')
+	web_cmd.set_defaults(func=cmd_web)
 
 	args = parser.parse_args()
 	result = args.func(args)
