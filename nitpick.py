@@ -129,8 +129,10 @@ def load_config():
 		if key in conf.keys() and conf[key] in BACKENDS:
 			config.vcs = BACKENDS[conf[key]]
 
+	config.users = []
 	for line in fileinput.input(config.db_path + 'config/users'):
-		config.users.append(string.strip(line))
+		if line != '\n':
+			config.users.append(string.strip(line))
 
 	# Try to figure out the username to use.
 	if 'NITPICK_USERNAME' in os.environ:
@@ -552,6 +554,30 @@ def cmd_type(args):
 def cmd_fixby(args):
 	return change_issue('Fix_By', args.newfixby)
 
+def cmd_owner(args):
+	fulluser = ''
+	for row in config.users:
+		if args.newowner in row:
+			if fulluser != '':
+				print "Ambiguous user. Please be more specific"
+				return False
+			else:
+				fulluser = row
+
+	if fulluser == '':
+		print "Unknown user"
+		return False
+
+	return change_issue('Owner', fulluser)
+
+def cmd_users(args):
+	if config.db_path == '':
+		return False
+
+	for user in config.users:
+		print user
+	return True
+
 def cmd_debug(args):
 	load_issue_db()
 	pprint.pprint(config.issue_db)
@@ -625,6 +651,14 @@ if __name__ == '__main__':
 	fixby_cmd.add_argument('issue')
 	fixby_cmd.add_argument('newfixby', choices=config.issues['fix_by'])
 	fixby_cmd.set_defaults(func=cmd_fixby)
+
+	owner_cmd = subcmds.add_parser('owner', help='Set the owner of an issue')
+	owner_cmd.add_argument('issue')
+	owner_cmd.add_argument('newowner')
+	owner_cmd.set_defaults(func=cmd_owner)
+
+	users_cmd = subcmds.add_parser('users', help='List configured users')
+	users_cmd.set_defaults(func=cmd_users)
 
 	debug_cmd = subcmds.add_parser('debug', help='Run the latest test code')
 	debug_cmd.set_defaults(func=cmd_debug)
