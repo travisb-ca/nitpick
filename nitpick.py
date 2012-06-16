@@ -507,6 +507,51 @@ def cmd_comment(args):
 	config.vcs.commit(comment_filename)
 	return True
 
+def change_issue(prop, newvalue):
+	if config.db_path == '':
+		return False
+
+	load_issue_db()
+
+	issue = disambiguate_hash(args.issue)
+	if issue == None:
+		print' No such issue'
+		return False
+	elif issue == '':
+		print "Ambiguous issue ID. Please use a longer string"
+		return False
+
+	issue_filename = config.issue_db[issue]['path'] + '/issue'
+	issue = parse_file(issue_filename)
+	issue[prop] = newvalue
+	format_file(issue_filename, issue)
+
+	config.vcs.add_changes(issue_filename)
+	config.vcs.commit(issue_filename)
+
+	return True
+
+def cmd_state(args):
+	return change_issue('State', args.newstate)
+
+def cmd_severity(args):
+	return change_issue('Severity', args.newseverity)
+
+def cmd_component(args):
+	return change_issue('Component', args.newcomponent)
+
+def cmd_priority(args):
+	return change_issue('Priority', args.newpriority)
+
+def cmd_resolution(args):
+	return change_issue('Resolution', args.newresolution)
+
+def cmd_type(args):
+	return change_issue('Type', args.newtype)
+
+def cmd_fixby(args):
+	return change_issue('Fix_By', args.newfixby)
+
 def cmd_debug(args):
 	load_issue_db()
 	pprint.pprint(config.issue_db)
@@ -545,6 +590,41 @@ if __name__ == '__main__':
 	comment_cmd.add_argument('issue')
 	comment_cmd.add_argument('--comment', help='Respond to specific comment')
 	comment_cmd.set_defaults(func=cmd_comment)
+
+	state_cmd = subcmds.add_parser('state', help='Set the state of an issue')
+	state_cmd.add_argument('issue')
+	state_cmd.add_argument('newstate', choices=config.issues['state'])
+	state_cmd.set_defaults(func=cmd_state)
+
+	severity_cmd = subcmds.add_parser('severity', help='Set the severity of an issue')
+	severity_cmd.add_argument('issue')
+	severity_cmd.add_argument('newseverity', choices=config.issues['severity'])
+	severity_cmd.set_defaults(func=cmd_severity)
+
+	component_cmd = subcmds.add_parser('component', help='Set the component of an issue')
+	component_cmd.add_argument('issue')
+	component_cmd.add_argument('newcomponent', choices=config.issues['components'])
+	component_cmd.set_defaults(func=cmd_component)
+
+	priority_cmd = subcmds.add_parser('priority', help='Set the priority of an issue')
+	priority_cmd.add_argument('issue')
+	priority_cmd.add_argument('newpriority', choices=config.issues['priority'])
+	priority_cmd.set_defaults(func=cmd_priority)
+
+	resolution_cmd = subcmds.add_parser('resolution', help='Set the resolution of an issue')
+	resolution_cmd.add_argument('issue')
+	resolution_cmd.add_argument('newresolution', choices=config.issues['resolution'])
+	resolution_cmd.set_defaults(func=cmd_resolution)
+
+	type_cmd = subcmds.add_parser('type', help='Set the type of an issue')
+	type_cmd.add_argument('issue')
+	type_cmd.add_argument('newtype', choices=config.issues['type'])
+	type_cmd.set_defaults(func=cmd_type)
+
+	fixby_cmd = subcmds.add_parser('fixby', help='Set the fixby of an issue')
+	fixby_cmd.add_argument('issue')
+	fixby_cmd.add_argument('newfixby', choices=config.issues['fix_by'])
+	fixby_cmd.set_defaults(func=cmd_fixby)
 
 	debug_cmd = subcmds.add_parser('debug', help='Run the latest test code')
 	debug_cmd.set_defaults(func=cmd_debug)
