@@ -256,19 +256,19 @@ def cmd_new(args):
 		return False
 
 	issue = {
-			'Title' : 'Issue title',
-			'Severity' : ' '.join(config.issues['severity']),
-			'Priority' : ' '.join(config.issues['priority']),
-			'State'    : ' '.join(config.issues['state']),
-			'Type'     : ' '.join(config.issues['type']),
-			'Resolution' : ' '.join(config.issues['resolution']),
-			'Component' : ' '.join(config.issues['components']),
-			'Fix_By' : ' '.join(config.issues['fix_by']),
+			'Title'         : 'Issue title',
+			'Severity'      : ' '.join(config.issues['severity']),
+			'Priority'      : ' '.join(config.issues['priority']),
+			'State'         : ' '.join(config.issues['state']),
+			'Type'          : ' '.join(config.issues['type']),
+			'Resolution'    : ' '.join(config.issues['resolution']),
+			'Component'     : ' '.join(config.issues['components']),
+			'Fix_By'        : ' '.join(config.issues['fix_by']),
 			'Seen_In_Build' : '',
-			'Date' : time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
-			'Owner' : config.users[0],
-			'Reported_By' : config.username,
-			'content' : 'Enter description here'
+			'Date'          : time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
+			'Owner'         : config.users[0],
+			'Reported_By'   : config.username,
+			'content'       : 'Enter description here'
 		}
 	format_file(config.db_path + 'new.tmp', issue)
 	result = os.system(editor + ' ' + config.db_path + 'new.tmp')
@@ -384,7 +384,7 @@ def cmd_comment(args):
 
 	comment = {
 			'Attachment' : '',
-			'Date'       : time.strftime('%Y-%m-%d %H : %M : %S', time.gmtime()),
+			'Date'       : time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()),
 			'Parent'     : parent,
 			'User'       : config.username,
 			'content'    : 'Enter comment here'
