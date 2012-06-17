@@ -94,7 +94,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		issue = parse_file(config.issue_db[issue_hash]['path'] + '/issue')
 
-		self.output('<form>\n')
+		self.output('<form action="/update_issue" method="put">\n')
+		self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue_hash)
 
 		self.output('Title: %s<br/>\n' % issue['Title'])
 		self.output('Date: %s<br/>\n' % issue['Date'])
@@ -177,7 +178,10 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.output('</form>\n')
 
-		self.output('<form><input type="submit" value="Add Comment" /><br/>')
+		self.output('<form action="/add_comment" method="get">\n')
+		self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue_hash)
+		self.output('<input type="submit" value="Add Comment" /><br/>')
+		self.output('</form>\n')
 
 		comment_stack = produce_comment_tree(issue_hash)
 		comment_stack.reverse()
@@ -201,6 +205,12 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.output(comment['content'])
 			self.output('</pre>\n')
 
+			self.output('<form action="/add_comment" method="get">\n')
+			self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue_hash)
+			self.output('<input type="hidden" name="comment" value="%s"/>\n' % comment['hash'])
+			self.output('<input type="submit" value="Reply" /><br/>')
+			self.output('</form>\n')
+
 			comment['children'].reverse()
 			comment_stack.extend(comment['children'])
 			comment_depth.extend([depth + 1] * len(comment['children']))
@@ -211,11 +221,12 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		print 'got path %s' % self.path
 
 		if self.path == '/':
-			self.root();
+			self.root()
 		elif '/issue/' in self.path:
 			self.issue()
 		else:
-			self.paths['/'](self)
+			print "Got unhandled path %s" % self.path
+			self.root()
 
 
 # Root class of the VCS compatibility layer
