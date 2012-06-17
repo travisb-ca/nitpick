@@ -643,26 +643,26 @@ class SVN(VCS):
 	@staticmethod
 	def mkdir(path):
 		print "Creating path %s" % path
-		os.system("svn mkdir --parents " + path)
+		os.system("svn mkdir -q --parents " + path)
 
 	@staticmethod
 	def add_changes(path):
 		print "Adding changes to %s" % path
-		os.system("svn add " + path);
+		os.system("svn add -q " + path);
 
 	@staticmethod
 	def commit():
-		os.system("svn ci -m \"Nitpick commit\" " + config.db_path)
+		os.system("svn ci -q -m \"Nitpick commit\" " + config.db_path)
 
 	@staticmethod
 	def revert():
-		os.system("svn revert -R " + config.db_path)
+		os.system("svn revert -q -R " + config.db_path)
 		os.system("svn stat " + config.db_path + " | grep ^?| xargs rm -rf")
 
 	@staticmethod
 	def ignore(path):
 		dir = os.path.dirname(path)
-		os.system('''svn propset svn:ignore "issue_cache\n\
+		os.system('''svn propset -q svn:ignore "issue_cache\n\
 		`svn propget svn:ignore %s`" %s''' % (dir, dir))
 
 
