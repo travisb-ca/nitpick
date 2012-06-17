@@ -10,6 +10,7 @@ import hashlib
 import cPickle
 import pprint
 import BaseHTTPServer
+import urllib
 
 DATEFORMAT = '%Y-%m-%d %H:%M:%S'
 FILLWIDTH = 69
@@ -218,8 +219,6 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.end_doc()
 
 	def add_comment(self):
-		print self.request_args
-
 		self.start_doc('Add Comment')
 
 		if not 'issue' in self.request_args.keys():
@@ -259,11 +258,12 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				return
 
 		# Here we know that the issue and parent are good to use
-		self.output('<form action="/add_comment" method="put">\n')
+		self.output('<form action="/add_comment" method="post">\n')
 		self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue)
 		self.output('<input type="hidden" name="parent" value="%s"/>\n' % parent)
 
-		self.output('Date: %s<br/>\n' % time.strftime(DATEFORMAT, time.gmtime()))
+		date = time.strftime(DATEFORMAT, time.gmtime())
+		self.output('Date: %s<input type="hidden" name="date" value="%s"/><br/>\n' % (date, date))
 
 		self.output('User: <select name="username">\n')
 		for username in config.users:
@@ -282,8 +282,33 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.end_doc()
 
+	def add_comment_post(self):
+		load_issue_db()
+
+		print self.request_args
+
+		if 'date' not in self.request_args.keys() or \
+		   'parent' not in self.request_args.keys() or \
+		   'username' not in self.request_args.keys() or \
+		   'content' not in self.request_args.keys() or \
+		   'issue' not in self.request_args.keys():
+			   self.start_doc('Error')
+			   self.output('Invalid arguments')
+			   self.end_doc()
+			   return
+
+		comment = {
+				'Date' : self.request_args['date'],
+				'Parent' : self.request_args['parent'],
+				'User' : self.request_args['username'],
+				'Attachment' : '',
+				'content' : self.request_args['content']
+			}
+
+		comment_filename = add_comment(self.request_args['issue'], comment)
+
 	def do_GET(self):
-		print 'got path %s' % self.path
+		print 'got get  path %s' % self.path
 
 		self.request_args = {}
 		args_start = self.path.find('?')
@@ -306,6 +331,25 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.add_comment()
 		else:
 			print "Got unhandled path %s" % self.path
+			self.root()
+
+	def do_POST(self):
+		print 'got post path %s' % self.path
+		print self.headers
+
+		self.request_args = {}
+		args = self.rfile.read(int(self.headers['Content-Length']))
+		for var in args.split('&'):
+			key_value = var.split('=')
+			key = urllib.unquote(key_value[0])
+			value = urllib.unquote_plus(key_value[1])
+
+			self.request_args[key] = value
+
+		if '/add_comment' in self.path:
+			self.add_comment_post()
+		else:
+			print 'Got unhandled path %s' % self.path
 			self.root()
 
 
@@ -748,6 +792,19 @@ def find_comment_parent(partial_issue, partial_comment):
 	
 	return (issue, parent)
 
+# Take a comment dict and add it to the system. Does not commit.
+#
+# Returns the comment filename
+def add_comment(issue, comment):
+	hash = hashlib.sha256(cPickle.dumps(comment)).hexdigest()
+
+	comment_filename = config.issue_db[issue]['path'] + '/' + hash
+	format_file(comment_filename, comment)
+
+	config.vcs.add_changes(comment_filename)
+
+	return comment_filename
+
 def cmd_comment(args):
 	if config.db_path == '':
 		return False
@@ -799,12 +856,8 @@ def cmd_comment(args):
 	comment = parse_file(comment_filename)
 	os.unlink(comment_filename)
 
-	hash = hashlib.sha256(cPickle.dumps(comment)).hexdigest()
+	comment_filename = add_comment(issue, comment)
 
-	comment_filename = config.issue_db[issue]['path'] + '/' + hash
-	format_file(comment_filename, comment)
-
-	config.vcs.add_changes(comment_filename)
 	config.vcs.commit(comment_filename)
 	return True
 
