@@ -1,0 +1,16 @@
+Severity: Major
+Title: Add Git Support
+Priority: 1
+Date: 2012-06-17 23:26:26
+State: Open
+Fix_By: Next_Release
+Resolution: None
+Seen_In_Build: 
+Reported_By: travisb@travisbrown.ca
+Type: Feature
+Component: VCS
+Owner: travisb@travisbrown.ca
+--
+Some people may find it weird that the only VCSes Nitpick, a distributed bug tracker, supports is a centralized VCS and the plain filesystem.
+
+git is a popular DVCS. Add support for it.

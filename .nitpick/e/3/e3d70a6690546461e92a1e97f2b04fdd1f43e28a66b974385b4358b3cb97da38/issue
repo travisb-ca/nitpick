@@ -1,0 +1,14 @@
+Severity: Major
+Title: Add Mecurial Support
+Priority: 1
+Date: 2012-06-17 23:27:56
+State: Open
+Fix_By: Eventually
+Resolution: None
+Seen_In_Build: 
+Reported_By: travisb@travisbrown.ca
+Type: Feature
+Component: VCS
+Owner: travisb@travisbrown.ca
+--
+As with the "Adding Git Issue" (27960128a7c0fb917e570546d8423b679334139e72214dd7a77d65f48d8e50e7), Mecurial is a popular DVCS so support should be added for it.

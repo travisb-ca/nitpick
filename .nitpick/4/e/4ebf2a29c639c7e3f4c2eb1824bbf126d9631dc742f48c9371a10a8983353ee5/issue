@@ -1,0 +1,20 @@
+Severity: Major
+Title: Parallel Databases
+Priority: 1
+Date: 2012-06-17 23:18:57
+State: Open
+Fix_By: Eventually
+Resolution: None
+Seen_In_Build: 
+Reported_By: travisb@travisbrown.ca
+Type: Feature
+Component: Core
+Owner: travisb@travisbrown.ca
+--
+Currently Nitpick only supports one single database. This works fine as long as the intent is to use the bug tracker only on a single branch view at a time.
+
+Thus is a bug is entered in the trunk of a project, then it won't be visible in the branches until such time that the branch syncs with the trunk.
+
+This is likely alright for development, but causes problems when it comes to letting users or support people enter bugs. It is unlikely to be a sufficient reason to trigger a branch sync or merge just to receive updated issues.
+
+Instead Nitpick should have the ability to have multiple parallel databases. This would probably have to use functionality like svn:externals to have a second database appear in the branch, but actually be located in some central location (such as a support bug branch or the trunk).

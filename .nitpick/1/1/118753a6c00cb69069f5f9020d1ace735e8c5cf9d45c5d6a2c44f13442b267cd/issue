@@ -1,0 +1,23 @@
+Severity: Major
+Title: Issue Filtering and Sorting Support
+Priority: 1
+Date: 2012-06-17 23:30:58
+State: Open
+Fix_By: Next_Release
+Resolution: None
+Seen_In_Build: 
+Reported_By: travisb@travisbrown.ca
+Type: Feature
+Component: Web_UI
+Owner: travisb@travisbrown.ca
+--
+The great advantage of the Web UI is that it's an easy way to interact with significant amounts of data.
+
+Unfortunately bug trackers usually get too large even for that.
+
+Provide support for filtering and sorting the issue list on various fields, such as:
+- Owner
+- State
+- Priority
+- Fix_By
+- Type

@@ -1,0 +1,14 @@
+Severity: Minor
+Title: Windows Support
+Priority: 1
+Date: 2012-06-17 23:24:56
+State: Open
+Fix_By: Eventually
+Resolution: None
+Seen_In_Build: 
+Reported_By: travisb@travisbrown.ca
+Type: Feature
+Component: Core
+Owner: travisb@travisbrown.ca
+--
+It doesn't seem like it should be incredibly difficult to port Nitpick to work on systems which aren't Unix-like. Windows is the obvious target here.

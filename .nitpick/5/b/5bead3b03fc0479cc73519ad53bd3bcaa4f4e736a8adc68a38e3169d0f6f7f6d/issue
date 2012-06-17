@@ -1,0 +1,14 @@
+Severity: Critical
+Title: The Web Interface is ugly
+Priority: 1
+Date: 2012-06-17 23:33:21
+State: Open
+Fix_By: Next_Release
+Resolution: None
+Seen_In_Build: 
+Reported_By: travisb@travisbrown.ca
+Type: Feature
+Component: Web_UI
+Owner: travisb@travisbrown.ca
+--
+The Web UI is pretty ugly and has barely usable formatting. Put some time and try to make it look better and be easier to read.
