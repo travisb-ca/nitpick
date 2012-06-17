@@ -1,0 +1,9 @@
+severity: Blocker Critical Major Minor Trivial
+resolution: None Fixed WontFix Invalid WorksForMe
+priority: 1 2 3 4 5
+state: New Confirmed Open Diagnosed Fixed Closed
+vcs: svn
+fix_by: Next_Release
+components: Documentation
+type: Bug Feature Regression
+--
