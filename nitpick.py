@@ -713,6 +713,10 @@ def load_issue_db():
 				continue
 
 			for hash in os.listdir(config.db_path + outer_dir + '/' + inner_dir):
+				if hash[0] == '.': 
+					# Some VCSes use dotfiles on a per directory basis
+					continue
+
 				hash_path = config.db_path + outer_dir + '/' + inner_dir + '/' + hash
 
 				if hash not in config.issue_db or \
