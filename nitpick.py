@@ -289,7 +289,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 	def new_issue(self):
 		self.start_doc('New Issue')
 
-		self.output('<form action="/new_issue" method="put">\n')
+		self.output('<form action="/new_issue" method="post">\n')
 
 		date = time.strftime(DATEFORMAT, time.gmtime())
 		self.output('Date: %s<input type="hidden" name="date" value="%s"/><br/>\n' % (date, date))
@@ -445,6 +445,48 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('<a href="/issue/%s">Back to issue %s</a><br/>\n' % (issue, issue[:8]))
 		self.end_doc()
 
+	def new_issue_post(self):
+		if 'date' not in self.request_args.keys() or \
+		   'title' not in self.request_args.keys() or \
+		   'severity' not in self.request_args.keys() or \
+		   'priority' not in self.request_args.keys() or \
+		   'type' not in self.request_args.keys() or \
+		   'resolution' not in self.request_args.keys() or \
+		   'component' not in self.request_args.keys() or \
+		   'fix_by' not in self.request_args.keys() or \
+		   'seen_in_build' not in self.request_args.keys() or \
+		   'owner' not in self.request_args.keys() or \
+		   'reported_by' not in self.request_args.keys() or \
+		   'content' not in self.request_args.keys():
+			   self.start_doc('Error')
+			   self.output('Invalid arguments')
+			   self.end_doc()
+			   return
+
+		issue = {
+				'Title' : self.request_args['title'],
+				'Severity' : self.request_args['severity'],
+				'Priority' : self.request_args['priority'],
+				'State' : self.request_args['state'],
+				'Type' : self.request_args['type'],
+				'Resolution' : self.request_args['resolution'],
+				'Component' : self.request_args['component'],
+				'Fix_By' : self.request_args['fix_by'],
+				'Seen_In_Build' : self.request_args['seen_in_build'],
+				'Date' : self.request_args['date'],
+				'Owner' : self.request_args['owner'],
+				'Reported_By' : self.request_args['reported_by'],
+				'content' : self.request_args['content']
+			}
+
+		issue_filename, issue_hash = add_issue(issue)
+
+		self.start_doc('Created Issue %s' % issue_filename)
+		self.output('Successfully create the issue<br/>\n')
+		self.output('<a href="/">Back to issue list</a> ')
+		self.output('<a href="/issue/%s"> Back to issue %s</a>\n' % (issue_hash, issue_hash[:8]))
+		self.end_doc()
+
 	def do_GET(self):
 		print 'got get  path %s' % self.path
 
@@ -486,10 +528,12 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 			self.request_args[key] = value
 
-		if '/add_comment' in self.path:
+		if '/add_comment' == self.path:
 			self.add_comment_post()
-		elif '/update_issue' in self.path:
+		elif '/update_issue' == self.path:
 			self.update_issue_post()
+		elif '/new_issue' == self.path:
+			self.new_issue_post()
 		else:
 			print 'Got unhandled path %s' % self.path
 			self.root()
@@ -744,6 +788,22 @@ def cmd_init(args):
 
 	return True
 
+# Take an issue dict and add it to the system. Does not commit.
+#
+# Returns (issue filename, issue hash)
+def add_issue(issue):
+	hash = hashlib.sha256(cPickle.dumps(issue)).hexdigest()
+
+	issue_dir = config.db_path + hash[0] + '/' + hash[1] + '/' + hash
+	config.vcs.mkdir(issue_dir)
+
+	issue_filename = issue_dir + '/issue'
+	format_file(issue_filename, issue)
+
+	config.vcs.add_changes(issue_filename)
+
+	return (issue_filename, hash)
+
 def cmd_new(args):
 	if config.db_path == '':
 		return False
@@ -783,15 +843,9 @@ def cmd_new(args):
 	issue = parse_file(config.db_path + 'new.tmp')
 	os.unlink(config.db_path + 'new.tmp')
 
-	hash = hashlib.sha256(cPickle.dumps(issue)).hexdigest()
+	issue_filename, issue_hash = add_issue(issue)
 
-	issue_dir = config.db_path + hash[0] + '/' + hash[1] + '/' + hash
-	config.vcs.mkdir(issue_dir)
-
-	format_file(issue_dir + '/issue', issue)
-
-	config.vcs.add_changes(issue_dir + '/issue')
-	config.vcs.commit(issue_dir + '/issue')
+	config.vcs.commit(issue_filename)
 
 	return True
 
