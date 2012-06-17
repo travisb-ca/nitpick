@@ -532,7 +532,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.end_doc()
 
 	def do_GET(self):
-		print 'got get  path %s' % self.path
+		#print 'got get  path %s' % self.path
 
 		self.request_args = {}
 		args_start = self.path.find('?')
@@ -560,8 +560,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.root()
 
 	def do_POST(self):
-		print 'got post path %s' % self.path
-		print self.headers
+		#print 'got post path %s' % self.path
 
 		self.request_args = {}
 		args = self.rfile.read(int(self.headers['Content-Length']))
