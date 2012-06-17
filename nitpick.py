@@ -95,7 +95,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		issue = parse_file(config.issue_db[issue_hash]['path'] + '/issue')
 
-		self.output('<form action="/update_issue" method="put">\n')
+		self.output('<form action="/update_issue" method="post">\n')
 		self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue_hash)
 
 		self.output('Title: %s<br/>\n' % issue['Title'])
@@ -285,8 +285,6 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 	def add_comment_post(self):
 		load_issue_db()
 
-		print self.request_args
-
 		if 'date' not in self.request_args.keys() or \
 		   'parent' not in self.request_args.keys() or \
 		   'username' not in self.request_args.keys() or \
@@ -311,6 +309,65 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('Successfully added the comment<br/>\n')
 		self.output('<a href="/">Back to issue list</a> ')
 		self.output('<a href="/issue/%s"> Back to issue %s</a>\n' % (self.request_args['issue'], self.request_args['issue'][:8]))
+		self.end_doc()
+
+	def update_issue_post(self):
+		load_issue_db()
+
+		print self.request_args
+
+		if 'issue' not in self.request_args.keys() or \
+		   'severity' not in self.request_args.keys() or \
+		   'component' not in self.request_args.keys() or \
+		   'owner' not in self.request_args.keys() or \
+		   'priority' not in self.request_args.keys() or \
+		   'state' not in self.request_args.keys() or \
+		   'type' not in self.request_args.keys() or \
+		   'resolution' not in self.request_args.keys() or \
+		   'fix_by' not in self.request_args.keys():
+			   self.start_doc('Error')
+			   self.output('Invalid arguments')
+			   self.end_doc()
+			   return
+
+		issue = disambiguate_hash(self.request_args['issue'])
+
+		if config.issue_db[issue]['Severity'] == self.request_args['severity'] and \
+			config.issue_db[issue]['Priority'] == self.request_args['priority'] and \
+			config.issue_db[issue]['Owner'] == self.request_args['owner'] and \
+			config.issue_db[issue]['State'] == self.request_args['state'] and \
+			config.issue_db[issue]['Type'] == self.request_args['type'] and \
+			config.issue_db[issue]['Component'] == self.request_args['component'] and \
+			config.issue_db[issue]['Resolution'] == self.request_args['resolution'] and \
+			config.issue_db[issue]['Fix_By'] == self.request_args['fix_by']:
+				self.start_doc('No change')
+				self.output('No change sent, no change made')
+				self.end_doc()
+				return
+
+		if config.issue_db[issue]['Severity'] != self.request_args['severity']:
+			change_issue(issue, 'Severity', self.request_args['severity'])
+		if config.issue_db[issue]['Priority'] != self.request_args['priority']:
+			change_issue(issue, 'Priority', self.request_args['priority'])
+		if config.issue_db[issue]['Owner'] != self.request_args['owner']:
+			change_issue(issue, 'Owner', self.request_args['owner'])
+		if config.issue_db[issue]['State'] != self.request_args['state']:
+			change_issue(issue, 'State', self.request_args['state'])
+		if config.issue_db[issue]['Type'] != self.request_args['type']:
+			change_issue(issue, 'Type', self.request_args['type'])
+		if config.issue_db[issue]['Component'] != self.request_args['component']:
+			change_issue(issue, 'Component', self.request_args['component'])
+		if config.issue_db[issue]['Resolution'] != self.request_args['resolution']:
+			change_issue(issue, 'Resolution', self.request_args['resolution'])
+		if config.issue_db[issue]['Fix_By'] != self.request_args['fix_by']:
+			change_issue(issue, 'Fix_By', self.request_args['fix_by'])
+
+		issue_filename = config.issue_db[issue]['path'] + '/issue'
+
+		self.start_doc('Issues %s updated' % issue[:8])
+		self.output('Successfully updated issue %s<br/>\n' % issue[:8])
+		self.output('<a href="/">Back to issue list</a> ')
+		self.output('<a href="/issue/%s">Back to issue %s</a><br/>\n' % (issue, issue[:8]))
 		self.end_doc()
 
 	def do_GET(self):
@@ -354,6 +411,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		if '/add_comment' in self.path:
 			self.add_comment_post()
+		elif '/update_issue' in self.path:
+			self.update_issue_post()
 		else:
 			print 'Got unhandled path %s' % self.path
 			self.root()
@@ -867,13 +926,13 @@ def cmd_comment(args):
 	config.vcs.commit(comment_filename)
 	return True
 
-def change_issue(prop, newvalue):
+def change_issue(issue, prop, newvalue):
 	if config.db_path == '':
 		return False
 
 	load_issue_db()
 
-	issue = disambiguate_hash(args.issue)
+	issue = disambiguate_hash(issue)
 	if issue == None:
 		print' No such issue'
 		return False
@@ -892,25 +951,25 @@ def change_issue(prop, newvalue):
 	return True
 
 def cmd_state(args):
-	return change_issue('State', args.newstate)
+	return change_issue(args.issue, 'State', args.newstate)
 
 def cmd_severity(args):
-	return change_issue('Severity', args.newseverity)
+	return change_issue(args.issue, 'Severity', args.newseverity)
 
 def cmd_component(args):
-	return change_issue('Component', args.newcomponent)
+	return change_issue(args.issue, 'Component', args.newcomponent)
 
 def cmd_priority(args):
-	return change_issue('Priority', args.newpriority)
+	return change_issue(args.issue, 'Priority', args.newpriority)
 
 def cmd_resolution(args):
-	return change_issue('Resolution', args.newresolution)
+	return change_issue(args.issue, 'Resolution', args.newresolution)
 
 def cmd_type(args):
-	return change_issue('Type', args.newtype)
+	return change_issue(args.issue, 'Type', args.newtype)
 
 def cmd_fixby(args):
-	return change_issue('Fix_By', args.newfixby)
+	return change_issue(args.issue, 'Fix_By', args.newfixby)
 
 def cmd_owner(args):
 	fulluser = ''
@@ -926,7 +985,7 @@ def cmd_owner(args):
 		print "Unknown user"
 		return False
 
-	return change_issue('Owner', fulluser)
+	return change_issue(args.issue, 'Owner', fulluser)
 
 def cmd_users(args):
 	if config.db_path == '':
