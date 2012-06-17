@@ -1268,6 +1268,12 @@ def cmd_web(args):
 
 	print 'Starting server on localhost:%d' % args.port
 
+	# Try to start a webbrowser to look at the UI
+	if sys.platform == 'darwin': # Assume OSX
+		os.system('open http://localhost:%d' % args.port)
+	
+	# TODO Other platforms
+
 	while not config.endweb:
 		server.handle_request()
 
