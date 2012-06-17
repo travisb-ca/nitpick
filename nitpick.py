@@ -73,27 +73,147 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('<table> <tr> <th>ID</th> <th>State</th> <th>Severity</th> <th>Priority</th> <th>Owner</th> <th>Title</th> </tr>\n')
 		for issue in config.issue_db.keys():
 			self.output('<tr>')
-			self.output('<td><a href="issue/%s">%s</a></td> ' % (issue, issue[:8]))
-			self.output('<td><a href="issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['State']))
-			self.output('<td><a href="issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Severity']))
-			self.output('<td><a href="issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Priority']))
-			self.output('<td><a href="issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Owner']))
-			self.output('<td><a href="issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Title']))
+			self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, issue[:8]))
+			self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['State']))
+			self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Severity']))
+			self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Priority']))
+			self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Owner']))
+			self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Title']))
 			self.output('</tr>\n')
 
 		self.output('</table>')
 
 		self.end_doc()
 
-	paths = {
-			'/' : root,
-		}
+	def issue(self):
+		issue_hash = self.path[7:]
+		
+		load_issue_db()
+
+		self.start_doc('Issue %s' % issue_hash)
+
+		issue = parse_file(config.issue_db[issue_hash]['path'] + '/issue')
+
+		self.output('<form>\n')
+
+		self.output('Title: %s<br/>\n' % issue['Title'])
+		self.output('Date: %s<br/>\n' % issue['Date'])
+		self.output('Reported_By: %s<br/>\n' % issue['Reported_By'])
+		self.output('Seen_In_Build: %s<br/>\n' % issue['Seen_In_Build'])
+
+		# Severity
+		self.output('Severity: <select name="severity">\n')
+		for severity in config.issues['severity']:
+			self.output('<option ')
+			if severity == issue['Severity']:
+				self.output('selected="selected" ')
+			self.output('value="%s">%s</option>\n' % (severity, severity))
+		self.output('</select><br/>\n')
+
+		# Priority
+		self.output('Priority: <select name="priority">\n')
+		for priority in config.issues['priority']:
+			self.output('<option ')
+			if priority == issue['Priority']:
+				self.output('selected="selected" ')
+			self.output('value="%s">%s</option>\n' % (priority, priority))
+		self.output('</select><br/>\n')
+
+		# State
+		self.output('State: <select name="state">\n')
+		for state in config.issues['state']:
+			self.output('<option ')
+			if state == issue['State']:
+				self.output('selected="selected" ')
+			self.output('value="%s">%s</option>\n' % (state, state))
+		self.output('</select><br/>\n')
+
+		# Resolution
+		self.output('Resolution: <select name="resolution">\n')
+		for resolution in config.issues['resolution']:
+			self.output('<option ')
+			if resolution == issue['Resolution']:
+				self.output('selected="selected" ')
+			self.output('value="%s">%s</option>\n' % (resolution, resolution))
+		self.output('</select><br/>\n')
+
+		# Type
+		self.output('Type: <select name="type">\n')
+		for type in config.issues['type']:
+			self.output('<option ')
+			if type == issue['Type']:
+				self.output('selected="selected" ')
+			self.output('value="%s">%s</option>\n' % (type, type))
+		self.output('</select><br/>\n')
+
+		# Owner
+		self.output('Owner: <select name="owner">\n')
+		for owner in config.users:
+			self.output('<option ')
+			if owner == issue['Owner']:
+				self.output('selected="selected" ')
+			self.output('value="%s">%s</option>\n' % (owner, owner))
+		self.output('</select><br/>\n')
+
+		# Fix_By
+		self.output('Fix_By: <select name="fix_by">\n')
+		for fix_by in config.issues['fix_by']:
+			self.output('<option ')
+			if fix_by == issue['Fix_By']:
+				self.output('selected="selected" ')
+			self.output('value="%s">%s</option>\n' % (fix_by, fix_by))
+		self.output('</select><br/>\n')
+
+		# Component
+		self.output('Component: <select name="component">\n')
+		for component in config.issues['components']:
+			self.output('<option ')
+			if component == issue['Component']:
+				self.output('selected="selected" ')
+			self.output('value="%s">%s</option>\n' % (component, component))
+		self.output('</select><br/>\n')
+
+		self.output('<input type="submit" value="Update" />\n')
+
+		self.output('</form>\n')
+
+		self.output('<form><input type="submit" value="Add Comment" /><br/>')
+
+		comment_stack = produce_comment_tree(issue_hash)
+		comment_stack.reverse()
+		comment_depth = [1] * len(comment_stack)
+		depth = 0
+
+		while len(comment_stack) > 0:
+			comment = comment_stack.pop()
+			old_depth = depth
+			depth = comment_depth.pop()
+
+			for field in comment.keys():
+				if field in ['content', 'children', 'Parent']:
+					continue
+				if field == 'Attachment' and comment['Attachment'] == '':
+					continue
+
+				self.output('%s: %s<br/>\n' % (field, comment[field]))
+
+			self.output('<pre>\n')
+			self.output(comment['content'])
+			self.output('</pre>\n')
+
+			comment['children'].reverse()
+			comment_stack.extend(comment['children'])
+			comment_depth.extend([depth + 1] * len(comment['children']))
+
+		self.end_doc()
 
 	def do_GET(self):
 		print 'got path %s' % self.path
 
-		if self.path in self.paths:
-			self.paths[self.path](self)
+		if self.path == '/':
+			self.root();
+		elif '/issue/' in self.path:
+			self.issue()
 		else:
 			self.paths['/'](self)
 
