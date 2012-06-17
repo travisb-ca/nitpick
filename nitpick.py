@@ -217,13 +217,93 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.end_doc()
 
+	def add_comment(self):
+		print self.request_args
+
+		self.start_doc('Add Comment')
+
+		if not 'issue' in self.request_args.keys():
+			self.output('Incorrect script arguments')
+			self.end_doc()
+			return
+		else:
+			issue = self.request_args['issue']
+
+		if not 'comment' in self.request_args.keys():
+			comment = None
+		else:
+			comment = self.request_args['comment']
+
+		load_issue_db()
+
+		comment_parent = find_comment_parent(issue, comment)
+
+		if comment_parent == None:
+			self.output('No such issue')
+			self.end_doc()
+			return
+		elif comment_parent == '':
+			self.output('Ambiguous issue ID. Please use a longer string')
+			self.end_doc()
+			return
+		else:
+			issue = comment_parent[0]
+			parent = comment_parent[1]
+			if parent == None:
+				self.output('No such comment.')
+				self.end_doc()
+				return
+			elif parent == '':
+				self.output('Ambiguous comment ID. Please use a longer string')
+				self.end_doc()
+				return
+
+		# Here we know that the issue and parent are good to use
+		self.output('<form action="/add_comment" method="put">\n')
+		self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue)
+		self.output('<input type="hidden" name="parent" value="%s"/>\n' % parent)
+
+		self.output('Date: %s<br/>\n' % time.strftime(DATEFORMAT, time.gmtime()))
+
+		self.output('User: <select name="username">\n')
+		for username in config.users:
+			self.output('<option ')
+			if username == config.username:
+				self.output('selected="selected" ')
+			self.output('value="%s">%s</option>\n' % (username, username))
+		self.output('</select><br/>\n')
+
+		self.output('Attachment: <br/>\n')
+
+		self.output('<textarea name="content" rows="20" cols="80">Enter comment here</textarea><br/>\n')
+
+		self.output('<input type="submit" value="Submit"/><br/>\n')
+		self.output('</form>\n')
+
+		self.end_doc()
+
 	def do_GET(self):
 		print 'got path %s' % self.path
+
+		self.request_args = {}
+		args_start = self.path.find('?')
+		if args_start != -1:
+			# The path has arguments
+			args = self.path[args_start + 1:]
+
+			for var in args.split('&'):
+				key_value = var.split('=')
+				key = key_value[0]
+				value = key_value[1]
+
+				self.request_args[key] = value
 
 		if self.path == '/':
 			self.root()
 		elif '/issue/' in self.path:
 			self.issue()
+		elif '/add_comment' in self.path:
+			self.add_comment()
 		else:
 			print "Got unhandled path %s" % self.path
 			self.root()
@@ -635,6 +715,39 @@ def cmd_cat(args):
 
 	return True
 
+# Check that the issue exists and that it has the comment to reply to if one is supplied.
+# Returns
+# 	(issue hash, parent id) - on Success
+# 	None                    - If the issue does not exist
+# 	''                      - If the issue is ambiguous
+# 	(issue hash, None)      - If a comment was specified and it doesn't exist
+# 	(issue hash, '')        - If the comment is ambiguous
+def find_comment_parent(partial_issue, partial_comment):
+	issue = disambiguate_hash(partial_issue)
+	if issue == None:
+		return None
+	elif issue == '':
+		return ''
+
+	parent = 'issue'
+
+	if partial_comment:
+		for file in os.listdir(config.issue_db[issue]['path']):
+			if not os.path.isfile(config.issue_db[issue]['path'] + '/' + file):
+				continue
+			if '.' in file or file == 'issue': # Only support comments, not attachments or the root issue
+				continue
+
+			if partial_comment in file:
+				if parent != 'issue':
+					return (issue, '')
+				else:
+					parent = file
+		if parent == 'issue':
+			return (issue, None)
+	
+	return (issue, parent)
+
 def cmd_comment(args):
 	if config.db_path == '':
 		return False
@@ -649,31 +762,21 @@ def cmd_comment(args):
 
 	load_issue_db()
 
-	issue = disambiguate_hash(args.issue)
-	if issue == None:
-		print "No such issue"
+	comment_parent = find_comment_parent(args.issue, args.comment)
+	if comment_parent == None:
+		print 'No such issue'
 		return False
-	elif issue == '':
-		print "Ambiguous issue ID. Please use a longer string"
+	elif comment_parent == '':
+		print 'Ambiguous issue ID. Please use a longer string'
 		return False
-
-	parent = 'issue'
-
-	if args.comment:
-		for file in os.listdir(config.issue_db[issue]['path']):
-			if not os.path.isfile(config.issue_db[issue]['path'] + '/' + file):
-				continue
-			if '.' in file or file == 'issue': # Only support comments, not attachments or the root issue
-				continue
-
-			if args.comment in file:
-				if parent != 'issue':
-					print 'Ambiguous comment ID. Please use a longer string'
-					return False
-				else:
-					parent = file
-		if parent == 'issue':
-			print "Comment doesn't exist"
+	else:
+		issue = comment_parent[0]
+		parent = comment_parent[1]
+		if parent == None:
+			print 'No such comment.'
+			return False
+		elif parent == '':
+			print 'Ambiguous comment ID. Please use a longer string'
 			return False
 
 	comment = {
