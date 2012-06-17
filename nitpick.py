@@ -33,6 +33,7 @@ class config:
 	db_path = ''
 	username = ''
 	endweb = False
+	uncommitted_changes = False
 
 default_users = """
 Unassigned
@@ -52,6 +53,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 	def html_postamble(self):
 		return """</body></html>"""
 
+	def output(self, string):
+		self.wfile.write(string)
+
 	def start_doc(self, title):
 		self.send_response(200)
 		self.send_header('Content-type', 'text/html')
@@ -60,10 +64,14 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		if title != '':
 			title = ' - ' + title
 
-		self.wfile.write(self.html_preamble('Nitpick' + title))
+		self.output(self.html_preamble('Nitpick' + title))
 
-	def output(self, string):
-		self.wfile.write(string)
+		self.output('<form action="/shutdown" method="post"><input type="submit" value="Exit Web Interface"/></form>\n')
+		if config.uncommitted_changes and config.vcs.real:
+			self.output('<form action="/commit" method="post"><input type="submit" value="Commit Changes"/></form>\n')
+			self.output('<form action="/revert" method="post"><input type="submit" value="Revert Changes"/></form>\n')
+
+		self.output('<br/>\n')
 
 	def end_doc(self):
 		self.wfile.write(self.html_postamble())
@@ -391,6 +399,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('<a href="/issue/%s"> Back to issue %s</a>\n' % (self.request_args['issue'], self.request_args['issue'][:8]))
 		self.end_doc()
 
+		config.uncommitted_changes = True
+
 	def update_issue_post(self):
 		load_issue_db()
 
@@ -450,6 +460,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('<a href="/issue/%s">Back to issue %s</a><br/>\n' % (issue, issue[:8]))
 		self.end_doc()
 
+		config.uncommitted_changes = True
+
 	def new_issue_post(self):
 		if 'date' not in self.request_args.keys() or \
 		   'title' not in self.request_args.keys() or \
@@ -492,6 +504,33 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('<a href="/issue/%s"> Back to issue %s</a>\n' % (issue_hash, issue_hash[:8]))
 		self.end_doc()
 
+		config.uncommitted_changes = True
+
+	def shutdown_post(self):
+		self.start_doc('Shutting Down')
+		self.output('Nitpick web interface has exited')
+		self.end_doc()
+
+		config.endweb = True
+
+	def commit_post(self):
+		config.vcs.commit()
+		config.uncommitted_changes = False
+
+		self.start_doc('Committed Changes')
+		self.output('All changes to the Nitpick database have been committed<br/>\n')
+		self.output('<a href="/">Go back to issue index</a>\n');
+		self.end_doc()
+
+	def revert_post(self):
+		config.vcs.revert()
+		config.uncommitted_changes = False
+
+		self.start_doc('Reverted Changes')
+		self.output('All changes to the Nitpick database have been reverted<br/>\n')
+		self.output('<a href="/">Go back to issue index</a>\n');
+		self.end_doc()
+
 	def do_GET(self):
 		print 'got get  path %s' % self.path
 
@@ -526,12 +565,13 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.request_args = {}
 		args = self.rfile.read(int(self.headers['Content-Length']))
-		for var in args.split('&'):
-			key_value = var.split('=')
-			key = urllib.unquote(key_value[0])
-			value = urllib.unquote_plus(key_value[1])
+		if len(args) > 0:
+			for var in args.split('&'):
+				key_value = var.split('=')
+				key = urllib.unquote(key_value[0])
+				value = urllib.unquote_plus(key_value[1])
 
-			self.request_args[key] = value
+				self.request_args[key] = value
 
 		if '/add_comment' == self.path:
 			self.add_comment_post()
@@ -539,6 +579,12 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.update_issue_post()
 		elif '/new_issue' == self.path:
 			self.new_issue_post()
+		elif '/shutdown' == self.path:
+			self.shutdown_post()
+		elif '/commit' == self.path:
+			self.commit_post()
+		elif '/revert' == self.path:
+			self.revert_post()
 		else:
 			print 'Got unhandled path %s' % self.path
 			self.root()
@@ -551,6 +597,7 @@ class VCS:
 	"""
 
 	name = 'file'
+	real = False
 	
 	@staticmethod
 	def mkdir(path):
@@ -574,6 +621,15 @@ class VCS:
 		return
 
 	@staticmethod
+	def revert():
+		"""
+		Revert all uncommitted changes in the Nitpick database.
+
+		Any newly created files should be deleted.
+		"""
+		return
+
+	@staticmethod
 	def ignore(path):
 		"""
 		Ensure that the given path will be ignored and not show up in any VCS show command as unknown"
@@ -582,6 +638,7 @@ class VCS:
 
 class SVN(VCS):
 	name = 'svn'
+	real = True
 
 	@staticmethod
 	def mkdir(path):
@@ -595,8 +652,12 @@ class SVN(VCS):
 
 	@staticmethod
 	def commit():
-		print 'Committing changes to .nitpick'
 		os.system("svn ci -m \"Nitpick commit\" " + config.db_path)
+
+	@staticmethod
+	def revert():
+		os.system("svn revert -R " + config.db_path)
+		os.system("svn stat " + config.db_path + " | grep ^?| xargs rm -rf")
 
 	@staticmethod
 	def ignore(path):
@@ -704,6 +765,7 @@ def load_issue_db():
 		config.issue_db = {'format' : ISSUE_CACHE_FORMAT}
 
 	# Ensure that the cache is up to date
+	checked_issues = []
 	for outer_dir in os.listdir(config.db_path):
 		if len(outer_dir) != 1 or not os.path.isdir(config.db_path + outer_dir):
 			continue
@@ -719,12 +781,20 @@ def load_issue_db():
 
 				hash_path = config.db_path + outer_dir + '/' + inner_dir + '/' + hash
 
+				checked_issues.append(hash)
+
 				if hash not in config.issue_db or \
 					config.issue_db[hash]['issue_db_cached_date'] != os.path.getmtime(hash_path + '/issue'):
 					config.issue_db[hash] = parse_file(hash_path + '/issue')
 					del config.issue_db[hash]['content']
 					config.issue_db[hash]['issue_db_cached_date'] = os.path.getmtime(hash_path + '/issue')
 				config.issue_db[hash]['path'] = hash_path
+
+	# Delete any issues which no longer exist
+	for issue in config.issue_db.keys():
+		if issue not in checked_issues:
+			del config.issue_db[issue]
+
 	save_issue_db()
 
 # Turn a partial hash into a full hash
@@ -1109,30 +1179,57 @@ def change_issue(issue, prop, newvalue):
 	format_file(issue_filename, issue)
 
 	config.vcs.add_changes(issue_filename)
-	config.vcs.commit()
 
 	return True
 
 def cmd_state(args):
-	return change_issue(args.issue, 'State', args.newstate)
+	if change_issue(args.issue, 'State', args.newstate):
+		config.vcs.commit()
+		return True
+	else:
+		return False
 
 def cmd_severity(args):
-	return change_issue(args.issue, 'Severity', args.newseverity)
+	if change_issue(args.issue, 'Severity', args.newseverity):
+		config.vcs.commit()
+		return True
+	else:
+		return False
 
 def cmd_component(args):
-	return change_issue(args.issue, 'Component', args.newcomponent)
+	if change_issue(args.issue, 'Component', args.newcomponent):
+		config.vcs.commit()
+		return True
+	else:
+		return False
 
 def cmd_priority(args):
-	return change_issue(args.issue, 'Priority', args.newpriority)
+	if change_issue(args.issue, 'Priority', args.newpriority):
+		config.vcs.commit()
+		return True
+	else:
+		return False
 
 def cmd_resolution(args):
-	return change_issue(args.issue, 'Resolution', args.newresolution)
+	if change_issue(args.issue, 'Resolution', args.newresolution):
+		config.vcs.commit()
+		return True
+	else:
+		return False
 
 def cmd_type(args):
-	return change_issue(args.issue, 'Type', args.newtype)
+	if change_issue(args.issue, 'Type', args.newtype):
+		config.vcs.commit()
+		return True
+	else:
+		return False
 
 def cmd_fixby(args):
-	return change_issue(args.issue, 'Fix_By', args.newfixby)
+	if change_issue(args.issue, 'Fix_By', args.newfixby):
+		config.vcs.commit()
+		return True
+	else:
+		return False
 
 def cmd_owner(args):
 	fulluser = ''
@@ -1148,7 +1245,11 @@ def cmd_owner(args):
 		print "Unknown user"
 		return False
 
-	return change_issue(args.issue, 'Owner', fulluser)
+	if change_issue(args.issue, 'Owner', fulluser):
+		config.vcs.commit()
+		return True
+	else:
+		return False
 
 def cmd_users(args):
 	if config.db_path == '':
