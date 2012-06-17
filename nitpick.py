@@ -644,7 +644,6 @@ class SVN(VCS):
 
 	@staticmethod
 	def mkdir(path):
-		print "Creating path %s" % path
 		os.system("svn mkdir -q --parents " + path)
 
 	@staticmethod
