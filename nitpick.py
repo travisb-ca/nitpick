@@ -71,6 +71,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.start_doc('')
 
+		self.output('<a href="/new_issue">Create new issue</a><br/><br/>\n')
+
 		self.output('<table> <tr> <th>ID</th> <th>State</th> <th>Severity</th> <th>Priority</th> <th>Owner</th> <th>Title</th> </tr>\n')
 		for issue in config.issue_db.keys():
 			self.output('<tr>')
@@ -284,6 +286,77 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.end_doc()
 
+	def new_issue(self):
+		self.start_doc('New Issue')
+
+		self.output('<form action="/new_issue" method="put">\n')
+
+		date = time.strftime(DATEFORMAT, time.gmtime())
+		self.output('Date: %s<input type="hidden" name="date" value="%s"/><br/>\n' % (date, date))
+
+		self.output('Title: <input type="text" name="title" value="Issue Title"/><br/>\n')
+
+		self.output('Type: <select name="type">\n')
+		for type in config.issues['type']:
+			self.output('<option value="%s">%s</option>\n' % (type, type))
+		self.output('</select><br/>\n')
+
+		self.output('Component: <select name="component">\n')
+		for component in config.issues['components']:
+			self.output('<option value="%s">%s</option>\n' % (component, component))
+		self.output('</select><br/>\n')
+
+		self.output('Severity: <select name="severity">\n')
+		for severity in config.issues['severity']:
+			self.output('<option value="%s">%s</option>\n' % (severity, severity))
+		self.output('</select><br/>\n')
+
+		self.output('Priority: <select name="priority">\n')
+		for priority in config.issues['priority']:
+			self.output('<option value="%s">%s</option>\n' % (priority, priority))
+		self.output('</select><br/>\n')
+
+		self.output('State: <select name="state">\n')
+		for state in config.issues['state']:
+			self.output('<option value="%s">%s</option>\n' % (state, state))
+		self.output('</select><br/>\n')
+
+		self.output('Resolution: <select name="resolution">\n')
+		for resolution in config.issues['resolution']:
+			self.output('<option value="%s">%s</option>\n' % (resolution, resolution))
+		self.output('</select><br/>\n')
+
+		self.output('Reported_By: <select name="reported_by">\n')
+		for user in config.users:
+			self.output('<option ')
+			if config.username == user:
+				self.output('selected="selected" ')
+			self.output('value="%s">%s</option>\n' % (user, user))
+		self.output('</select><br/>\n')
+		
+		self.output('Owner: <select name="owner">\n')
+		for user in config.users:
+			self.output('<option ')
+			if config.users[0] == user:
+				self.output('selected="selected" ')
+			self.output('value="%s">%s</option>\n' % (user, user))
+		self.output('</select><br/>\n')
+
+		self.output('Seen_In_Build: <input type="text" name="seen_in_build" value=""/><br/>\n')
+
+		self.output('Fix_By: <select name="fix_by">\n')
+		for fix_by in config.issues['fix_by']:
+			self.output('<option value="%s">%s</option>\n' % (fix_by, fix_by))
+		self.output('</select><br/>\n')
+
+		self.output('<textarea name="content" rows="20" cols="80">Enter description here</textarea><br/>\n')
+
+		self.output('<input type="submit" value="Submit"/><br/>\n')
+		self.output('</form>\n')
+
+		self.end_doc()
+
+
 	def add_comment_post(self):
 		load_issue_db()
 
@@ -394,6 +467,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.issue()
 		elif '/add_comment' in self.path:
 			self.add_comment()
+		elif self.path == '/new_issue':
+			self.new_issue()
 		else:
 			print "Got unhandled path %s" % self.path
 			self.root()
