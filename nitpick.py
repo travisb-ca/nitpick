@@ -95,6 +95,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		issue = parse_file(config.issue_db[issue_hash]['path'] + '/issue')
 
+		self.output('<a href="/">Back to issue list</a><br/><br/>\n')
+
 		self.output('<form action="/update_issue" method="post">\n')
 		self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue_hash)
 
