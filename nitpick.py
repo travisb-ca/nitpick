@@ -11,9 +11,11 @@ import cPickle
 import pprint
 import BaseHTTPServer
 import urllib
+import gzip
 
 DATEFORMAT = '%Y-%m-%d %H:%M:%S'
 FILLWIDTH = 69
+ISSUE_CACHE_FORMAT=1
 
 # Contains the defaults used to initalize a database
 class config:
@@ -75,6 +77,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.output('<table> <tr> <th>ID</th> <th>State</th> <th>Severity</th> <th>Priority</th> <th>Owner</th> <th>Title</th> </tr>\n')
 		for issue in config.issue_db.keys():
+			if issue == 'format':
+				continue
+
 			self.output('<tr>')
 			self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, issue[:8]))
 			self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['State']))
@@ -661,7 +666,7 @@ def load_config():
 
 # Save the issue_db cache after modifying it
 def save_issue_db():
-	cache_file = open(config.db_path + 'issue_cache', 'w')
+	cache_file = gzip.open(config.db_path + 'issue_cache', 'w')
 	cPickle.dump(config.issue_db, cache_file)
 	cache_file.close()
 
@@ -673,12 +678,15 @@ def save_issue_db():
 # An internal field of 'issue_db_cached_date' also exists.
 def load_issue_db():
 	try:
-		cache_file = open(config.db_path + 'issue_cache', 'r')
+		cache_file = gzip.open(config.db_path + 'issue_cache', 'r')
 		config.issue_db = cPickle.load(cache_file)
 		cache_file.close()
 	except:
 		# Something is wrong with the cache, so start again
-		config.issue_db = {}
+		config.issue_db = {'format' : ISSUE_CACHE_FORMAT}
+
+	if 'format' in config.issue_db.keys() and config.issue_db['format'] != ISSUE_CACHE_FORMAT:
+		config.issue_db = {'format' : ISSUE_CACHE_FORMAT}
 
 	# Ensure that the cache is up to date
 	for outer_dir in os.listdir(config.db_path):
@@ -856,6 +864,9 @@ def cmd_list(args):
 	load_issue_db()
 
 	for hash in config.issue_db.keys():
+		if hash == 'format':
+			continue
+
 		if not args.all and args.state != config.issue_db[hash]['State']:
 			continue
 
