@@ -307,6 +307,12 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		comment_filename = add_comment(self.request_args['issue'], comment)
 
+		self.start_doc('Comment %s added' % comment_filename)
+		self.output('Successfully added the comment<br/>\n')
+		self.output('<a href="/">Back to issue list</a> ')
+		self.output('<a href="/issue/%s"> Back to issue %s</a>\n' % (self.request_args['issue'], self.request_args['issue'][:8]))
+		self.end_doc()
+
 	def do_GET(self):
 		print 'got get  path %s' % self.path
 
