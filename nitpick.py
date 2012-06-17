@@ -567,11 +567,16 @@ class VCS:
 		return
 
 	@staticmethod
-	def commit(path_list):
+	def commit():
 		"""
 		Ensure that all the registered changes are committed to the VCS repository.
+		"""
+		return
 
-		This method receives a list of paths which must be committed.
+	@staticmethod
+	def ignore(path):
+		"""
+		Ensure that the given path will be ignored and not show up in any VCS show command as unknown"
 		"""
 		return
 
@@ -580,15 +585,25 @@ class SVN(VCS):
 
 	@staticmethod
 	def mkdir(path):
+		print "Creating path %s" % path
 		os.system("svn mkdir --parents " + path)
 
 	@staticmethod
 	def add_changes(path):
+		print "Adding changes to %s" % path
 		os.system("svn add " + path);
 
 	@staticmethod
-	def commit(path_list):
-		os.system("svn ci -m \"Nitpick commit\" " + " ".join(path_list))
+	def commit():
+		print 'Committing changes to .nitpick'
+		os.system("svn ci -m \"Nitpick commit\" " + config.db_path)
+
+	@staticmethod
+	def ignore(path):
+		dir = os.path.dirname(path)
+		os.system('''svn propset svn:ignore "issue_cache\n\
+		`svn propget svn:ignore %s`" %s''' % (dir, dir))
+
 
 BACKENDS = { 'file': VCS, 'svn' : SVN }
 
@@ -792,7 +807,9 @@ def cmd_init(args):
 	users.close()
 	backend.add_changes(users_filename)
 
-	backend.commit([config_filename, users_filename])
+	backend.ignore(args.dir + '/issue_cache')
+
+	backend.commit()
 
 	return True
 
@@ -853,7 +870,7 @@ def cmd_new(args):
 
 	issue_filename, issue_hash = add_issue(issue)
 
-	config.vcs.commit(issue_filename)
+	config.vcs.commit()
 
 	return True
 
@@ -1065,7 +1082,7 @@ def cmd_comment(args):
 
 	comment_filename = add_comment(issue, comment)
 
-	config.vcs.commit(comment_filename)
+	config.vcs.commit()
 	return True
 
 def change_issue(issue, prop, newvalue):
@@ -1088,7 +1105,7 @@ def change_issue(issue, prop, newvalue):
 	format_file(issue_filename, issue)
 
 	config.vcs.add_changes(issue_filename)
-	config.vcs.commit(issue_filename)
+	config.vcs.commit()
 
 	return True
 
