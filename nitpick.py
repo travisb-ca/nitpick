@@ -702,7 +702,7 @@ def cmd_cat(args):
 
 			if not args.noformat:
 				print '  ' * depth + '| ',
-				print ('\n' + '  ' * depth + '| ').join(issue['content'].split('\n'))
+				print ('\n' + '  ' * depth + '| ').join(comment['content'].split('\n'))
 			else:
 				print comment['content']
 
