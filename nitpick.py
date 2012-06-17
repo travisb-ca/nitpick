@@ -647,7 +647,6 @@ class SVN(VCS):
 
 	@staticmethod
 	def add_changes(path):
-		print "Adding changes to %s" % path
 		os.system("svn add -q " + path);
 
 	@staticmethod
