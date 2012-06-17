@@ -4,6 +4,6 @@ priority: 1 2 3 4 5
 state: New Confirmed Open Diagnosed Fixed Closed
 vcs: svn
 fix_by: Next_Release
-components: Documentation
+components: Documentation Web_UI VCS Core
 type: Bug Feature Regression
 --
