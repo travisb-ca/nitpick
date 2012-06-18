@@ -1303,10 +1303,10 @@ def cmd_web(args):
 
 	# Try to start a webbrowser to look at the UI
 	url = 'http://localhost:%d' % args.port
+	browser = None
 	if sys.platform == 'darwin': # Assume OSX
 		os.system('open %s' % url)
 	elif os.name == 'posix': # Assume Unix-like
-		browser = None
 		for prog in ['w3m', 'links', 'lynx']:
 			try:
 				browser = subprocess.Popen([prog, url])
@@ -1317,7 +1317,8 @@ def cmd_web(args):
 	while not config.endweb:
 		server.handle_request()
 
-	browser.wait()
+	if browser:
+		browser.wait()
 
 	return True
 
