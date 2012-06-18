@@ -25,7 +25,7 @@ severity   - Severity of the issue
 state      - Current state of the issue
              Default: New Confirmed Open Diagnosed Fixed Closed
 resolution - Resolution of an issue after it has been dealt with
-             Default: None Fixed WontFix Invalid WorksForMe
+             Default: None Fixed Duplicate WontFix Invalid WorksForMe
 type       - The various types of issues
              Default: Bug Feature Regression
 
