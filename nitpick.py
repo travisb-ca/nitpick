@@ -207,12 +207,14 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		comment_stack = produce_comment_tree(issue_hash)
 		comment_stack.reverse()
 		comment_depth = [1] * len(comment_stack)
+		parent_children_stack = [2] * len(comment_stack)
 		depth = 0
 
 		while len(comment_stack) > 0:
 			comment = comment_stack.pop()
 			old_depth = depth
 			depth = comment_depth.pop()
+			parent_children = parent_children_stack.pop()
 
 			for field in comment.keys():
 				if field in ['content', 'children', 'Parent']:
@@ -234,7 +236,11 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 			comment['children'].reverse()
 			comment_stack.extend(comment['children'])
-			comment_depth.extend([depth + 1] * len(comment['children']))
+			if parent_children == 1 and len(comment['children']) == 1:
+				comment_depth.extend([depth] * len(comment['children']))
+			else:
+				comment_depth.extend([depth + 1] * len(comment['children']))
+			parent_children_stack.extend([len(comment['children'])] * len(comment['children']))
 
 		self.end_doc()
 
@@ -1017,12 +1023,15 @@ def cmd_cat(args):
 	comment_stack = produce_comment_tree(hash)
 	comment_stack.reverse()
 	comment_depth = [1] * len(comment_stack)
+	parent_children_stack = [2] * len(comment_stack)
 	depth = 0
 
 	while len(comment_stack) > 0:
 		comment = comment_stack.pop()
 		old_depth = depth
 		depth = comment_depth.pop()
+		parent_children = parent_children_stack.pop()
+
 
 		if not args.noformat and old_depth > depth:
 			print '  ' * depth + '+' + '=' * FILLWIDTH
@@ -1054,7 +1063,12 @@ def cmd_cat(args):
 
 		comment['children'].reverse()
 		comment_stack.extend(comment['children'])
-		comment_depth.extend([depth + 1] * len(comment['children']))
+
+		if parent_children == 1 and len(comment['children']) == 1:
+			comment_depth.extend([depth] * len(comment['children']))
+		else:
+			comment_depth.extend([depth + 1] * len(comment['children']))
+		parent_children_stack.extend([len(comment['children'])] * len(comment['children']))
 
 	return True
 
