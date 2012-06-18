@@ -28,6 +28,7 @@ import pprint
 import BaseHTTPServer
 import urllib
 import gzip
+import subprocess
 
 DATEFORMAT = '%Y-%m-%d %H:%M:%S'
 FILLWIDTH = 69
@@ -581,7 +582,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		elif self.path == '/new_issue':
 			self.new_issue()
 		else:
-			print "Got unhandled path %s" % self.path
+			print "Got unhandled get path %s" % self.path
 			self.root()
 
 	def do_POST(self):
@@ -610,7 +611,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		elif '/revert' == self.path:
 			self.revert_post()
 		else:
-			print 'Got unhandled path %s' % self.path
+			print 'Got unhandled post path %s' % self.path
 			self.root()
 
 
@@ -1301,13 +1302,22 @@ def cmd_web(args):
 	print 'Starting server on localhost:%d' % args.port
 
 	# Try to start a webbrowser to look at the UI
+	url = 'http://localhost:%d' % args.port
 	if sys.platform == 'darwin': # Assume OSX
-		os.system('open http://localhost:%d' % args.port)
+		os.system('open %s' % url)
+	elif os.name == 'posix': # Assume Unix-like
+		browser = None
+		for prog in ['w3m', 'links', 'lynx']:
+			try:
+				browser = subprocess.Popen([prog, url])
+				break
+			except:
+				pass
 	
-	# TODO Other platforms
-
 	while not config.endweb:
 		server.handle_request()
+
+	browser.wait()
 
 	return True
 
