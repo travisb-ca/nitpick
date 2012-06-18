@@ -1,0 +1,16 @@
+Severity: Minor
+Title: Close Browser Tab Automatically after exit
+Priority: 1
+Date: 2012-06-18 18:43:01
+State: Open
+Fix_By: Eventually
+Resolution: None
+Seen_In_Build: 
+Reported_By: travisb@travisbrown.ca
+Type: Feature
+Component: Web_UI
+Owner: travisb@travisbrown.ca
+--
+It'd be nice if after you shut down the Nitpick process that the returned webpage from the exit form would also close the browser tab/window.
+
+I've been told that something like <body onload="window.close();"> will do the trick, but it doesn't seem to work.
