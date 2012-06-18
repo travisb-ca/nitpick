@@ -1,14 +1,14 @@
 Severity: Blocker
 Title: Make shabang portable
+Reported_By: travisb@travisbrown.ca
+Resolution: Fixed
+Component: Core
 Priority: 1
 Date: 2012-06-17 23:39:58
-State: Open
+State: Fixed
 Fix_By: Next_Release
-Resolution: None
-Seen_In_Build: 
-Reported_By: travisb@travisbrown.ca
-Type: Bug
-Component: Core
 Owner: travisb@travisbrown.ca
+Type: Bug
+Seen_In_Build: 
 --
 The script shabang is very platform specific to Mac OSX with MacPorts installed. There must be some way to choose Python 2.7 automatically on most systems. Find it and use it.

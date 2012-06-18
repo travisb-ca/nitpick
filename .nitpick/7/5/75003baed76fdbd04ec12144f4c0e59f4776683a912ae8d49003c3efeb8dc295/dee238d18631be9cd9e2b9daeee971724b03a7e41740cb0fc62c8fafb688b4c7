@@ -1,0 +1,10 @@
+Date: 2012-06-18 04:21:39
+User: travisb@travisbrown.ca
+Parent: issue
+Attachment: 
+--
+It turns out it's relatively simple, but there is one wrinkle.
+
+The solution is simply a #!/usr/bin/env python2.7
+
+The wrinkle is that on many of the machines I use python2.7 is required, just python won't work. So that's what it's set too. Nitpick does require python 2.7 or later in any case.
