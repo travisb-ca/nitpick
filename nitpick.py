@@ -413,8 +413,6 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 	def update_issue_post(self):
 		load_issue_db()
 
-		print self.request_args
-
 		if 'issue' not in self.request_args.keys() or \
 		   'severity' not in self.request_args.keys() or \
 		   'component' not in self.request_args.keys() or \
