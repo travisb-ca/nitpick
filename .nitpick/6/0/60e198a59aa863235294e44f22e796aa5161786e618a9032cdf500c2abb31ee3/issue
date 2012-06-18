@@ -1,0 +1,14 @@
+Severity: Major
+Title: Display Comments Threaded in the Web Interface
+Priority: 1
+Date: 2012-06-18 03:49:04
+State: Open
+Fix_By: Next_Release
+Resolution: None
+Seen_In_Build: 
+Reported_By: travisb@travisbrown.ca
+Type: Feature
+Component: Web_UI
+Owner: travisb@travisbrown.ca
+--
+The command line interface correctly nests comments when displaying them. The Web interface displays them in the correct order, but doesn't indent them at all. It really needs to or the advantage of keeping them in a tree is lost.
