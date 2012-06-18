@@ -220,6 +220,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('<input type="submit" value="Add Comment" /><br/>')
 		self.output('</form>\n')
 
+		self.output('<pre>%s</pre><br/>\n' % issue['content'])
+
 		comment_stack = produce_comment_tree(issue_hash)
 		comment_stack.reverse()
 		comment_depth = [1] * len(comment_stack)
