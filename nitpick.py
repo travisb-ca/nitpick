@@ -704,6 +704,7 @@ def load_config():
 	while pwd != '/':
 		if os.path.exists(pwd + '/.nitpick') and os.path.isdir(pwd + '/.nitpick'):
 			config.db_path = pwd + '/.nitpick/'
+			break
 		pwd = os.path.dirname(pwd)
 	if config.db_path == '':
 		return False
