@@ -103,18 +103,184 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.output('<a href="/new_issue">Create new issue</a><br/><br/>\n')
 
-		self.output('<table> <tr> <th>ID</th> <th>State</th> <th>Severity</th> <th>Priority</th> <th>Owner</th> <th>Title</th> </tr>\n')
+		if self.request_args == {}:
+			# Use defaults
+			show_ID            = True
+			show_type          = False
+			show_date          = False
+			show_severity      = True
+			show_priority      = True
+			show_component     = False
+			show_fix_by        = False
+			show_seen_in_build = False
+			show_state         = True
+			show_resolution    = False
+			show_owner         = True
+			show_title         = True
+		else:
+			# Use whatever the user provided
+			show_ID            = False
+			show_type          = False
+			show_date          = False
+			show_severity      = False
+			show_priority      = False
+			show_component     = False
+			show_fix_by        = False
+			show_seen_in_build = False
+			show_state         = False
+			show_resolution    = False
+			show_owner         = False
+			show_title         = False
+
+		if 'show_ID' in self.request_args.keys():
+			show_ID = self.request_args['show_ID'] == '1'
+		if 'show_type' in self.request_args.keys():
+			show_type = self.request_args['show_type'] == '1'
+		if 'show_date' in self.request_args.keys():
+			show_date = self.request_args['show_date'] == '1'
+		if 'show_severity' in self.request_args.keys():
+			show_severity = self.request_args['show_severity'] == '1'
+		if 'show_priority' in self.request_args.keys():
+			show_priority = self.request_args['show_priority'] == '1'
+		if 'show_component' in self.request_args.keys():
+			show_component = self.request_args['show_component'] == '1'
+		if 'show_fix_by' in self.request_args.keys():
+			show_fix_by = self.request_args['show_fix_by'] == '1'
+		if 'show_seen_in_build' in self.request_args.keys():
+			show_seen_in_build = self.request_args['show_seen_in_build'] == '1'
+		if 'show_state' in self.request_args.keys():
+			show_state = self.request_args['show_state'] == '1'
+		if 'show_resolution' in self.request_args.keys():
+			show_resolution = self.request_args['show_resolution'] == '1'
+		if 'show_owner' in self.request_args.keys():
+			show_owner = self.request_args['show_owner'] == '1'
+		if 'show_title' in self.request_args.keys():
+			show_title = self.request_args['show_title'] == '1'
+
+		self.output('<form action="/" method="get">\n')
+
+		self.output('<label>ID</label><input type="checkbox" name="show_ID" value="1" ')
+		if show_ID:
+			self.output('checked="checked"')
+		self.output('/><br/>\n')
+
+		self.output('<label>Type</label><input type="checkbox" name="show_type" value="1" ')
+		if show_type:
+			self.output('checked="checked"')
+		self.output('/><br/>\n')
+
+		self.output('<label>Date</label><input type="checkbox" name="show_date" value="1" ')
+		if show_date:
+			self.output('checked="checked"')
+		self.output('/><br/>\n')
+
+		self.output('<label>Severity</label><input type="checkbox" name="show_severity" value="1" ')
+		if show_severity:
+			self.output('checked="checked"')
+		self.output('/><br/>\n')
+
+		self.output('<label>Priority</label><input type="checkbox" name="show_priority" value="1" ')
+		if show_priority:
+			self.output('checked="checked"')
+		self.output('/><br/>\n')
+
+		self.output('<label>Component</label><input type="checkbox" name="show_component" value="1" ')
+		if show_component:
+			self.output('checked="checked"')
+		self.output('/><br/>\n')
+
+		self.output('<label>Fix_By</label><input type="checkbox" name="show_fix_by" value="1" ')
+		if show_fix_by:
+			self.output('checked="checked"')
+		self.output('/><br/>\n')
+
+		self.output('<label>Seen_In_Build</label><input type="checkbox" name="show_seen_in_build" value="1" ')
+		if show_seen_in_build:
+			self.output('checked="checked"')
+		self.output('/><br/>\n')
+
+		self.output('<label>State</label><input type="checkbox" name="show_state" value="1" ')
+		if show_state:
+			self.output('checked="checked"')
+		self.output('/><br/>\n')
+
+		self.output('<label>Resolution</label><input type="checkbox" name="show_resolution" value="1" ')
+		if show_resolution:
+			self.output('checked="checked"')
+		self.output('/><br/>\n')
+
+		self.output('<label>Owner</label><input type="checkbox" name="show_owner" value="1" ')
+		if show_owner:
+			self.output('checked="checked"')
+		self.output('/><br/>\n')
+
+		self.output('<label>Title</label><input type="checkbox" name="show_title" value="1" ')
+		if show_title:
+			self.output('checked="checked"')
+		self.output('/><br/>\n')
+
+
+		self.output('<input type="submit" value="Sort and Filter"/></form>')
+
+		self.output('<table> <tr> ')
+		
+		if show_ID:
+			self.output('<th>ID</th> ')
+		if show_type:
+			self.output('<th>Type</th> ')
+		if show_date:
+			self.output('<th>Date</th> ')
+		if show_severity:
+			self.output('<th>Severity</th> ')
+		if show_priority:
+			self.output('<th>Priority</th> ')
+		if show_component:
+			self.output('<th>Component</th> ')
+		if show_fix_by:
+			self.output('<th>Fix_By</th> ')
+		if show_seen_in_build:
+			self.output('<th>Seen_In_Build</th> ')
+		if show_state:
+			self.output('<th>State</th> ')
+		if show_resolution:
+			self.output('<th>Resolution</th> ')
+		if show_owner:
+			self.output('<th>Owner</th> ')
+		if show_title:
+			self.output('<th>Title</th> ')
+
+		self.output('</tr>\n')
 		for issue in config.issue_db.keys():
 			if issue == 'format':
 				continue
 
 			self.output('<tr>')
-			self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, issue[:8]))
-			self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['State']))
-			self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Severity']))
-			self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Priority']))
-			self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Owner']))
-			self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Title']))
+
+			if show_ID:
+				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, issue[:8]))
+			if show_type:
+				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Type']))
+			if show_date:
+				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Date']))
+			if show_severity:
+				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Severity']))
+			if show_priority:
+				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Priority']))
+			if show_component:
+				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Component']))
+			if show_fix_by:
+				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Fix_by']))
+			if show_seen_in_build:
+				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Seen_in_build']))
+			if show_state:
+				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['State']))
+			if show_resolution:
+				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Resolution']))
+			if show_owner:
+				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Owner']))
+			if show_title:
+				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Title']))
+
 			self.output('</tr>\n')
 
 		self.output('</table>')
@@ -573,14 +739,14 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 				self.request_args[key] = value
 
-		if self.path == '/':
-			self.root()
-		elif '/issue/' in self.path:
+		if '/issue/' in self.path:
 			self.issue()
 		elif '/add_comment' in self.path:
 			self.add_comment()
 		elif self.path == '/new_issue':
 			self.new_issue()
+		elif '/?' in self.path:
+			self.root()
 		else:
 			print "Got unhandled get path %s" % self.path
 			self.root()
