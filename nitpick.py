@@ -101,10 +101,12 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.start_doc('')
 
+		print self.request_args
+
 		self.output('<a href="/new_issue">Create new issue</a><br/><br/>\n')
 
 		if self.request_args == {}:
-			# Use defaults
+			# Use defaults since this is the first time here
 			show_ID            = True
 			show_type          = False
 			show_date          = False
@@ -132,6 +134,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			show_owner         = False
 			show_title         = False
 
+		filter_components = []
+
 		if 'show_ID' in self.request_args.keys():
 			show_ID = self.request_args['show_ID'] == '1'
 		if 'show_type' in self.request_args.keys():
@@ -157,8 +161,15 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		if 'show_title' in self.request_args.keys():
 			show_title = self.request_args['show_title'] == '1'
 
+		if 'filter_components' in self.request_args.keys():
+			if type(self.request_args['filter_components']) == type([]):
+				filter_components = self.request_args['filter_components']
+			else:
+				filter_components = [self.request_args['filter_components']]
+
 		self.output('<form action="/" method="get">\n')
 
+		# Which fields to display
 		self.output('<label>ID</label><input type="checkbox" name="show_ID" value="1" ')
 		if show_ID:
 			self.output('checked="checked"')
@@ -219,6 +230,14 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.output('checked="checked"')
 		self.output('/><br/>\n')
 
+		# Which Components to filter out
+		self.output('<label>Components:</label><select name="filter_components" multiple="multiple" size="5">\n')
+		for component in config.issues['components']:
+			self.output('<option ')
+			if component in filter_components or filter_components == []:
+				self.output('selected="selected" ')
+			self.output('value="%s">%s</option>\n' % (component, component))
+		self.output('</select><br/>\n')
 
 		self.output('<input type="submit" value="Sort and Filter"/></form>')
 
@@ -252,6 +271,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('</tr>\n')
 		for issue in config.issue_db.keys():
 			if issue == 'format':
+				continue
+
+			if filter_components != [] and config.issue_db[issue]['Component'] not in filter_components:
 				continue
 
 			self.output('<tr>')
@@ -737,9 +759,17 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				key = key_value[0]
 				value = key_value[1]
 
-				self.request_args[key] = value
+				if key in self.request_args.keys():
+					if type(self.request_args[key]) != type([]):
+						self.request_args[key] = [self.request_args[key], value]
+					else:
+						self.request_args[key].append(value)
+				else:
+					self.request_args[key] = value
 
-		if '/issue/' in self.path:
+		if '/' == self.path:
+			self.root()
+		elif '/issue/' in self.path:
 			self.issue()
 		elif '/add_comment' in self.path:
 			self.add_comment()
