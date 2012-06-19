@@ -135,6 +135,13 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			show_title         = False
 
 		filter_components = []
+		filter_fix_by     = []
+		filter_severity   = []
+		filter_priority   = []
+		filter_state      = []
+		filter_resolution = []
+		filter_type       = []
+		filter_owner      = []
 
 		if 'show_ID' in self.request_args.keys():
 			show_ID = self.request_args['show_ID'] == '1'
@@ -161,11 +168,23 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		if 'show_title' in self.request_args.keys():
 			show_title = self.request_args['show_title'] == '1'
 
-		if 'filter_components' in self.request_args.keys():
-			if type(self.request_args['filter_components']) == type([]):
-				filter_components = self.request_args['filter_components']
-			else:
-				filter_components = [self.request_args['filter_components']]
+		def extract_filter_arg(arg_name, arg_val):
+			if arg_name in self.request_args.keys():
+				if type(self.request_args[arg_name]) == type([]):
+					arg_val = self.request_args[arg_name]
+				else:
+					arg_val = [self.request_args[arg_name]]
+			return arg_val
+
+		filter_components = extract_filter_arg('filter_components', filter_components)
+
+		filter_fix_by     = extract_filter_arg('filter_fix_by'     , filter_fix_by)
+		filter_severity   = extract_filter_arg('filter_severity'   , filter_severity)
+		filter_priority   = extract_filter_arg('filter_priority'   , filter_priority)
+		filter_state      = extract_filter_arg('filter_state'      , filter_state)
+		filter_resolution = extract_filter_arg('filter_resolution' , filter_resolution)
+		filter_type       = extract_filter_arg('filter_type'       , filter_type)
+		filter_owner      = extract_filter_arg('filter_owner'      , filter_owner)
 
 		self.output('<form action="/" method="get">\n')
 
@@ -230,14 +249,29 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.output('checked="checked"')
 		self.output('/><br/>\n')
 
-		# Which Components to filter out
-		self.output('<label>Components:</label><select name="filter_components" multiple="multiple" size="5">\n')
-		for component in config.issues['components']:
-			self.output('<option ')
-			if component in filter_components:
-				self.output('selected="selected" ')
-			self.output('value="%s">%s</option>\n' % (component, component))
-		self.output('</select><br/>\n')
+		# Filters
+		def output_filter_options(label, option_name, option_list, selected_list):
+			self.output('<label>%s:</label><select name="%s" multiple="multiple" size="5">\n' % (label, option_name))
+			for option in option_list:
+				self.output('<option ')
+				if option in selected_list:
+					self.output('selected="selected" ')
+				self.output('value="%s">%s</option>\n' % (option, option))
+			self.output('</select><br/>\n')
+
+		output_filter_options('Components' , 'filter_components' , config.issues['components'] , filter_components)
+		output_filter_options('Fix_By'     , 'filter_fix_by'     , config.issues['fix_by']     , filter_fix_by)
+		output_filter_options('Severity'   , 'filter_severity'   , config.issues['severity']   , filter_severity)
+		output_filter_options('Priority'   , 'filter_priority'   , config.issues['priority']   , filter_priority)
+		output_filter_options('State'      , 'filter_state'      , config.issues['state']      , filter_state)
+		output_filter_options('Resolution' , 'filter_resolution' , config.issues['resolution'] , filter_resolution)
+		output_filter_options('Type'       , 'filter_type'       , config.issues['type']       , filter_type)
+
+		possible_owners = []
+		if config.username != '':
+			possible_owners = [config.username]
+		possible_owners.extend(config.users)
+		output_filter_options('Owner', 'filter_owner', possible_owners, filter_owner)
 
 		self.output('<input type="submit" value="Sort and Filter"/></form>')
 
@@ -268,12 +302,33 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		if show_title:
 			self.output('<th>Title</th> ')
 
+
+		def skip_filter(issue, key, accept_list):
+			if accept_list != [] and config.issue_db[issue][key] not in accept_list:
+				return True
+			else:
+				return False
+
 		self.output('</tr>\n')
 		for issue in config.issue_db.keys():
 			if issue == 'format':
 				continue
 
-			if filter_components != [] and config.issue_db[issue]['Component'] not in filter_components:
+			if skip_filter(issue , 'Component'  , filter_components):
+			continue
+			if skip_filter(issue , 'Fix_By'     , filter_fix_by):
+			continue
+			if skip_filter(issue , 'Severity'   , filter_severity):
+			continue
+			if skip_filter(issue , 'Priority'   , filter_priority):
+			continue
+			if skip_filter(issue , 'State'      , filter_state):
+			continue
+			if skip_filter(issue , 'Resolution' , filter_resolution):
+			continue
+			if skip_filter(issue , 'Type'       , filter_type):
+			continue
+			if skip_filter(issue , 'Owner'      , filter_owner):
 				continue
 
 			self.output('<tr>')
@@ -756,8 +811,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 			for var in args.split('&'):
 				key_value = var.split('=')
-				key = key_value[0]
-				value = key_value[1]
+				key = urllib.unquote(key_value[0])
+				value = urllib.unquote_plus(key_value[1])
 
 				if key in self.request_args.keys():
 					if type(self.request_args[key]) != type([]):
