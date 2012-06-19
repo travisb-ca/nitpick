@@ -101,8 +101,6 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.start_doc('')
 
-		print self.request_args
-
 		self.output('<a href="/new_issue">Create new issue</a><br/><br/>\n')
 
 		if self.request_args == {}:
@@ -143,30 +141,23 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		filter_type       = []
 		filter_owner      = []
 
-		if 'show_ID' in self.request_args.keys():
-			show_ID = self.request_args['show_ID'] == '1'
-		if 'show_type' in self.request_args.keys():
-			show_type = self.request_args['show_type'] == '1'
-		if 'show_date' in self.request_args.keys():
-			show_date = self.request_args['show_date'] == '1'
-		if 'show_severity' in self.request_args.keys():
-			show_severity = self.request_args['show_severity'] == '1'
-		if 'show_priority' in self.request_args.keys():
-			show_priority = self.request_args['show_priority'] == '1'
-		if 'show_component' in self.request_args.keys():
-			show_component = self.request_args['show_component'] == '1'
-		if 'show_fix_by' in self.request_args.keys():
-			show_fix_by = self.request_args['show_fix_by'] == '1'
-		if 'show_seen_in_build' in self.request_args.keys():
-			show_seen_in_build = self.request_args['show_seen_in_build'] == '1'
-		if 'show_state' in self.request_args.keys():
-			show_state = self.request_args['show_state'] == '1'
-		if 'show_resolution' in self.request_args.keys():
-			show_resolution = self.request_args['show_resolution'] == '1'
-		if 'show_owner' in self.request_args.keys():
-			show_owner = self.request_args['show_owner'] == '1'
-		if 'show_title' in self.request_args.keys():
-			show_title = self.request_args['show_title'] == '1'
+		def extract_show_field_arg(arg_name, arg_val):
+			if arg_name in self.request_args.keys():
+				arg_val = self.request_args[arg_name] == '1'
+			return arg_val
+
+		show_ID            = extract_show_field_arg('show_ID',            show_ID)
+		show_type          = extract_show_field_arg('show_type',          show_type)
+		show_date          = extract_show_field_arg('show_date',          show_date)
+		show_severity      = extract_show_field_arg('show_severity',      show_severity)
+		show_priority      = extract_show_field_arg('show_priority',      show_priority)
+		show_component     = extract_show_field_arg('show_component',     show_component)
+		show_fix_by        = extract_show_field_arg('show_fix_by',        show_fix_by)
+		show_seen_in_build = extract_show_field_arg('show_seen_in_build', show_seen_in_build)
+		show_state         = extract_show_field_arg('show_state',         show_state)
+		show_resolution    = extract_show_field_arg('show_resolution',    show_resolution)
+		show_owner         = extract_show_field_arg('show_owner',         show_owner)
+		show_title         = extract_show_field_arg('show_title',         show_title)
 
 		def extract_filter_arg(arg_name, arg_val):
 			if arg_name in self.request_args.keys():
@@ -177,77 +168,35 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			return arg_val
 
 		filter_components = extract_filter_arg('filter_components', filter_components)
-
-		filter_fix_by     = extract_filter_arg('filter_fix_by'     , filter_fix_by)
-		filter_severity   = extract_filter_arg('filter_severity'   , filter_severity)
-		filter_priority   = extract_filter_arg('filter_priority'   , filter_priority)
-		filter_state      = extract_filter_arg('filter_state'      , filter_state)
-		filter_resolution = extract_filter_arg('filter_resolution' , filter_resolution)
-		filter_type       = extract_filter_arg('filter_type'       , filter_type)
-		filter_owner      = extract_filter_arg('filter_owner'      , filter_owner)
+		filter_fix_by     = extract_filter_arg('filter_fix_by',     filter_fix_by)
+		filter_severity   = extract_filter_arg('filter_severity',   filter_severity)
+		filter_priority   = extract_filter_arg('filter_priority',   filter_priority)
+		filter_state      = extract_filter_arg('filter_state',      filter_state)
+		filter_resolution = extract_filter_arg('filter_resolution', filter_resolution)
+		filter_type       = extract_filter_arg('filter_type',       filter_type)
+		filter_owner      = extract_filter_arg('filter_owner',      filter_owner)
 
 		self.output('<form action="/" method="get">\n')
 
 		# Which fields to display
-		self.output('<label>ID</label><input type="checkbox" name="show_ID" value="1" ')
-		if show_ID:
-			self.output('checked="checked"')
-		self.output('/><br/>\n')
+		def output_field_selectors(label, arg_name, bool):
+			self.output('<label>%s</label><input type="checkbox" name="%s" value="1" ' % (label, arg_name))
+			if bool:
+				self.output('checked="checked"')
+			self.output('/><br/>\n')
 
-		self.output('<label>Type</label><input type="checkbox" name="show_type" value="1" ')
-		if show_type:
-			self.output('checked="checked"')
-		self.output('/><br/>\n')
-
-		self.output('<label>Date</label><input type="checkbox" name="show_date" value="1" ')
-		if show_date:
-			self.output('checked="checked"')
-		self.output('/><br/>\n')
-
-		self.output('<label>Severity</label><input type="checkbox" name="show_severity" value="1" ')
-		if show_severity:
-			self.output('checked="checked"')
-		self.output('/><br/>\n')
-
-		self.output('<label>Priority</label><input type="checkbox" name="show_priority" value="1" ')
-		if show_priority:
-			self.output('checked="checked"')
-		self.output('/><br/>\n')
-
-		self.output('<label>Component</label><input type="checkbox" name="show_component" value="1" ')
-		if show_component:
-			self.output('checked="checked"')
-		self.output('/><br/>\n')
-
-		self.output('<label>Fix_By</label><input type="checkbox" name="show_fix_by" value="1" ')
-		if show_fix_by:
-			self.output('checked="checked"')
-		self.output('/><br/>\n')
-
-		self.output('<label>Seen_In_Build</label><input type="checkbox" name="show_seen_in_build" value="1" ')
-		if show_seen_in_build:
-			self.output('checked="checked"')
-		self.output('/><br/>\n')
-
-		self.output('<label>State</label><input type="checkbox" name="show_state" value="1" ')
-		if show_state:
-			self.output('checked="checked"')
-		self.output('/><br/>\n')
-
-		self.output('<label>Resolution</label><input type="checkbox" name="show_resolution" value="1" ')
-		if show_resolution:
-			self.output('checked="checked"')
-		self.output('/><br/>\n')
-
-		self.output('<label>Owner</label><input type="checkbox" name="show_owner" value="1" ')
-		if show_owner:
-			self.output('checked="checked"')
-		self.output('/><br/>\n')
-
-		self.output('<label>Title</label><input type="checkbox" name="show_title" value="1" ')
-		if show_title:
-			self.output('checked="checked"')
-		self.output('/><br/>\n')
+		output_field_selectors('ID',            'show_ID',            show_ID)
+		output_field_selectors('Type',          'show_type',          show_type)
+		output_field_selectors('Date',          'show_date',          show_date)
+		output_field_selectors('Severity',      'show_severity',      show_severity)
+		output_field_selectors('Priority',      'show_priority',      show_priority)
+		output_field_selectors('Component',     'show_component',     show_component)
+		output_field_selectors('Fix_By',        'show_fix_by',        show_fix_by)
+		output_field_selectors('Seen_In_Build', 'show_seen_in_build', show_seen_in_build)
+		output_field_selectors('State',         'show_state',         show_state)
+		output_field_selectors('Resolution',    'show_resolution',    show_resolution)
+		output_field_selectors('Owner',         'show_owner',         show_owner)
+		output_field_selectors('Title',         'show_title',         show_title)
 
 		# Filters
 		def output_filter_options(label, option_name, option_list, selected_list):
@@ -259,13 +208,13 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				self.output('value="%s">%s</option>\n' % (option, option))
 			self.output('</select><br/>\n')
 
-		output_filter_options('Components' , 'filter_components' , config.issues['components'] , filter_components)
-		output_filter_options('Fix_By'     , 'filter_fix_by'     , config.issues['fix_by']     , filter_fix_by)
-		output_filter_options('Severity'   , 'filter_severity'   , config.issues['severity']   , filter_severity)
-		output_filter_options('Priority'   , 'filter_priority'   , config.issues['priority']   , filter_priority)
-		output_filter_options('State'      , 'filter_state'      , config.issues['state']      , filter_state)
-		output_filter_options('Resolution' , 'filter_resolution' , config.issues['resolution'] , filter_resolution)
-		output_filter_options('Type'       , 'filter_type'       , config.issues['type']       , filter_type)
+		output_filter_options('Components', 'filter_components', config.issues['components'], filter_components)
+		output_filter_options('Fix_By',     'filter_fix_by',     config.issues['fix_by'],     filter_fix_by)
+		output_filter_options('Severity',   'filter_severity',   config.issues['severity'],   filter_severity)
+		output_filter_options('Priority',   'filter_priority',   config.issues['priority'],   filter_priority)
+		output_filter_options('State',      'filter_state',      config.issues['state'],      filter_state)
+		output_filter_options('Resolution', 'filter_resolution', config.issues['resolution'], filter_resolution)
+		output_filter_options('Type',       'filter_type',       config.issues['type'],       filter_type)
 
 		possible_owners = []
 		if config.username != '':
@@ -277,30 +226,22 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.output('<table> <tr> ')
 		
-		if show_ID:
-			self.output('<th>ID</th> ')
-		if show_type:
-			self.output('<th>Type</th> ')
-		if show_date:
-			self.output('<th>Date</th> ')
-		if show_severity:
-			self.output('<th>Severity</th> ')
-		if show_priority:
-			self.output('<th>Priority</th> ')
-		if show_component:
-			self.output('<th>Component</th> ')
-		if show_fix_by:
-			self.output('<th>Fix_By</th> ')
-		if show_seen_in_build:
-			self.output('<th>Seen_In_Build</th> ')
-		if show_state:
-			self.output('<th>State</th> ')
-		if show_resolution:
-			self.output('<th>Resolution</th> ')
-		if show_owner:
-			self.output('<th>Owner</th> ')
-		if show_title:
-			self.output('<th>Title</th> ')
+		def output_row_header(bool, label):
+			if bool:
+				self.output('<th>%s</th> ' % label)
+
+		output_row_header(show_ID,            'ID')
+		output_row_header(show_type,          'Type')
+		output_row_header(show_date,          'Date')
+		output_row_header(show_severity,      'Severity')
+		output_row_header(show_priority,      'Priority')
+		output_row_header(show_component,     'Component')
+		output_row_header(show_fix_by,        'Fix_By')
+		output_row_header(show_seen_in_build, 'Seen_In_Build')
+		output_row_header(show_state,         'State')
+		output_row_header(show_resolution,    'Resolution')
+		output_row_header(show_owner,         'Owner')
+		output_row_header(show_title,         'Title')
 
 
 		def skip_filter(issue, key, accept_list):
@@ -309,54 +250,46 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			else:
 				return False
 
+		def output_field(issue, bool, field_data):
+			if bool:
+				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, field_data))
+
 		self.output('</tr>\n')
 		for issue in config.issue_db.keys():
 			if issue == 'format':
 				continue
 
-			if skip_filter(issue , 'Component'  , filter_components):
-			continue
-			if skip_filter(issue , 'Fix_By'     , filter_fix_by):
-			continue
-			if skip_filter(issue , 'Severity'   , filter_severity):
-			continue
-			if skip_filter(issue , 'Priority'   , filter_priority):
-			continue
-			if skip_filter(issue , 'State'      , filter_state):
-			continue
-			if skip_filter(issue , 'Resolution' , filter_resolution):
-			continue
-			if skip_filter(issue , 'Type'       , filter_type):
-			continue
-			if skip_filter(issue , 'Owner'      , filter_owner):
+			if skip_filter(issue, 'Component',  filter_components):
+				continue
+			if skip_filter(issue, 'Fix_By',     filter_fix_by):
+				continue
+			if skip_filter(issue, 'Severity',   filter_severity):
+				continue
+			if skip_filter(issue, 'Priority',   filter_priority):
+				continue
+			if skip_filter(issue, 'State',      filter_state):
+				continue
+			if skip_filter(issue, 'Resolution', filter_resolution):
+				continue
+			if skip_filter(issue, 'Type',       filter_type):
+				continue
+			if skip_filter(issue, 'Owner',      filter_owner):
 				continue
 
 			self.output('<tr>')
 
-			if show_ID:
-				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, issue[:8]))
-			if show_type:
-				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Type']))
-			if show_date:
-				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Date']))
-			if show_severity:
-				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Severity']))
-			if show_priority:
-				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Priority']))
-			if show_component:
-				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Component']))
-			if show_fix_by:
-				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Fix_by']))
-			if show_seen_in_build:
-				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Seen_in_build']))
-			if show_state:
-				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['State']))
-			if show_resolution:
-				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Resolution']))
-			if show_owner:
-				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Owner']))
-			if show_title:
-				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, config.issue_db[issue]['Title']))
+			output_field(issue, show_ID,            issue[:8])
+			output_field(issue, show_type,          config.issue_db[issue]['Type'])
+			output_field(issue, show_date,          config.issue_db[issue]['Date'])
+			output_field(issue, show_severity,      config.issue_db[issue]['Severity'])
+			output_field(issue, show_priority,      config.issue_db[issue]['Priority'])
+			output_field(issue, show_component,     config.issue_db[issue]['Component'])
+			output_field(issue, show_fix_by,        config.issue_db[issue]['Fix_By'])
+			output_field(issue, show_seen_in_build, config.issue_db[issue]['Seen_In_Build'])
+			output_field(issue, show_state,         config.issue_db[issue]['State'])
+			output_field(issue, show_resolution,    config.issue_db[issue]['Resolution'])
+			output_field(issue, show_owner,         config.issue_db[issue]['Owner'])
+			output_field(issue, show_title,         config.issue_db[issue]['Title'])
 
 			self.output('</tr>\n')
 
