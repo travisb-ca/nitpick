@@ -234,7 +234,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('<label>Components:</label><select name="filter_components" multiple="multiple" size="5">\n')
 		for component in config.issues['components']:
 			self.output('<option ')
-			if component in filter_components or filter_components == []:
+			if component in filter_components:
 				self.output('selected="selected" ')
 			self.output('value="%s">%s</option>\n' % (component, component))
 		self.output('</select><br/>\n')
