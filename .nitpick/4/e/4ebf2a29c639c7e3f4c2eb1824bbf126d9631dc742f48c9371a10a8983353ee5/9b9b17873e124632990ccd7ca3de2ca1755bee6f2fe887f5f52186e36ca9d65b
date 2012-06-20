@@ -1,0 +1,8 @@
+Date: 2012-06-20 00:20:04
+User: travisb@travisbrown.ca
+Parent: issue
+Attachment: 
+--
+When it comes to parallel issues (ie. has a copy in the trunk and a copy in the current branch) these issues should perhaps be merged so that all the available comments appear. Since we have nested comments that is easy enough.
+
+The more difficult issue comes with merging the metadata of an issue. Perhaps we can use some sort of ghosting mechanism to show the state in all the non-current branches/databases?

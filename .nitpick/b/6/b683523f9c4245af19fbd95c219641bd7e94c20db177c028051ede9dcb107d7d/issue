@@ -1,0 +1,16 @@
+Severity: Major
+Title: Synchronize with external bug trackers
+Priority: 4
+Date: 2012-06-20 00:14:05
+State: Open
+Fix_By: Eventually
+Resolution: None
+Seen_In_Build: 
+Reported_By: travisb@travisbrown.ca
+Type: Feature
+Component: Core
+Owner: travisb@travisbrown.ca
+--
+Looking at the discussion at there two links http://kitenet.net/pipermail/dist-bugs/ and http://dist-bugs.branchable.com/ it seems that synchronizing with and existing bug trackers could be useful.
+
+One useful example would be if one used git as the VCS and github as a public display. It would be useful to bidirectionally synchronize with this public bug tracker.
