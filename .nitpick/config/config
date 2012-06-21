@@ -1,7 +1,7 @@
 severity: Blocker Critical Major Minor Trivial
 resolution: None Fixed Duplicate WontFix Invalid WorksForMe
 priority: 1 2 3 4 5
-state: New Confirmed Open Diagnosed Fixed Closed
+state: New Confirmed Open Diagnosed Closed
 vcs: svn
 fix_by: Next_Release Eventually
 components: Documentation Web_UI VCS Core
