@@ -1,0 +1,8 @@
+Date: 2012-06-21 05:57:20
+User: travisb@travisbrown.ca
+Parent: issue
+Attachment: 
+--
+I've started on making it have a basically usable and readable style. So far I've got the issue listing and the issue display complete.
+
+I have the new issue form and new comment form to complete still. It may also happen that I style the simple notifications such as Commit Successful, but that remains to be seen.
