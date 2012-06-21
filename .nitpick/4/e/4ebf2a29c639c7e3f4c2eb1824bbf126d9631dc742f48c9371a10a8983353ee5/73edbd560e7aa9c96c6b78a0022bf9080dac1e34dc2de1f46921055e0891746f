@@ -1,0 +1,12 @@
+Date: 2012-06-21 03:38:06
+User: travisb@travisbrown.ca
+Parent: issue
+Attachment: 
+--
+One thought on the implementation is for each Nitpick database to have a file which contains a project name and UUID.
+
+The UUID would be used to combine issues from different branches of the same project. So if you had a branch database and a trunk database as a parallel database then you would not see issues which are in both databases, but would instead see a combined/merged version.
+
+However, if you had a number of parallel databases from different projects then you would see which project they came from. This would be useful perhaps if you wanted to configure a Nitpick database to look over a number of subprojects.
+
+Say somebody uses Nitpick for each of their personal projects and wants to setup something so they can view all the bugs for all the projects from one spot.
