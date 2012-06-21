@@ -265,12 +265,16 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			if bool:
 				myargs = copy.copy(request_args)
 
+				sort_token = ''
+
 				if sort_field == label and not reverse_sort:
 					myargs['sort_field'] = label
 					myargs['reverse_sort'] = True
+					sort_token = '^'
 				elif sort_field == label and reverse_sort:
 					myargs['sort_field'] = ''
 					myargs['reverse_sort'] = False
+					sort_token = 'v'
 				elif sort_field != label:
 					myargs['sort_field'] = label
 					myargs['reverse_sort'] = False
@@ -291,7 +295,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 						arg_string += '%s=%s&' % (urllib.quote(argname), urllib.quote_plus(myargs[argname]))
 				arg_string = arg_string[:-1]
 
-				self.output('<th><a href="/%s">%s</a></th> ' % (arg_string, label))
+				self.output('<th><a href="/%s">%s %s %s</a></th> ' % (arg_string, sort_token, label, sort_token))
 
 		output_row_header(show_ID,            'ID', page_args)
 		output_row_header(show_type,          'Type', page_args)
