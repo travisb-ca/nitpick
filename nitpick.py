@@ -69,6 +69,33 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 					<title>%s</title>
 
 					<style type="text/css">
+					.issue_metadata {
+						padding: 0.5 0.5 0.5em;
+						margin: 1em;
+						border-style: solid;
+						border-width: 0.1em;
+					}
+
+					.issue_metadata p {
+						margin: 0.5em;
+					}
+
+					.issue_comment_content {
+						padding: 0.5 0.5 0.5em;
+						border-style: solid;
+						border-width: 0.1em;
+					}
+
+					.issue_comment_content p {
+						margin: 0.5em;
+						white-space: pre-wrap;
+						font-family: Monospace;
+					}
+
+					.issue_comment_children {
+						padding-left: 3em;
+					}
+
 					.field_select_box {
 						padding: 0.5 0.5 0.5em;
 						margin: 1em;
@@ -496,99 +523,106 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('<form action="/update_issue" method="post">\n')
 		self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue_hash)
 
-		self.output('Title: %s<br/>\n' % issue['Title'])
-		self.output('Date: %s<br/>\n' % issue['Date'])
-		self.output('Reported_By: %s<br/>\n' % issue['Reported_By'])
-		self.output('Seen_In_Build: %s<br/>\n' % issue['Seen_In_Build'])
+		self.output('<div class="issue_metadata">\n')
+		self.output('<p>Title: %s</p>\n' % issue['Title'])
+		self.output('<p>Date: %s</p>\n' % issue['Date'])
+		self.output('<p>Reported_By: %s</p>\n' % issue['Reported_By'])
+		self.output('<p>Seen_In_Build: %s</p>\n' % issue['Seen_In_Build'])
 
 		# Severity
-		self.output('Severity: <select name="severity">\n')
+		self.output('<p>Severity: <select name="severity">\n')
 		for severity in config.issues['severity']:
 			self.output('<option ')
 			if severity == issue['Severity']:
 				self.output('selected="selected" ')
 			self.output('value="%s">%s</option>\n' % (severity, severity))
-		self.output('</select><br/>\n')
+		self.output('</select></p>\n')
 
 		# Priority
-		self.output('Priority: <select name="priority">\n')
+		self.output('<p>Priority: <select name="priority">\n')
 		for priority in config.issues['priority']:
 			self.output('<option ')
 			if priority == issue['Priority']:
 				self.output('selected="selected" ')
 			self.output('value="%s">%s</option>\n' % (priority, priority))
-		self.output('</select><br/>\n')
+		self.output('</select></p>\n')
 
 		# State
-		self.output('State: <select name="state">\n')
+		self.output('<p>State: <select name="state">\n')
 		for state in config.issues['state']:
 			self.output('<option ')
 			if state == issue['State']:
 				self.output('selected="selected" ')
 			self.output('value="%s">%s</option>\n' % (state, state))
-		self.output('</select><br/>\n')
+		self.output('</select></p>\n')
 
 		# Resolution
-		self.output('Resolution: <select name="resolution">\n')
+		self.output('<p>Resolution: <select name="resolution">\n')
 		for resolution in config.issues['resolution']:
 			self.output('<option ')
 			if resolution == issue['Resolution']:
 				self.output('selected="selected" ')
 			self.output('value="%s">%s</option>\n' % (resolution, resolution))
-		self.output('</select><br/>\n')
+		self.output('</select></p>\n')
 
 		# Type
-		self.output('Type: <select name="type">\n')
+		self.output('<p>Type: <select name="type">\n')
 		for type in config.issues['type']:
 			self.output('<option ')
 			if type == issue['Type']:
 				self.output('selected="selected" ')
 			self.output('value="%s">%s</option>\n' % (type, type))
-		self.output('</select><br/>\n')
+		self.output('</select></p>\n')
 
 		# Owner
-		self.output('Owner: <select name="owner">\n')
+		self.output('<p>Owner: <select name="owner">\n')
 		for owner in config.users:
 			self.output('<option ')
 			if owner == issue['Owner']:
 				self.output('selected="selected" ')
 			self.output('value="%s">%s</option>\n' % (owner, owner))
-		self.output('</select><br/>\n')
+		self.output('</select></p>\n')
 
 		# Fix_By
-		self.output('Fix_By: <select name="fix_by">\n')
+		self.output('<p>Fix_By: <select name="fix_by">\n')
 		for fix_by in config.issues['fix_by']:
 			self.output('<option ')
 			if fix_by == issue['Fix_By']:
 				self.output('selected="selected" ')
 			self.output('value="%s">%s</option>\n' % (fix_by, fix_by))
-		self.output('</select><br/>\n')
+		self.output('</select></p>\n')
 
 		# Component
-		self.output('Component: <select name="component">\n')
+		self.output('<p>Component: <select name="component">\n')
 		for component in config.issues['components']:
 			self.output('<option ')
 			if component == issue['Component']:
 				self.output('selected="selected" ')
 			self.output('value="%s">%s</option>\n' % (component, component))
-		self.output('</select><br/>\n')
+		self.output('</select></p>\n')
+		self.output('</div>\n')
 
 		self.output('<input type="submit" value="Update" />\n')
 
 		self.output('</form>\n')
 
-		self.output('<pre>%s</pre><br/>\n' % issue['content'])
+		self.output('<div class="issue_comment">\n')
+		self.output('<div class="issue_comment_content">\n')
+		self.output('<p>%s</p>\n' % issue['content'])
 
 		self.output('<form action="/add_comment" method="get">\n')
 		self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue_hash)
 		self.output('<input type="submit" value="Add Comment" /><br/>')
 		self.output('</form>\n')
+		self.output('</div>\n') # End the content
+
+		self.output('<div class="issue_comment_children">\n')
 
 		comment_stack = produce_comment_tree(issue_hash)
 		comment_stack.reverse()
 		comment_depth = [1] * len(comment_stack)
 		parent_children_stack = [2] * len(comment_stack)
-		depth = 0
+		depth = 1
 
 		while len(comment_stack) > 0:
 			comment = comment_stack.pop()
@@ -596,6 +630,11 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			depth = comment_depth.pop()
 			parent_children = parent_children_stack.pop()
 
+			if old_depth - depth > 0:
+				self.output('</div></div>\n' * (old_depth - depth + 1))
+
+			self.output('<div class="issue_comment">\n')
+			self.output('<div class="issue_comment_content">\n')
 			for field in comment.keys():
 				if field in ['content', 'children', 'Parent']:
 					continue
@@ -604,15 +643,15 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 				self.output('%s: %s<br/>\n' % (field, comment[field]))
 
-			self.output('<pre>\n')
-			self.output(comment['content'])
-			self.output('</pre>\n')
+			self.output('<p>%s</p>\n' %comment['content'])
 
 			self.output('<form action="/add_comment" method="get">\n')
 			self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue_hash)
 			self.output('<input type="hidden" name="comment" value="%s"/>\n' % comment['hash'])
 			self.output('<input type="submit" value="Reply" /><br/>')
 			self.output('</form>\n')
+			self.output('</div>\n') # end content
+			self.output('<div class="issue_comment_children">\n')
 
 			comment['children'].reverse()
 			comment_stack.extend(comment['children'])
@@ -621,6 +660,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			else:
 				comment_depth.extend([depth + 1] * len(comment['children']))
 			parent_children_stack.extend([len(comment['children'])] * len(comment['children']))
+		self.output('</div></div>\n' * depth)
+
+		self.output('</div></div>\n') # End the issue description children div and comment div
 
 		self.end_doc()
 
