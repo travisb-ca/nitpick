@@ -186,7 +186,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			sort_field = self.request_args['sort_field']
 
 		self.output('<form action="/" method="get">\n')
-		self.output('<input type="hidden" name="sort_field" value=""/>\n')
+		self.output('<input type="hidden" name="sort_field" value="%s"/>\n' % sort_field)
 
 		# Which fields to display
 		def output_field_selectors(label, arg_name, bool):
