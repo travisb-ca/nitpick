@@ -29,6 +29,7 @@ import BaseHTTPServer
 import urllib
 import gzip
 import subprocess
+import copy
 
 DATEFORMAT = '%Y-%m-%d %H:%M:%S'
 FILLWIDTH = 69
@@ -99,6 +100,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 	def root(self):
 		load_issue_db()
 
+		print self.path
+		print self.request_args
+
 		self.start_doc('')
 
 		self.output('<a href="/new_issue">Create new issue</a><br/><br/>\n')
@@ -141,6 +145,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		filter_type       = []
 		filter_owner      = []
 
+		sort_field = ''
+
 		def extract_show_field_arg(arg_name, arg_val):
 			if arg_name in self.request_args.keys():
 				arg_val = self.request_args[arg_name] == '1'
@@ -176,7 +182,11 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		filter_type       = extract_filter_arg('filter_type',       filter_type)
 		filter_owner      = extract_filter_arg('filter_owner',      filter_owner)
 
+		if 'sort_field' in self.request_args.keys():
+			sort_field = self.request_args['sort_field']
+
 		self.output('<form action="/" method="get">\n')
+		self.output('<input type="hidden" name="sort_field" value=""/>\n')
 
 		# Which fields to display
 		def output_field_selectors(label, arg_name, bool):
@@ -226,22 +236,63 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.output('<table> <tr> ')
 		
-		def output_row_header(bool, label):
-			if bool:
-				self.output('<th>%s</th> ' % label)
+		page_args = {
+				'show_ID'            : show_ID,
+				'show_type'          : show_type,
+				'show_date'          : show_date,
+				'show_severity'      : show_severity,
+				'show_priority'      : show_priority,
+				'show_component'     : show_component,
+				'show_fix_by'        : show_fix_by,
+				'show_seen_in_build' : show_seen_in_build,
+				'show_state'         : show_state,
+				'show_resolution'    : show_resolution,
+				'show_owner'         : show_owner,
+				'show_title'         : show_title,
+				'filter_components'  : filter_components,
+				'filter_fix_by'      : filter_fix_by,
+				'filter_severity'    : filter_severity,
+				'filter_priority'    : filter_priority,
+				'filter_state'       : filter_state,
+				'filter_resolution'  : filter_resolution,
+				'filter_type'        : filter_type,
+				'filter_owner'       : filter_owner,
+				'sort_field'         : sort_field
+			}
 
-		output_row_header(show_ID,            'ID')
-		output_row_header(show_type,          'Type')
-		output_row_header(show_date,          'Date')
-		output_row_header(show_severity,      'Severity')
-		output_row_header(show_priority,      'Priority')
-		output_row_header(show_component,     'Component')
-		output_row_header(show_fix_by,        'Fix_By')
-		output_row_header(show_seen_in_build, 'Seen_In_Build')
-		output_row_header(show_state,         'State')
-		output_row_header(show_resolution,    'Resolution')
-		output_row_header(show_owner,         'Owner')
-		output_row_header(show_title,         'Title')
+		def output_row_header(bool, label, request_args):
+			if bool:
+				myargs = copy.copy(request_args)
+				myargs['sort_field'] = label
+
+				arg_string = '?'
+				for argname in myargs.keys():
+					if type(myargs[argname]) == type([]):
+						for argval in myargs[argname]:
+							arg_string += '%s=%s&' % (urllib.quote(argname), urllib.quote_plus(argval))
+					elif type(myargs[argname]) == type(True):
+						if myargs[argname]:
+							arg_string += '%s=1&' % (urllib.quote(argname))
+						else:
+							arg_string += '%s=0&' % (urllib.quote(argname))
+					else:
+						arg_string += '%s=%s&' % (urllib.quote(argname), urllib.quote_plus(myargs[argname]))
+				arg_string = arg_string[:-1]
+
+				self.output('<th><a href="/%s">%s</a></th> ' % (arg_string, label))
+
+		output_row_header(show_ID,            'ID', page_args)
+		output_row_header(show_type,          'Type', page_args)
+		output_row_header(show_date,          'Date', page_args)
+		output_row_header(show_severity,      'Severity', page_args)
+		output_row_header(show_priority,      'Priority', page_args)
+		output_row_header(show_component,     'Component', page_args)
+		output_row_header(show_fix_by,        'Fix_By', page_args)
+		output_row_header(show_seen_in_build, 'Seen_In_Build', page_args)
+		output_row_header(show_state,         'State', page_args)
+		output_row_header(show_resolution,    'Resolution', page_args)
+		output_row_header(show_owner,         'Owner', page_args)
+		output_row_header(show_title,         'Title', page_args)
 
 
 		def skip_filter(issue, key, accept_list):
@@ -254,8 +305,57 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			if bool:
 				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, field_data))
 
+
+		def sort_issues(issue):
+			issue_obj = config.issue_db[issue]
+
+			if sort_field == 'Component':
+				return config.issues['components'].index(issue_obj['Component'])
+
+			if sort_field == 'Fix_By':
+				return config.issues['fix_by'].index(issue_obj['Fix_By'])
+
+			if sort_field == 'Severity':
+				return config.issues['severity'].index(issue_obj['Severity'])
+
+			if sort_field == 'Priority':
+				return config.issues['priority'].index(issue_obj['Priority'])
+
+			if sort_field == 'State':
+				return config.issues['state'].index(issue_obj['State'])
+
+			if sort_field == 'Resolution':
+				return config.issues['resolution'].index(issue_obj['Resolution'])
+
+			if sort_field == 'Type':
+				return config.issues['type'].index(issue_obj['Type'])
+
+			if sort_field == 'Date':
+				return issue_obj['Date']
+
+			if sort_field == 'Owner':
+				return issue_obj['Owner']
+
+			if sort_field == 'Seen_In_Build':
+				return issue_obj['Seen_In_Build']
+
+			if sort_field == 'Title':
+				return issue_obj['Title']
+
+			if sort_field == 'ID':
+				return issue
+
+			print 'Unhandled sort_field "%s"' % sort_field
+			return issue
+
+
 		self.output('</tr>\n')
-		for issue in config.issue_db.keys():
+		issues = config.issue_db.keys()
+
+		if sort_field != '':
+			issues.sort(key = sort_issues)
+
+		for issue in issues:
 			if issue == 'format':
 				continue
 
