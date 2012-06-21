@@ -100,9 +100,6 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 	def root(self):
 		load_issue_db()
 
-		print self.path
-		print self.request_args
-
 		self.start_doc('')
 
 		self.output('<a href="/new_issue">Create new issue</a><br/><br/>\n')
@@ -146,6 +143,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		filter_owner      = []
 
 		sort_field = ''
+		reverse_sort = False
 
 		def extract_show_field_arg(arg_name, arg_val):
 			if arg_name in self.request_args.keys():
@@ -185,8 +183,11 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		if 'sort_field' in self.request_args.keys():
 			sort_field = self.request_args['sort_field']
 
+		reverse_sort = extract_show_field_arg('reverse_sort', reverse_sort)
+
 		self.output('<form action="/" method="get">\n')
 		self.output('<input type="hidden" name="sort_field" value="%s"/>\n' % sort_field)
+		self.output('<input type="hidden" name="reverse_sort" value="%s"/>\n' % reverse_sort)
 
 		# Which fields to display
 		def output_field_selectors(label, arg_name, bool):
@@ -263,7 +264,18 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		def output_row_header(bool, label, request_args):
 			if bool:
 				myargs = copy.copy(request_args)
-				myargs['sort_field'] = label
+
+				if sort_field == label and not reverse_sort:
+					myargs['sort_field'] = label
+					myargs['reverse_sort'] = True
+				elif sort_field == label and reverse_sort:
+					myargs['sort_field'] = ''
+					myargs['reverse_sort'] = False
+				elif sort_field != label:
+					myargs['sort_field'] = label
+					myargs['reverse_sort'] = False
+				else:
+					print 'Unknown sort_field/label/reverse combo %s/%s/%s' % (myargs['sort_field'], label, reverse_sort)
 
 				arg_string = '?'
 				for argname in myargs.keys():
@@ -354,6 +366,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		if sort_field != '':
 			issues.sort(key = sort_issues)
+		if reverse_sort:
+			issues.reverse()
 
 		for issue in issues:
 			if issue == 'format':
