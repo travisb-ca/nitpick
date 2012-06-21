@@ -67,6 +67,66 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 				<head>
 					<title>%s</title>
+
+					<style type="text/css">
+					.field_select_box {
+						padding: 0.5 0.5 0.5em;
+						margin: 1em;
+						border-style: solid;
+						border-width: 0.1em;
+					}
+
+					.field_select_item {
+						display: inline-block;
+					}
+
+					.filter_select_box {
+						padding: 0.5 0.5 0.5em;
+						margin: 1em;
+						border-style: solid;
+						border-width: 0.1em;
+					}
+
+					.filter_select_item {
+						margin: 0.5em;
+						display: inline-block;
+					}
+
+					.issue_list table {
+						border-style: solid;
+						border-width: 0.1em;
+						margin-top: 1em;
+						margin-bottom: 1em;
+						margin-left: auto;
+						margin-right: auto;
+						width: 90%%;
+					}
+
+					.issue_list td {
+						padding-right: 0.5em;
+						padding-left: 0.5em;
+						text-align: center;
+					}
+
+					.issue_list th {
+						padding-right: 0.5em;
+						padding-left: 0.5em;
+						text-align: center;
+						font-size: 125%%;
+					}
+
+					.issue_list a:link { text-decoration: none; }
+					.issue_list a:hover { text-decoration: underline; }
+
+					/* Separate tr1 and tr2 to alternate colours */
+					.issue_list_tr0 {
+						background: White;
+					}
+
+					.issue_list_tr1 {
+						background: LightGrey;
+					}
+					</style>
 				</head>
 			<body>
 			""" % (title)
@@ -191,11 +251,13 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		# Which fields to display
 		def output_field_selectors(label, arg_name, bool):
-			self.output('<label>%s</label><input type="checkbox" name="%s" value="1" ' % (label, arg_name))
+			self.output('<div class="field_select_item"><label>%s:</label><input type="checkbox" name="%s" value="1" ' % (label, arg_name))
 			if bool:
 				self.output('checked="checked"')
-			self.output('/><br/>\n')
+			self.output('/></div>\n')
 
+		self.output('<div class="field_select_box">\n')
+		self.output('Select Fields to Display<br/>\n')
 		output_field_selectors('ID',            'show_ID',            show_ID)
 		output_field_selectors('Type',          'show_type',          show_type)
 		output_field_selectors('Date',          'show_date',          show_date)
@@ -208,17 +270,19 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		output_field_selectors('Resolution',    'show_resolution',    show_resolution)
 		output_field_selectors('Owner',         'show_owner',         show_owner)
 		output_field_selectors('Title',         'show_title',         show_title)
+		self.output('</div>\n')
 
 		# Filters
 		def output_filter_options(label, option_name, option_list, selected_list):
-			self.output('<label>%s:</label><select name="%s" multiple="multiple" size="5">\n' % (label, option_name))
+			self.output('<div class="filter_select_item"><label>%s:</label><select name="%s" multiple="multiple" size="5">\n' % (label, option_name))
 			for option in option_list:
 				self.output('<option ')
 				if option in selected_list:
 					self.output('selected="selected" ')
 				self.output('value="%s">%s</option>\n' % (option, option))
-			self.output('</select><br/>\n')
+			self.output('</select></div>\n')
 
+		self.output('<div class="filter_select_box">\n')
 		output_filter_options('Components', 'filter_components', config.issues['components'], filter_components)
 		output_filter_options('Fix_By',     'filter_fix_by',     config.issues['fix_by'],     filter_fix_by)
 		output_filter_options('Severity',   'filter_severity',   config.issues['severity'],   filter_severity)
@@ -232,10 +296,11 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			possible_owners = [config.username]
 		possible_owners.extend(config.users)
 		output_filter_options('Owner', 'filter_owner', possible_owners, filter_owner)
+		self.output('</div>\n')
 
 		self.output('<input type="submit" value="Sort and Filter"/></form>')
 
-		self.output('<table> <tr> ')
+		self.output('<div class="issue_list"><table class="issue_list" cellspacing="0"> <tr class="issue_list"> ')
 		
 		page_args = {
 				'show_ID'            : show_ID,
@@ -295,7 +360,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 						arg_string += '%s=%s&' % (urllib.quote(argname), urllib.quote_plus(myargs[argname]))
 				arg_string = arg_string[:-1]
 
-				self.output('<th><a href="/%s">%s %s %s</a></th> ' % (arg_string, sort_token, label, sort_token))
+				self.output('<th class="issue_list"><a href="/%s">%s %s %s</a></th> ' % (arg_string, sort_token, label, sort_token))
 
 		output_row_header(show_ID,            'ID', page_args)
 		output_row_header(show_type,          'Type', page_args)
@@ -319,7 +384,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		def output_field(issue, bool, field_data):
 			if bool:
-				self.output('<td><a href="/issue/%s">%s</a></td> ' % (issue, field_data))
+				self.output('<td class="issue_list"><a href="/issue/%s">%s</a></td> ' % (issue, field_data))
 
 
 		def sort_issues(issue):
@@ -373,6 +438,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		if reverse_sort:
 			issues.reverse()
 
+		row_colour = 1
 		for issue in issues:
 			if issue == 'format':
 				continue
@@ -394,7 +460,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			if skip_filter(issue, 'Owner',      filter_owner):
 				continue
 
-			self.output('<tr>')
+			self.output('<tr class="issue_list_tr%d">' % row_colour)
+			row_colour = (row_colour + 1) % 2
 
 			output_field(issue, show_ID,            issue[:8])
 			output_field(issue, show_type,          config.issue_db[issue]['Type'])
@@ -411,7 +478,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 			self.output('</tr>\n')
 
-		self.output('</table>')
+		self.output('</table></div>')
 
 		self.end_doc()
 
