@@ -183,6 +183,13 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 						margin: 0em;
 					}
 
+					.command_button {
+						float: left;
+					}
+
+					.command_bar {
+						width: 100%%;
+					}
 					</style>
 				</head>
 			<body>
@@ -204,10 +211,15 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.output(self.html_preamble('Nitpick' + title))
 
-		self.output('<form action="/shutdown" method="post"><input type="submit" value="Exit Web Interface"/></form>\n')
+		self.output('<div class="command_bar">\n')
+		self.output('<span class="command_button"><form action="/shutdown" method="post">')
+		self.output('<input type="submit" value="Exit Web Interface"/></form></span>\n')
 		if config.uncommitted_changes and config.vcs.real:
-			self.output('<form action="/commit" method="post"><input type="submit" value="Commit Changes"/></form>\n')
-			self.output('<form action="/revert" method="post"><input type="submit" value="Revert Changes"/></form>\n')
+			self.output('<span class="command_button"><form action="/commit" method="post">')
+			self.output('<input type="submit" value="Commit Changes"/></form></span>\n')
+			self.output('<span class="command_button"><form action="/revert" method="post">')
+			self.output('<input type="submit" value="Revert Changes"/></form></span>\n')
+		self.output('</div>\n')
 
 		self.output('<br/>\n')
 
@@ -219,7 +231,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.start_doc('')
 
-		self.output('<a href="/new_issue">Create new issue</a><br/><br/>\n')
+		self.output('<p><a href="/new_issue">Create new issue</a></p>\n')
 
 		if self.request_args == {}:
 			# Use defaults since this is the first time here
@@ -548,7 +560,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		issue = parse_file(config.issue_db[issue_hash]['path'] + '/issue')
 
-		self.output('<a href="/">Back to issue list</a><br/><br/>\n')
+		self.output('<p><a href="/">Back to issue list</a></p>\n')
 
 		self.output('<form action="/update_issue" method="post">\n')
 		self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue_hash)
@@ -706,6 +718,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		else:
 			issue = self.request_args['issue']
 
+		self.output('<p><a href="/issue/%s">Back to issue %s</a></p>\n' % (issue, issue[:8]))
+
 		if not 'comment' in self.request_args.keys():
 			comment = None
 		else:
@@ -764,6 +778,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 	def new_issue(self):
 		self.start_doc('New Issue')
+
+		self.output('<p><a href="/">Back to issue list</a></p>\n')
 
 		self.output('<div class="new_issue">\n')
 		self.output('<form action="/new_issue" method="post">\n')
@@ -863,7 +879,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		comment_filename = add_comment(self.request_args['issue'], comment)
 
 		self.start_doc('Comment %s added' % comment_filename)
-		self.output('Successfully added the comment<br/>\n')
+		self.output('<p>Successfully added the comment</p>\n')
 		self.output('<a href="/">Back to issue list</a> ')
 		self.output('<a href="/issue/%s"> Back to issue %s</a>\n' % (self.request_args['issue'], self.request_args['issue'][:8]))
 		self.end_doc()
@@ -898,7 +914,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			config.issue_db[issue]['Resolution'] == self.request_args['resolution'] and \
 			config.issue_db[issue]['Fix_By'] == self.request_args['fix_by']:
 				self.start_doc('No change')
-				self.output('No change sent, no change made')
+				self.output('<p>No change sent, no change made</p>')
+				self.output('<a href="/issue/%s">Back to issue %s</a>\n' % (issue, issue[:8]))
 				self.end_doc()
 				return
 
@@ -922,7 +939,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		issue_filename = config.issue_db[issue]['path'] + '/issue'
 
 		self.start_doc('Issues %s updated' % issue[:8])
-		self.output('Successfully updated issue %s<br/>\n' % issue[:8])
+		self.output('<p>Successfully updated issue %s</p>\n' % issue[:8])
 		self.output('<a href="/">Back to issue list</a> ')
 		self.output('<a href="/issue/%s">Back to issue %s</a><br/>\n' % (issue, issue[:8]))
 		self.end_doc()
@@ -966,7 +983,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		issue_filename, issue_hash = add_issue(issue)
 
 		self.start_doc('Created Issue %s' % issue_filename)
-		self.output('Successfully create the issue<br/>\n')
+		self.output('<p>Successfully create the issue</p>\n')
 		self.output('<a href="/">Back to issue list</a> ')
 		self.output('<a href="/issue/%s"> Back to issue %s</a>\n' % (issue_hash, issue_hash[:8]))
 		self.end_doc()
@@ -975,7 +992,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 	def shutdown_post(self):
 		self.start_doc('Shutting Down')
-		self.output('Nitpick web interface has exited')
+		self.output('<p>Nitpick web interface has exited</p>')
 		self.end_doc()
 
 		config.endweb = True
@@ -985,7 +1002,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		config.uncommitted_changes = False
 
 		self.start_doc('Committed Changes')
-		self.output('All changes to the Nitpick database have been committed<br/>\n')
+		self.output('<p>All changes to the Nitpick database have been committed</p>\n')
 		self.output('<a href="/">Go back to issue index</a>\n');
 		self.end_doc()
 
@@ -994,7 +1011,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		config.uncommitted_changes = False
 
 		self.start_doc('Reverted Changes')
-		self.output('All changes to the Nitpick database have been reverted<br/>\n')
+		self.output('<p>All changes to the Nitpick database have been reverted</p>\n')
 		self.output('<a href="/">Go back to issue index</a>\n');
 		self.end_doc()
 
