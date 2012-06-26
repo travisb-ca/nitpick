@@ -399,7 +399,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			if bool:
 				myargs = copy.copy(request_args)
 
-				sort_token = ''
+				sort_token = '&nbsp;&nbsp;'
 
 				if sort_field == label and not reverse_sort:
 					myargs['sort_field'] = label
