@@ -34,8 +34,9 @@ import re
 
 DATEFORMAT = '%Y-%m-%d %H:%M:%S'
 FILLWIDTH = 69
-ISSUE_CACHE_FORMAT=1
-URL_REGEX='([a-z]+://[a-zA-Z0-9]+\.[a-zA-Z0-9.]+[a-zA-Z0-9/\-.%&?=+_,]*)'
+ISSUE_CACHE_FORMAT = 1
+URL_REGEX = '([a-z]+://[a-zA-Z0-9]+\.[a-zA-Z0-9.]+[a-zA-Z0-9/\-.%&?=+_,]*)'
+ISSUE_REGEX = '([a-f0-9]{8,64})'
 
 # Contains the defaults used to initalize a database
 class config:
@@ -600,6 +601,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('<div class="issue_comment_content">\n')
 
 		linked_content = re.sub(URL_REGEX, '<a href="\\1">\\1</a>', issue['content'])
+		linked_content = re.sub(ISSUE_REGEX, '<a href="/issue/\\1">\\1</a>', linked_content)
 		self.output('<p>%s</p>\n' % linked_content)
 
 		self.output('<form action="/add_comment" method="get">\n')
@@ -636,6 +638,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				self.output('%s: %s<br/>\n' % (field, comment[field]))
 
 			linked_content = re.sub(URL_REGEX, '<a href="\\1">\\1</a>', comment['content'])
+			linked_content = re.sub(ISSUE_REGEX, '<a href="/issue/\\1">\\1</a>', linked_content)
 			self.output('<p>%s</p>\n' % linked_content)
 
 			self.output('<form action="/add_comment" method="get">\n')

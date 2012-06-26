@@ -1,0 +1,8 @@
+Date: 2012-06-26 05:16:24
+User: travisb@travisbrown.ca
+Parent: issue
+Attachment: 
+--
+I've added linking to issues based on things which look like a sufficiently long hash. Along the way I added linking URLs too.
+
+Now currently anything which looks like it could be an issue is linked, so hashes of other things or of comments will also create links.
