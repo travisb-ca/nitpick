@@ -153,6 +153,14 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 					.issue_list_tr1 {
 						background: LightGrey;
 					}
+
+					add_comment p {
+						margin: 0.5em;
+					}
+
+					add_comment textarea {
+						font-family: Monospace;
+					}
 					</style>
 				</head>
 			<body>
@@ -706,6 +714,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				return
 
 		# Here we know that the issue and parent are good to use
+		self.output('<div class="add_comment">\n')
 		self.output('<form action="/add_comment" method="post">\n')
 		self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue)
 		self.output('<input type="hidden" name="parent" value="%s"/>\n' % parent)
@@ -713,20 +722,21 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		date = time.strftime(DATEFORMAT, time.gmtime())
 		self.output('Date: %s<input type="hidden" name="date" value="%s"/><br/>\n' % (date, date))
 
-		self.output('User: <select name="username">\n')
+		self.output('<p>User: <select name="username">\n')
 		for username in config.users:
 			self.output('<option ')
 			if username == config.username:
 				self.output('selected="selected" ')
 			self.output('value="%s">%s</option>\n' % (username, username))
-		self.output('</select><br/>\n')
+		self.output('</select></p>\n')
 
-		self.output('Attachment: <br/>\n')
+		self.output('<p>Attachment: </p>\n')
 
-		self.output('<textarea name="content" rows="20" cols="80">Enter comment here</textarea><br/>\n')
+		self.output('<p><textarea name="content" rows="20" cols="80">Enter comment here</textarea></p>\n')
 
 		self.output('<input type="submit" value="Submit"/><br/>\n')
 		self.output('</form>\n')
+		self.output('</div>\n')
 
 		self.end_doc()
 
