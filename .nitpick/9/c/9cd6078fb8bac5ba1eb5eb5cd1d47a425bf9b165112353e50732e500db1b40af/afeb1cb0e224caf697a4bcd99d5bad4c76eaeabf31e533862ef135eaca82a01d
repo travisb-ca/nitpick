@@ -1,0 +1,6 @@
+Date: 2012-06-26 04:22:51
+User: travisb@travisbrown.ca
+Parent: issue
+Attachment: 
+--
+It would seem that links is very aggressive about caching and ignores all the no-cache items you may try to add. See http://tech.groups.yahoo.com/group/links-browser/message/368
