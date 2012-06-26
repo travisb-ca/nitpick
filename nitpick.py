@@ -271,7 +271,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		filter_type       = []
 		filter_owner      = []
 
-		sort_field = ''
+		sort_field = 'State' # Sort by state by default
 		reverse_sort = False
 
 		def extract_show_field_arg(arg_name, arg_val):
