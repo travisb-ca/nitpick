@@ -571,77 +571,23 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('<p>Reported_By: %s</p>\n' % issue['Reported_By'])
 		self.output('<p>Seen_In_Build: %s</p>\n' % issue['Seen_In_Build'])
 
-		# Severity
-		self.output('<p>Severity: <select name="severity">\n')
-		for severity in config.issues['severity']:
-			self.output('<option ')
-			if severity == issue['Severity']:
-				self.output('selected="selected" ')
-			self.output('value="%s">%s</option>\n' % (severity, severity))
-		self.output('</select></p>\n')
+		def output_metadata(label, arg_name, option_list, selected):
+			self.output('<p>%s: <select name="%s">\n' % (label, arg_name))
+			for item in option_list:
+				self.output('<option ')
+				if item == selected:
+					self.output('selected="selected" ')
+				self.output('value="%s">%s</option>\n' % (item, item))
+			self.output('</select></p>\n')
 
-		# Priority
-		self.output('<p>Priority: <select name="priority">\n')
-		for priority in config.issues['priority']:
-			self.output('<option ')
-			if priority == issue['Priority']:
-				self.output('selected="selected" ')
-			self.output('value="%s">%s</option>\n' % (priority, priority))
-		self.output('</select></p>\n')
-
-		# State
-		self.output('<p>State: <select name="state">\n')
-		for state in config.issues['state']:
-			self.output('<option ')
-			if state == issue['State']:
-				self.output('selected="selected" ')
-			self.output('value="%s">%s</option>\n' % (state, state))
-		self.output('</select></p>\n')
-
-		# Resolution
-		self.output('<p>Resolution: <select name="resolution">\n')
-		for resolution in config.issues['resolution']:
-			self.output('<option ')
-			if resolution == issue['Resolution']:
-				self.output('selected="selected" ')
-			self.output('value="%s">%s</option>\n' % (resolution, resolution))
-		self.output('</select></p>\n')
-
-		# Type
-		self.output('<p>Type: <select name="type">\n')
-		for type in config.issues['type']:
-			self.output('<option ')
-			if type == issue['Type']:
-				self.output('selected="selected" ')
-			self.output('value="%s">%s</option>\n' % (type, type))
-		self.output('</select></p>\n')
-
-		# Owner
-		self.output('<p>Owner: <select name="owner">\n')
-		for owner in config.users:
-			self.output('<option ')
-			if owner == issue['Owner']:
-				self.output('selected="selected" ')
-			self.output('value="%s">%s</option>\n' % (owner, owner))
-		self.output('</select></p>\n')
-
-		# Fix_By
-		self.output('<p>Fix_By: <select name="fix_by">\n')
-		for fix_by in config.issues['fix_by']:
-			self.output('<option ')
-			if fix_by == issue['Fix_By']:
-				self.output('selected="selected" ')
-			self.output('value="%s">%s</option>\n' % (fix_by, fix_by))
-		self.output('</select></p>\n')
-
-		# Component
-		self.output('<p>Component: <select name="component">\n')
-		for component in config.issues['components']:
-			self.output('<option ')
-			if component == issue['Component']:
-				self.output('selected="selected" ')
-			self.output('value="%s">%s</option>\n' % (component, component))
-		self.output('</select></p>\n')
+		output_metadata('Severity', 'severity', config.issues['severity'], issue['Severity'])
+		output_metadata('Priority', 'priority', config.issues['priority'], issue['Priority'])
+		output_metadata('State', 'state', config.issues['state'], issue['State'])
+		output_metadata('Resolution', 'resolution', config.issues['resolution'], issue['Resolution'])
+		output_metadata('Type', 'type', config.issues['type'], issue['Type'])
+		output_metadata('Owner', 'owner', config.users, issue['Owner'])
+		output_metadata('Fix_By', 'fix_by', config.issues['fix_by'], issue['Fix_By'])
+		output_metadata('Component', 'component', config.issues['components'], issue['Component'])
 		self.output('</div>\n')
 
 		self.output('<input type="submit" value="Update" />\n')
