@@ -30,10 +30,12 @@ import urllib
 import gzip
 import subprocess
 import copy
+import re
 
 DATEFORMAT = '%Y-%m-%d %H:%M:%S'
 FILLWIDTH = 69
 ISSUE_CACHE_FORMAT=1
+URL_REGEX='([a-z]+://[a-zA-Z0-9]+\.[a-zA-Z0-9.]+[a-zA-Z0-9/\-.%&?=+_,]*)'
 
 # Contains the defaults used to initalize a database
 class config:
@@ -596,7 +598,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.output('<div class="issue_comment">\n')
 		self.output('<div class="issue_comment_content">\n')
-		self.output('<p>%s</p>\n' % issue['content'])
+
+		linked_content = re.sub(URL_REGEX, '<a href="\\1">\\1</a>', issue['content'])
+		self.output('<p>%s</p>\n' % linked_content)
 
 		self.output('<form action="/add_comment" method="get">\n')
 		self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue_hash)
@@ -631,7 +635,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 				self.output('%s: %s<br/>\n' % (field, comment[field]))
 
-			self.output('<p>%s</p>\n' %comment['content'])
+			linked_content = re.sub(URL_REGEX, '<a href="\\1">\\1</a>', comment['content'])
+			self.output('<p>%s</p>\n' % linked_content)
 
 			self.output('<form action="/add_comment" method="get">\n')
 			self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue_hash)
