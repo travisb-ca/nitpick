@@ -1,11 +1,11 @@
 Severity: Major
 Title: Display Comments Threaded in the Web Interface
 Reported_By: travisb@travisbrown.ca
-Resolution: Fixed
+Resolution: None
 Component: Web_UI
 Priority: 1
 Date: 2012-06-18 03:49:04
-State: Closed
+State: Open
 Fix_By: Next_Release
 Owner: travisb@travisbrown.ca
 Type: Feature
