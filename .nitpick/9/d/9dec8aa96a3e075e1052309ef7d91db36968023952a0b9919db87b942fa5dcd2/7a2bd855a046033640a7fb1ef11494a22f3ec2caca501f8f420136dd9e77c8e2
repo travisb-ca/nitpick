@@ -1,0 +1,14 @@
+Date: 2012-06-28 22:06:36
+User: travisb@travisbrown.ca
+Parent: issue
+Attachment: 
+--
+One issue with this is that large attachments will add up in size. It would be very unfortunate not to be able to effectively attach core files or lengthy log files because they will be too large to transfer effectively.
+
+Some of this depends strongly on the VCS in use. SVN has support for excluding files and directories from being downloaded, which might be one plan. However, most DVCSes have no such option and require that you have every thing downloaded. Even then it could be useful to prevent having a live copy of the attachment if they are no longer necessary.
+
+To this end maybe it would be best if all the attachments got put into a directory separate from the issues. If we allowed numerous such directories with a regular name (eg. attachments001) and searched all of them, then an administrator could exclude an old attachment directory from the checkout. If this were the case new attachments would have to go into the newest attachment directory.
+
+Alternatively we could keep the attachments inside the issue directory, but add some way to directory query a central VCS server to retrieve the attachment. Perhaps this could be used to download the attachment from a pegged revision in SVN or the like, after which the attachment could be 'deleted' and thus taken offline.
+
+This will need some more investigation into how common VCSes may be able to handle this case.

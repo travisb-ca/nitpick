@@ -1,0 +1,36 @@
+Severity: Minor
+Title: Supply a favicon
+Priority: 1
+Date: 2012-06-28 22:14:27
+State: Open
+Fix_By: Next_Release
+Resolution: None
+Seen_In_Build: 
+Reported_By: travisb@travisbrown.ca
+Type: Bug
+Component: Web_UI
+Owner: travisb@travisbrown.ca
+--
+Some webbrowsers insist on trying to find a favicon.ico file. Since nitpick doesn't yet have one it causes an annoying exception when it is requested.
+
+Starting server on localhost:18080
+Got unhandled get path /favicon.ico
+----------------------------------------
+Exception happened during processing of request from ('127.0.0.1', 51483)
+Traceback (most recent call last):
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/SocketServer.py", line 284, in _handle_request_noblock
+    self.process_request(request, client_address)
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/SocketServer.py", line 310, in process_request
+    self.finish_request(request, client_address)
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/SocketServer.py", line 640, in __init__
+    self.finish()
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/SocketServer.py", line 693, in finish
+    self.wfile.flush()
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+----------------------------------------
+Got unhandled get path /favicon.ico
+
