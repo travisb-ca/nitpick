@@ -616,7 +616,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		comment_stack.reverse()
 		comment_depth = [1] * len(comment_stack)
 		parent_children_stack = [2] * len(comment_stack)
-		depth = 1
+		depth = 0
 
 		while len(comment_stack) > 0:
 			comment = comment_stack.pop()
@@ -624,7 +624,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			depth = comment_depth.pop()
 			parent_children = parent_children_stack.pop()
 
-			if old_depth - depth > 0:
+			if old_depth - depth >= 0:
 				self.output('</div></div>\n' * (old_depth - depth + 1))
 
 			self.output('<div class="issue_comment">\n')
