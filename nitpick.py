@@ -1136,10 +1136,8 @@ class GIT(VCS):
 
 	@staticmethod
 	def ignore(path):
-		return
-		dir = os.path.dirname(path)
-		os.system('''svn propset -q svn:ignore "issue_cache\n\
-		`svn propget svn:ignore %s`" %s''' % (dir, dir))
+		os.system('echo "issue_cache" >> %s/.gitignore' % (config.db_path))
+		GIT.uncommitted_files += " %s/.gitignore" % config.db_path
 
 BACKENDS = { 'file': VCS, 'svn' : SVN, 'git' : GIT }
 
@@ -1340,6 +1338,7 @@ def produce_comment_tree(issue):
 
 def cmd_init(args):
 	backend = BACKENDS[args.vcs]
+	config.db_path = args.dir
 
 	def_config = {'vcs' : args.vcs}
 	for key in config.issues.keys():
@@ -1359,7 +1358,6 @@ def cmd_init(args):
 
 	backend.ignore(args.dir + '/issue_cache')
 
-	config.db_path = args.dir
 	backend.commit()
 
 	return True

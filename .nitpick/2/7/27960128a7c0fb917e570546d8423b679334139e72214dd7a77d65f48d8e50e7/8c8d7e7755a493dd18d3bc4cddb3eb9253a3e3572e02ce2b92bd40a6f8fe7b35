@@ -1,0 +1,6 @@
+Date: 2012-06-28 05:55:27
+User: travisb@travisbrown.ca
+Parent: 80640754a8f12bc1d70a8b5593f78bfd2e0eead36f1af8d9f6a72c7b3eb9f361
+Attachment: 
+--
+I've added support for ignoring issue_cache. It seems that the VCS.ignore() method isn't actually generic, but instead only ever ignores that one file.
