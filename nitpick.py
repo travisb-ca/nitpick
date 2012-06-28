@@ -1108,8 +1108,40 @@ class SVN(VCS):
 		os.system('''svn propset -q svn:ignore "issue_cache\n\
 		`svn propget svn:ignore %s`" %s''' % (dir, dir))
 
+class GIT(VCS):
+	name = 'git'
+	real = True
+	uncommitted_files=""
 
-BACKENDS = { 'file': VCS, 'svn' : SVN }
+	@staticmethod
+	def mkdir(path):
+		os.system("mkdir -p " + path)
+
+	@staticmethod
+	def add_changes(path):
+		GIT.uncommitted_files += " " + path
+		return
+
+	@staticmethod
+	def commit():
+		os.system("git add " + GIT.uncommitted_files)
+		os.system("git commit -q -m \"Nitpick commit\" -- " + config.db_path + GIT.uncommitted_files)
+		GIT.uncommitted_files = ""
+
+	@staticmethod
+	def revert():
+		os.system("git checkout -- " + config.db_path)
+		os.system("git status -s " + config.db_path + " | grep ^??| awk '{print $2}' | xargs rm -rf")
+		GIT.uncommitted_files = ""
+
+	@staticmethod
+	def ignore(path):
+		return
+		dir = os.path.dirname(path)
+		os.system('''svn propset -q svn:ignore "issue_cache\n\
+		`svn propget svn:ignore %s`" %s''' % (dir, dir))
+
+BACKENDS = { 'file': VCS, 'svn' : SVN, 'git' : GIT }
 
 # A function which parses the given file into a dictionary with one entry for each piece of metadata
 # and a 'content' entry for the open ended content.
@@ -1327,6 +1359,7 @@ def cmd_init(args):
 
 	backend.ignore(args.dir + '/issue_cache')
 
+	config.db_path = args.dir
 	backend.commit()
 
 	return True

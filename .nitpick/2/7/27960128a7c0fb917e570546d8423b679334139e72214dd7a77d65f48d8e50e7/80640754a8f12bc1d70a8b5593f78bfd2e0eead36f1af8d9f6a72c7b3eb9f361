@@ -1,0 +1,6 @@
+Date: 2012-06-28 05:42:33
+User: travisb@travisbrown.ca
+Parent: issue
+Attachment: 
+--
+I've just added mostly complete git support. I just have to implement ignore support for the issue_cache.
