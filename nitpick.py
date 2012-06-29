@@ -1791,7 +1791,7 @@ def cmd_web(args):
 	if sys.platform == 'darwin': # Assume OSX
 		os.system('open %s' % url)
 	elif os.name == 'posix': # Assume Unix-like
-		for prog in ['w3m', 'links', 'lynx']:
+		for prog in ['w3m', 'elinks', 'links', 'lynx']:
 			try:
 				browser = subprocess.Popen([prog, url])
 				break
