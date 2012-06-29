@@ -1139,7 +1139,40 @@ class GIT(VCS):
 		os.system('echo "issue_cache" >> %s/.gitignore' % (config.db_path))
 		GIT.uncommitted_files += " %s/.gitignore" % config.db_path
 
-BACKENDS = { 'file': VCS, 'svn' : SVN, 'git' : GIT }
+class HG(VCS):
+	name = 'hg'
+	real = True
+
+	@staticmethod
+	def mkdir(path):
+		os.system("mkdir -p " + path)
+
+	@staticmethod
+	def add_changes(path):
+		os.system("hg add -q " + path);
+
+	@staticmethod
+	def commit():
+		os.system("hg ci -q -m \"Nitpick commit\" " + config.db_path)
+
+	@staticmethod
+	def revert():
+		os.system("hg revert -q " + config.db_path)
+		os.system("hg stat " + config.db_path + " | grep ^?| xargs rm -rf")
+		
+		# Remove the empty directories. This is mostly to avoid problems with empty issue directories
+		# but also keeps the number of cruft empty directories to a minimum
+		os.system('find %s -type d -empty | xargs rm -rf' % config.db_path)
+
+	@staticmethod
+	def ignore(path):
+		# Find the root of the clone because that's where the .hgignore must be
+		root = ""
+		while not os.path.exists(root + ".hg"):
+			root = root + "../"
+		os.system('echo ".nitpick/issue_cache$" >> %s.hgignore' % (root))
+
+BACKENDS = { 'file': VCS, 'svn' : SVN, 'git' : GIT, 'hg' : HG}
 
 # A function which parses the given file into a dictionary with one entry for each piece of metadata
 # and a 'content' entry for the open ended content.
