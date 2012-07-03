@@ -1,0 +1,10 @@
+Date: 2012-07-03 21:01:35
+User: travisb@travisbrown.ca
+Parent: issue
+Attachment: 
+--
+An additional useful feature may be to allow adding comments and changing states of readonly subservient databases. Say if a project had an issue database and some distro also does and the maintainer uses the distro database as a subservient database.
+
+In this case the maintainer won't have write access to the distro database, but could still see and handle bugs locally. Then if they could place new comments or modifications into the appropriate directory and have them merged correctly locally then the distro database would get the comments and state changes when they caught up. This would allow comments from a branch on bugs created in the trunk to be made.
+
+Something similar would be to allow adding comments and changing state to issue repositories which are readonly and won't be merged. Like if a maintainer wanted to do a readonly import of issues from a distro bug tracker using different software.
