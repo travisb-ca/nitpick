@@ -499,7 +499,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				return config.issues['type'].index(issue_obj['Type'])
 
 			if sort_field == 'Date':
-				return issue_obj['Date']
+                                return time.mktime(time.strptime(issue_obj['Date'], DATEFORMAT))
 
 			if sort_field == 'Owner':
 				return issue_obj['Owner']
