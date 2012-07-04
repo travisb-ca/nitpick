@@ -38,6 +38,8 @@ FILLWIDTH = 69
 ISSUE_CACHE_FORMAT = 1
 URL_REGEX = '([a-z]+://[a-zA-Z0-9]+\.[a-zA-Z0-9.]+[a-zA-Z0-9/\-.%&?=+_,]*)'
 ISSUE_REGEX = '([a-f0-9]{8,64})'
+POSIX_CLI_BROWSERS = ['w3m', 'elinks', 'links', 'lynx']
+POSIX_GUI_BROWSERS = [ ('chrome', 'google-chrome'), ('firefox-bin', 'firefox') ]
 
 # Contains the defaults used to initalize a database
 class config:
@@ -1799,18 +1801,50 @@ def cmd_web(args):
 
 	print 'Starting server on localhost:%d' % args.port
 
+	def get_process_list():
+		ps = subprocess.Popen("ps -u$USER", shell=True, stdout=subprocess.PIPE)
+		pslist = ps.stdout.read()
+		ps.stdout.close()
+		ps.wait()
+
+		return pslist
+
 	# Try to start a webbrowser to look at the UI
 	url = 'http://localhost:%d' % args.port
 	browser = None
 	if sys.platform == 'darwin': # Assume OSX
 		os.system('open %s' % url)
 	elif os.name == 'posix': # Assume Unix-like
-		for prog in ['w3m', 'elinks', 'links', 'lynx']:
-			try:
-				browser = subprocess.Popen([prog, url])
-				break
-			except:
-				pass
+		if 'DISPLAY' in os.environ.keys() and os.environ['DISPLAY'] != "":
+			# Try a graphical browser first
+			
+			# If there is one running, it's the preferred one
+			ps = get_process_list()
+			for prog in POSIX_GUI_BROWSERS:
+				if prog[0] in ps:
+					try:
+						browser = subprocess.Popen([prog[1], url])
+						break
+					except:
+						pass
+
+			# No known browser was running, try starting one
+			if not browser:
+				for prog in POSIX_GUI_BROWSERS:
+					try:
+						browser = subprocess.Popen([prog[1], url])
+						break
+					except:
+						pass
+			
+		# We haven't started a GUI browser, try a CLI browser
+		if not browser:
+			for prog in POSIX_CLI_BROWSERS:
+				try:
+					browser = subprocess.Popen([prog, url])
+					break
+				except:
+					pass
 	
 	while not config.endweb:
 		server.handle_request()

@@ -1,0 +1,6 @@
+Date: 2012-07-04 01:53:03
+User: travisb@travisbrown.ca
+Parent: issue
+Attachment: 
+--
+I've added support for first trying to open a new tab in an existing browser window and then opening a new graphical browser. I only support Firefox and Chrome because I hear no other browser is really used by developers on Linux.
