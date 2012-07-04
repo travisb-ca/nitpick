@@ -1212,7 +1212,9 @@ def parse_file(path):
 # Output to the given filename the data structure
 def format_file(path, data):
 	file = open(path, 'w')
-	for key in data.keys():
+        keylist = data.keys()
+        keylist.sort()
+	for key in keylist:
 		if key != 'content':
 			file.write("%s: %s\n" % (key, data[key]))
 	file.write('--\n')

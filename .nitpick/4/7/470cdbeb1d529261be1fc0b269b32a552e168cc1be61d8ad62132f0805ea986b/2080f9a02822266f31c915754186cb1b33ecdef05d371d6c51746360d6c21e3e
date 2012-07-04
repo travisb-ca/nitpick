@@ -1,0 +1,6 @@
+Attachment: 
+Date: 2012-07-04 18:21:54
+Parent: issue
+User: travisb@travisbrown.ca
+--
+I've fixed this by always having the fields be put into the issue file in the same order.
