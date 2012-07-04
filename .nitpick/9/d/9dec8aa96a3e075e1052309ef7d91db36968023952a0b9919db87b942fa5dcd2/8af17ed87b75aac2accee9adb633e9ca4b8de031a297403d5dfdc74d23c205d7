@@ -1,0 +1,6 @@
+Attachment: 
+Date: 2012-07-04 20:23:55
+Parent: 7a2bd855a046033640a7fb1ef11494a22f3ec2caca501f8f420136dd9e77c8e2
+User: travisb@travisbrown.ca
+--
+Deleting the old attachments from the current version of the source repository with pegged instructions to retrieve it again is definitely the way to go. The only problem with it is that people who want to use a VCS which doesn't support it or want to use a central server will have to modify nitpick to get that functionality. I think that's acceptable.
