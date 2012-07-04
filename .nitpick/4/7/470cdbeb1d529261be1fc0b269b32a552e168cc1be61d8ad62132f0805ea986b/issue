@@ -1,0 +1,14 @@
+Severity: Minor
+Title: Issue metadata changes often have spurious changes
+Priority: 1
+Date: 2012-07-04 17:48:41
+State: Open
+Fix_By: Next_Release
+Resolution: None
+Seen_In_Build: 
+Reported_By: travisb@travisbrown.ca
+Type: Bug
+Component: Core
+Owner: travisb@travisbrown.ca
+--
+When the metadata of an issue get's changed there is often some spurious changes in the diff due to the different order of items. This is annoying and will make merging more difficult than necessary.

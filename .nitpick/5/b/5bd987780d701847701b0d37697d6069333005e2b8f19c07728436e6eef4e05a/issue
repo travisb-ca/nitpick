@@ -1,0 +1,14 @@
+Severity: Major
+Title: Issue list is inconsistent
+Priority: 1
+Date: 2012-07-04 17:51:10
+State: Open
+Fix_By: Next_Release
+Resolution: None
+Seen_In_Build: 
+Reported_By: travisb@travisbrown.ca
+Type: Bug
+Component: Web_UI
+Owner: travisb@travisbrown.ca
+--
+The order of the issues in the issue list is not stable from one refresh to another. This is likely because we are using the order in the hash table as the secondary sort and it isn't stable. This should be fixed, perhaps by using the date as a secondary sort mechanism to look better.
