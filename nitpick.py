@@ -31,6 +31,7 @@ import gzip
 import subprocess
 import copy
 import re
+import base64
 
 DATEFORMAT = '%Y-%m-%d %H:%M:%S'
 FILLWIDTH = 69
@@ -69,6 +70,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 			<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 				<head>
+					<link rel="icon" href="http://localhost:18080/favicon.ico" />
 					<title>%s</title>
 
 					<style type="text/css">
@@ -228,6 +230,17 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 	def end_doc(self):
 		self.wfile.write(self.html_postamble())
+
+	def favicon(self):
+		self.send_response(200)
+		self.send_header('Content-type', 'image/vnd.microsoft.icon')
+		self.end_headers()
+		self.output(base64.b64decode(
+			'''AAABAAEAEBACAAAAAACwAAAAFgAAACgAAAAQAAAAIAAAAAEAAQAAAAAAQAAAAAAAAAAAAAAA
+			AgAAAAAAAAAA/x4A/wgAAP//AAD//wAA5+cAAOfHAADnhwAA54cAAOcnAADnJwAA5mcAAOZn
+			AADk5wAA5OcAAOHnAADj5wAA//8AAP//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+			AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+			'''))
 
 	def root(self):
 		load_issue_db()
@@ -808,7 +821,6 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.end_doc()
 
-
 	def add_comment_post(self):
 		load_issue_db()
 
@@ -1001,6 +1013,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.new_issue()
 		elif '/?' in self.path:
 			self.root()
+		elif '/favicon.ico' == self.path:
+			self.favicon()
 		else:
 			print "Got unhandled get path %s" % self.path
 			self.root()

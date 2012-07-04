@@ -1,15 +1,15 @@
 Severity: Minor
 Title: Supply a favicon
+Reported_By: travisb@travisbrown.ca
+Resolution: Fixed
+Component: Web_UI
 Priority: 1
 Date: 2012-06-28 22:14:27
-State: Open
+State: Closed
 Fix_By: Next_Release
-Resolution: None
-Seen_In_Build: 
-Reported_By: travisb@travisbrown.ca
-Type: Bug
-Component: Web_UI
 Owner: travisb@travisbrown.ca
+Type: Bug
+Seen_In_Build: 
 --
 Some webbrowsers insist on trying to find a favicon.ico file. Since nitpick doesn't yet have one it causes an annoying exception when it is requested.
 
