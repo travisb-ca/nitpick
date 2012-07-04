@@ -1,0 +1,6 @@
+Date: 2012-07-04 18:16:58
+User: travisb@travisbrown.ca
+Parent: issue
+Attachment: 
+--
+I used the issue hash as a presort secondary key because it was easy and what matters is being consistent.

@@ -520,6 +520,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('</tr>\n')
 		issues = config.issue_db.keys()
 
+                # Perform a presort so the output will always be stable
+                issues.sort()
+
 		if sort_field != '':
 			issues.sort(key = sort_issues)
 		if reverse_sort:
