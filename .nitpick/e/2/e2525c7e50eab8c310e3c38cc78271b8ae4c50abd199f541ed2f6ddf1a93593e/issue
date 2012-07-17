@@ -1,0 +1,26 @@
+Component: Core
+Date: 2012-07-17 00:26:32
+Fix_By: Eventually
+Owner: travisb@travisbrown.ca
+Priority: 5
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Minor
+State: Open
+Title: Add Project Management Support
+Type: Feature
+--
+A bug tracker contains much of the data necessary to make a decent piece of project management software. The key requirements are:
+ o Issue dependencies
+ o Time estimates
+ o Progress estimates
+ o Developer Availability
+ o Gantt charts and other useful PM reporting
+
+It may not be the case that Nitpick is the right software to put this project management feature set into. It should certainly be optional and ignorable, perhaps even disabled by default.
+
+The theory would be that there would be a single developer friendly place to view what should be done next and when it should be done. It would also provide an easier place for the PM to view the most up to date completion estimates (even if only quite coarse via issue completion) and to have a permanent and easy to find location of discussion/descriptions of features and requirements.
+
+
+This would need to tie in with the feature described in 4ebf2a29c639c7e3f4c2eb1824bbf126d9631dc742f48c9371a10a8983353ee5 to be useful in all cases. First in the fact that issues over multiple repositories would have to be queried to produce the reports. More interestingly is handling feature completion within branches. It isn't reasonable to ask the PM to reconcile completion estimates from all the branches by themselves, but they would also likely desire to have their information updated more frequently than when a feature is complete.
