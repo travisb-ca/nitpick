@@ -1,0 +1,14 @@
+Component: Core
+Date: 2012-07-19 18:00:54
+Fix_By: Next_Release
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Major
+State: Open
+Title: Add Issue Dependancies
+Type: Feature
+--
+I originally thought that I could get away without having issue dependency fields for issues. However, something at work has convinced me that I do need them, so add them.
