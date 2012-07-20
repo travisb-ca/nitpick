@@ -587,6 +587,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue_hash)
 
 		self.output('<div class="issue_metadata">\n')
+		self.output('<p>Issue: %s</p>\n' % issue_hash)
 		self.output('<p>Title: %s</p>\n' % issue['Title'])
 		self.output('<p>Date: %s</p>\n' % issue['Date'])
 		self.output('<p>Reported_By: %s</p>\n' % issue['Reported_By'])

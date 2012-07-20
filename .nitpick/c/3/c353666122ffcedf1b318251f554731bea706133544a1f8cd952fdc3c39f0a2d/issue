@@ -4,10 +4,10 @@ Fix_By: Next_Release
 Owner: travisb@travisbrown.ca
 Priority: 1
 Reported_By: travisb@travisbrown.ca
-Resolution: None
+Resolution: Fixed
 Seen_In_Build: 
 Severity: Major
-State: Open
+State: Closed
 Title: Add Issue Hash to Issue Page
 Type: Bug
 --
