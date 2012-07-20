@@ -1,0 +1,16 @@
+Component: Core
+Date: 2012-07-20 03:03:03
+Fix_By: Next_Release
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Minor
+State: Open
+Title: Flatten Duplicate Issues and Issue dependancy lists
+Type: Feature
+--
+Building on the feature in 73f8e6dd0ab6a2858c2075260ee34fa71be9db8d1bf29c69958c7cc4bf269c84 it would be quite nice if the list of duplicate issues and dependent issues was flattened in some obvious way so the user can see fully what is dependent on the current issue.
+
+Bugzilla will also cross out dependencies which are closed. That may be a useful feature to add as well.

@@ -1,0 +1,6 @@
+Attachment: 
+Date: 2012-07-20 03:02:02
+Parent: 1d0d915363db035f499b242ec6ba1c968efaf399dda16c32f6186cbb7129b9b4
+User: travisb@travisbrown.ca
+--
+One interesting issue would be flattening the duplicate graph (and possibly also the dependency graph). Not flattening it would be easy, but less user friendly.
