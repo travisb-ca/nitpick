@@ -10,6 +10,8 @@ Fix_By: Next_Release
 Owner: travisb@travisbrown.ca
 Type: Feature
 Seen_In_Build: 
+Depends_On:
+Duplicate_Of:
 --
 It's often useful to refer to other issues with a bug tracker. Currently there is no easy way to do this. The user has to copy the issue hash out of the URL and paste it into the message. Then they'll have to paste it back into the URL to view it.
 

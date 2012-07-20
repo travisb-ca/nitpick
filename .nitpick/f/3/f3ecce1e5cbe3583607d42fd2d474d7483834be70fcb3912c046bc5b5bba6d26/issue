@@ -10,6 +10,8 @@ Reported_By: travisb@travisbrown.ca
 Type: Feature
 Component: Web_UI
 Owner: travisb@travisbrown.ca
+Depends_On:
+Duplicate_Of:
 --
 Having a local bug tracker which follows the developer and all is nice, but not sufficient. It must be possible to easily provide a public, modifiable copy of the tracker for use by QA people, or users.
 

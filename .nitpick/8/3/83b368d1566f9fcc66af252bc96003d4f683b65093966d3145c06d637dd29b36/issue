@@ -10,5 +10,7 @@ Severity: Trivial
 State: Open
 Title: Highlight comment field by default when commenting
 Type: Feature
+Depends_On:
+Duplicate_Of:
 --
 When entering a comment the only really useful field is the comment field. It's annoying to have to move focus to that field every time manually and I've seen it done automatically.

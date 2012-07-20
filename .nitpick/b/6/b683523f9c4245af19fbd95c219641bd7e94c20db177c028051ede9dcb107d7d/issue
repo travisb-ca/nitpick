@@ -10,6 +10,8 @@ Reported_By: travisb@travisbrown.ca
 Type: Feature
 Component: Core
 Owner: travisb@travisbrown.ca
+Depends_On:
+Duplicate_Of:
 --
 Looking at the discussion at there two links http://kitenet.net/pipermail/dist-bugs/ and http://dist-bugs.branchable.com/ it seems that synchronizing with and existing bug trackers could be useful.
 

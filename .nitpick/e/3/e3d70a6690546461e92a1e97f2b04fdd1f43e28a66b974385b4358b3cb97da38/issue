@@ -10,5 +10,7 @@ Fix_By: Eventually
 Owner: travisb@travisbrown.ca
 Type: Feature
 Seen_In_Build: 
+Depends_On:
+Duplicate_Of:
 --
 As with the "Adding Git Issue" (27960128a7c0fb917e570546d8423b679334139e72214dd7a77d65f48d8e50e7), Mecurial is a popular DVCS so support should be added for it.

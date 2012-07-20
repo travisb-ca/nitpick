@@ -10,5 +10,7 @@ Fix_By: Next_Release
 Owner: travisb@travisbrown.ca
 Type: Feature
 Seen_In_Build: 
+Depends_On:
+Duplicate_Of:
 --
 The Web UI is pretty ugly and has barely usable formatting. Put some time and try to make it look better and be easier to read.

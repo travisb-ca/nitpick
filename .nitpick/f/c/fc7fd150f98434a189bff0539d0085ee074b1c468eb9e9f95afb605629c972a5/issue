@@ -10,11 +10,15 @@ Fix_By: Next_Release
 Owner: travisb@travisbrown.ca
 Type: Bug
 Seen_In_Build: 
+Depends_On:
+Duplicate_Of:
 --
 Some webbrowsers insist on trying to find a favicon.ico file. Since nitpick doesn't yet have one it causes an annoying exception when it is requested.
 
 Starting server on localhost:18080
 Got unhandled get path /favicon.ico
+Depends_On:
+Duplicate_Of:
 ----------------------------------------
 Exception happened during processing of request from ('127.0.0.1', 51483)
 Traceback (most recent call last):
@@ -31,6 +35,8 @@ Traceback (most recent call last):
   File "/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/socket.py", line 303, in flush
     self._sock.sendall(view[write_offset:write_offset+buffer_size])
 error: [Errno 32] Broken pipe
+Depends_On:
+Duplicate_Of:
 ----------------------------------------
 Got unhandled get path /favicon.ico
 

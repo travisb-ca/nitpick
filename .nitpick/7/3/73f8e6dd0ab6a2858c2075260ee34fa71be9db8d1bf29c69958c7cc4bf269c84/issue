@@ -10,5 +10,7 @@ Severity: Major
 State: Open
 Title: Add Issue Dependancies
 Type: Feature
+Depends_On:
+Duplicate_Of:
 --
 I originally thought that I could get away without having issue dependency fields for issues. However, something at work has convinced me that I do need them, so add them.

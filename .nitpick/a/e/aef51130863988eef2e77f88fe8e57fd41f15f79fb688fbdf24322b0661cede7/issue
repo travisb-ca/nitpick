@@ -10,5 +10,7 @@ Reported_By: travisb@travisbrown.ca
 Type: Feature
 Component: Core
 Owner: travisb@travisbrown.ca
+Depends_On:
+Duplicate_Of:
 --
 It doesn't seem like it should be incredibly difficult to port Nitpick to work on systems which aren't Unix-like. Windows is the obvious target here.

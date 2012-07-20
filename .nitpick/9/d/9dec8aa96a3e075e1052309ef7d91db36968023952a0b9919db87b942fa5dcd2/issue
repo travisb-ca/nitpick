@@ -10,5 +10,7 @@ Reported_By: travisb@travisbrown.ca
 Type: Feature
 Component: Core
 Owner: travisb@travisbrown.ca
+Depends_On:
+Duplicate_Of:
 --
 It is often quite useful to have attachments along with an issue, for traces or core dumps or things like that. Add this feature.

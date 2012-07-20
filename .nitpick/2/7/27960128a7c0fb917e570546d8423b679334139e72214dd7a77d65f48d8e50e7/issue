@@ -10,6 +10,8 @@ Fix_By: Next_Release
 Owner: travisb@travisbrown.ca
 Type: Feature
 Seen_In_Build: 
+Depends_On:
+Duplicate_Of:
 --
 Some people may find it weird that the only VCSes Nitpick, a distributed bug tracker, supports is a centralized VCS and the plain filesystem.
 
