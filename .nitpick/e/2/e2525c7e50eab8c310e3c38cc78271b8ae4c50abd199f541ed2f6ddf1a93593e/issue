@@ -1,5 +1,7 @@
 Component: Core
 Date: 2012-07-17 00:26:32
+Depends_On: 73f8e6dd0ab6a2858c2075260ee34fa71be9db8d1bf29c69958c7cc4bf269c84 4ebf2a29c639c7e3f4c2eb1824bbf126d9631dc742f48c9371a10a8983353ee5 
+Duplicate_Of: 
 Fix_By: Eventually
 Owner: travisb@travisbrown.ca
 Priority: 5
@@ -10,8 +12,6 @@ Severity: Minor
 State: Open
 Title: Add Project Management Support
 Type: Feature
-Depends_On:
-Duplicate_Of:
 --
 A bug tracker contains much of the data necessary to make a decent piece of project management software. The key requirements are:
  o Issue dependencies
