@@ -610,6 +610,25 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		output_metadata('Owner', 'owner', config.users, issue['Owner'])
 		output_metadata('Fix_By', 'fix_by', config.issues['fix_by'], issue['Fix_By'])
 		output_metadata('Component', 'component', config.issues['components'], issue['Component'])
+
+		def shorten_and_link_issues(issue_list_string):
+			issue_list = issue_list_string.split(' ')
+			output = ''
+			for issue in issue_list:
+				output += '<a href="/issue/%s">%s</a> ' % (issue, issue[:8])
+
+			return output
+
+		self.output('<p>Depends_On: %s</p>\n' % shorten_and_link_issues(issue['Depends_On']))
+		self.output('<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<textarea rows="1" cols="70" name="depends_on">%s</textarea></p>\n' % issue['Depends_On'])
+
+		dependents = issue_dependent_of(issue_hash)
+		self.output('<p>Dependent_Of: %s</p>\n' % shorten_and_link_issues(dependents))
+
+		duplicate_issues = get_issue_duplicates(issue_hash)
+
+		self.output('<p>Duplicate_Of: %s</p>\n' % shorten_and_link_issues(duplicate_issues))
+		self.output('<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<textarea rows="1" cols="70" name="duplicate_of">%s</textarea></p>\n' % duplicate_issues)
 		self.output('</div>\n')
 
 		self.output('<input type="submit" value="Update" />\n')
@@ -782,13 +801,13 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		for priority in config.issues['priority']:
 			self.output('<option value="%s">%s</option>\n' % (priority, priority))
 		self.output('</select></p>\n')
-		self.output('</div>\n')
-
-		self.output('<div class="new_issue_metadata_column">\n')
 		self.output('<p>State: <select name="state">\n')
 		for state in config.issues['state']:
 			self.output('<option value="%s">%s</option>\n' % (state, state))
 		self.output('</select></p>\n')
+
+		self.output('</div>\n')
+		self.output('<div class="new_issue_metadata_column">\n')
 
 		self.output('<p>Resolution: <select name="resolution">\n')
 		for resolution in config.issues['resolution']:
@@ -817,6 +836,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		for fix_by in config.issues['fix_by']:
 			self.output('<option value="%s">%s</option>\n' % (fix_by, fix_by))
 		self.output('</select></p>\n')
+
+		self.output('<p>Depends_On: <input type="text" name="depends_on" value=""/></p>\n')
+		self.output('<p>Duplicate_Of: <input type="text" name="duplicate_of" value=""/></p>\n')
 		self.output('</div>\n')
 
 		self.output('<div class="new_issue_text_wrapper"><p><textarea name="content" rows="20" cols="80">Enter description here</textarea></p>\n')
@@ -869,6 +891,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		   'state' not in self.request_args.keys() or \
 		   'type' not in self.request_args.keys() or \
 		   'resolution' not in self.request_args.keys() or \
+		   'depends_on' not in self.request_args.keys() or \
+		   'duplicate_of' not in self.request_args.keys() or \
 		   'fix_by' not in self.request_args.keys():
 			   self.start_doc('Error')
 			   self.output('Invalid arguments')
@@ -884,6 +908,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			config.issue_db[issue]['Type'] == self.request_args['type'] and \
 			config.issue_db[issue]['Component'] == self.request_args['component'] and \
 			config.issue_db[issue]['Resolution'] == self.request_args['resolution'] and \
+			config.issue_db[issue]['Depends_On'] == self.request_args['depends_on'] and \
+			config.issue_db[issue]['Duplicate_Of'] == self.request_args['duplicate_of'] and \
 			config.issue_db[issue]['Fix_By'] == self.request_args['fix_by']:
 				self.start_doc('No change')
 				self.output('<p>No change sent, no change made</p>')
@@ -908,6 +934,42 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		if config.issue_db[issue]['Fix_By'] != self.request_args['fix_by']:
 			change_issue(issue, 'Fix_By', self.request_args['fix_by'])
 
+		# Returns a string of issues if valid, or None if invalid
+		def check_issue_list_string(issues):
+			issue_list = issues.split()
+
+			output = ''
+			for issue in issue_list:
+				if issue in config.issue_db.keys():
+					output += '%s ' % issue
+				else:
+					disambiguated = disambiguate_hash(issue)
+					if disambiguated is None or disambiguated == '':
+						return None
+					else:
+						output += '%s ' % disambiguated
+			return output
+
+		if config.issue_db[issue]['Depends_On'] != self.request_args['depends_on']:
+			issues = check_issue_list_string(self.request_args['depends_on'])
+			if issues == None:
+				self.start_doc('Invalid Issues to be dependend on')
+				self.output('Error in Depends_On list. Perhaps you have something other than unambiguous issue hashes?')
+				self.end_doc()
+				return
+			else:
+				change_issue(issue, 'Depends_On', issues)
+
+		if config.issue_db[issue]['Duplicate_Of'] != self.request_args['duplicate_of']:
+			issues = check_issue_list_string(self.request_args['duplicate_of'])
+			if issues == None:
+				self.start_doc('Invalid Issues to be duplicate of')
+				self.output('Error in Duplicate_Of list. Perhaps you have something other than unambiguous issue hashes?')
+				self.end_doc()
+				return
+			else:
+				change_issue(issue, 'Duplicate_Of', issues)
+
 		issue_filename = config.issue_db[issue]['path'] + '/issue'
 
 		self.start_doc('Issues %s updated' % issue[:8])
@@ -930,6 +992,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		   'seen_in_build' not in self.request_args.keys() or \
 		   'owner' not in self.request_args.keys() or \
 		   'reported_by' not in self.request_args.keys() or \
+		   'depends_on' not in self.request_args.keys() or \
+		   'duplicate_of' not in self.request_args.keys() or \
 		   'content' not in self.request_args.keys():
 			   self.start_doc('Error')
 			   self.output('Invalid arguments')
@@ -949,6 +1013,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				'Date' : self.request_args['date'],
 				'Owner' : self.request_args['owner'],
 				'Reported_By' : self.request_args['reported_by'],
+				'Depends_On' : self.request_args['depends_on'],
+				'Duplicate_Of' : self.request_args['duplicate_of'],
 				'content' : self.request_args['content']
 			}
 
@@ -1391,6 +1457,29 @@ def produce_comment_tree(issue):
 
 	return comment_tree
 
+def _issue_referenced_in_field(issue, field):
+	output = ''
+	for hash in config.issue_db.keys():
+		if issue in config.issue_db[hash][field]:
+			output += '%s ' % hash
+	return output
+
+# Return a space separated list of the issues the given issue is a dependent of.
+def issue_dependent_of(issue):
+	return _issue_referenced_in_field(issue, 'Depends_On')
+
+def issue_duplicate_of(issue):
+	return _issue_referenced_in_field(issue, 'Duplicate_Of')
+
+# Return a string of space separated issue hashes the given issue is a duplicate of
+def get_issue_duplicates(issue):
+	duplicate_issues = ''
+	if len(config.issue_db[issue]['Duplicate_Of']) > 10:
+		duplicate_issues = config.issue_db[issue]['Duplicate_Of'] + ' '
+	duplicate_issues += issue_duplicate_of(issue)
+
+	return duplicate_issues
+
 def cmd_init(args):
 	backend = BACKENDS[args.vcs]
 	config.db_path = args.dir
@@ -1458,6 +1547,8 @@ def cmd_new(args):
 			'Date'          : time.strftime(DATEFORMAT, time.gmtime()),
 			'Owner'         : config.users[0],
 			'Reported_By'   : config.username,
+			'Depends_On'    : '',
+			'Duplicate_Of'  : '',
 			'content'       : 'Enter description here'
 		}
 	format_file(config.db_path + 'new.tmp', issue)
@@ -1521,12 +1612,20 @@ def cmd_cat(args):
 		print '+' + '=' * FILLWIDTH
 
 	for key in issue.keys():
-		if key == 'content':
+		if key in ['content', 'Duplicate_Of']:
 			continue
 
 		if not args.noformat:
 			print '|',
 		print "%s: %s" % (key, issue[key])
+
+	if not args.noformat:
+		print '|',
+	print "Dependent_Of: %s" % issue_dependent_of(hash)
+
+	if not args.noformat:
+		print '|',
+	print "Duplicate_Of: %s" % get_issue_duplicates(hash)
 
 	if 'content' in issue.keys():
 		if not args.noformat:
