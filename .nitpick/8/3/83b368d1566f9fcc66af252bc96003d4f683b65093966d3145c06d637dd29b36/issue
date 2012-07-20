@@ -1,16 +1,16 @@
 Component: Web_UI
 Date: 2012-07-20 03:00:49
+Depends_On: 
+Duplicate_Of: 
 Fix_By: Next_Release
 Owner: travisb@travisbrown.ca
 Priority: 1
 Reported_By: travisb@travisbrown.ca
-Resolution: None
+Resolution: Fixed
 Seen_In_Build: 
 Severity: Trivial
-State: Open
+State: Closed
 Title: Highlight comment field by default when commenting
 Type: Feature
-Depends_On:
-Duplicate_Of:
 --
 When entering a comment the only really useful field is the comment field. It's annoying to have to move focus to that field every time manually and I've seen it done automatically.

@@ -67,7 +67,12 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 	def log_request(code = -1, size = -1):
 		pass
 
-	def html_preamble(self, title):
+	def html_preamble(self, title, onload_focus):
+		if onload_focus is not None:
+			focus_script = 'OnLoad="document.%s.focus();"' % onload_focus
+		else:
+			focus_script = ''
+
 		return """
 			<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 			<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
@@ -199,8 +204,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 					}
 					</style>
 				</head>
-			<body>
-			""" % (title)
+			<body %s>
+			""" % (title, focus_script)
 
 	def html_postamble(self):
 		return """</body></html>"""
@@ -208,7 +213,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 	def output(self, string):
 		self.wfile.write(string)
 
-	def start_doc(self, title):
+	def start_doc(self, title, onload_focus = None):
 		self.send_response(200)
 		self.send_header('Content-type', 'text/html')
 		self.end_headers()
@@ -216,7 +221,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		if title != '':
 			title = ' - ' + title
 
-		self.output(self.html_preamble('Nitpick' + title))
+		self.output(self.html_preamble('Nitpick' + title, onload_focus))
 
 		self.output('<div class="command_bar">\n')
 		self.output('<span class="command_button"><form action="/shutdown" method="post">')
@@ -701,7 +706,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.end_doc()
 
 	def add_comment(self):
-		self.start_doc('Add Comment')
+		self.start_doc('Add Comment', 'comment.content')
 
 		if not 'issue' in self.request_args.keys():
 			self.output('Incorrect script arguments')
@@ -743,7 +748,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		# Here we know that the issue and parent are good to use
 		self.output('<div class="add_comment">\n')
-		self.output('<form action="/add_comment" method="post">\n')
+		self.output('<form name="comment" action="/add_comment" method="post">\n')
 		self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue)
 		self.output('<input type="hidden" name="parent" value="%s"/>\n' % parent)
 
