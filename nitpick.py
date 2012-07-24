@@ -32,6 +32,7 @@ import subprocess
 import copy
 import re
 import base64
+import cgi
 
 DATEFORMAT = '%Y-%m-%d %H:%M:%S'
 FILLWIDTH = 69
@@ -486,7 +487,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		def output_field(issue, bool, field_data):
 			if bool:
-				self.output('<td class="issue_list"><a href="/issue/%s">%s</a></td> ' % (issue, field_data))
+				self.output('<td class="issue_list"><a href="/issue/%s">%s</a></td> ' % (issue, cgi.escape(field_data)))
 
 
 		def sort_issues(issue):
@@ -603,10 +604,10 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.output('<div class="issue_metadata">\n')
 		self.output('<p>Issue: %s</p>\n' % issue_hash)
-		self.output('<p>Title: %s</p>\n' % issue['Title'])
+		self.output('<p>Title: %s</p>\n' % cgi.escape(issue['Title']))
 		self.output('<p>Date: %s</p>\n' % issue['Date'])
-		self.output('<p>Reported_By: %s</p>\n' % issue['Reported_By'])
-		self.output('<p>Seen_In_Build: %s</p>\n' % issue['Seen_In_Build'])
+		self.output('<p>Reported_By: %s</p>\n' % cgi.escape(issue['Reported_By']))
+		self.output('<p>Seen_In_Build: %s</p>\n' % cgi.escape(issue['Seen_In_Build']))
 
 		def output_metadata(label, arg_name, option_list, selected):
 			self.output('<p>%s: <select name="%s">\n' % (label, arg_name))
@@ -656,7 +657,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		def link_issue(match):
 			return self.format_issue(match.group(0))
 
-		linked_content = re.sub(URL_REGEX, '<a href="\\1">\\1</a>', issue['content'])
+		linked_content = cgi.escape(issue['content'])
+		linked_content = re.sub(URL_REGEX, '<a href="\\1">\\1</a>', linked_content)
 		linked_content = re.sub(ISSUE_REGEX, link_issue, linked_content)
 		self.output('<p>%s</p>\n' % linked_content)
 
@@ -691,9 +693,10 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				if field == 'Attachment' and comment['Attachment'] == '':
 					continue
 
-				self.output('%s: %s<br/>\n' % (field, comment[field]))
+				self.output('%s: %s<br/>\n' % (field, cgi.escape(comment[field])))
 
-			linked_content = re.sub(URL_REGEX, '<a href="\\1">\\1</a>', comment['content'])
+			linked_content = cgi.escape(comment['content'])
+			linked_content = re.sub(URL_REGEX, '<a href="\\1">\\1</a>', linked_content)
 			linked_content = re.sub(ISSUE_REGEX, link_issue, linked_content)
 			self.output('<p>%s</p>\n' % linked_content)
 
