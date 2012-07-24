@@ -1,0 +1,16 @@
+Component: Web_UI
+Date: 2012-07-24 03:45:38
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.0
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Critical
+State: Open
+Title: HTML in comments is intepretted
+Type: Bug
+--
+If you use HTML in a comment then the browser will interpret it and mess everything up.
