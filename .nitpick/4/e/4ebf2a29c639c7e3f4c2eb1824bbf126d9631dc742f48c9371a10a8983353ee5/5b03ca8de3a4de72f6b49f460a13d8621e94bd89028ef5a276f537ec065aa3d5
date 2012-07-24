@@ -1,0 +1,10 @@
+Attachment: 
+Date: 2012-07-24 05:05:02
+Parent: 9b9b17873e124632990ccd7ca3de2ca1755bee6f2fe887f5f52186e36ca9d65b
+User: travisb@travisbrown.ca
+--
+Comments should definitely be merged. But where should the new comments be put?
+
+I suppose that if the comment is for an issue in the primary repository that it should be placed in the current repository, even if the rest of the comments and issue exist only in a foreign repository. Orphan comments will have to be shown as parented by the issue if the foreign repository isn't there.
+
+Similarly local repository issues should have their metadata modified in the local repository.

@@ -1,0 +1,6 @@
+Attachment: 
+Date: 2012-07-24 05:01:58
+Parent: 73edbd560e7aa9c96c6b78a0022bf9080dac1e34dc2de1f46921055e0891746f
+User: travisb@travisbrown.ca
+--
+A better implementation is to have a file with the repository UUID which is used to combine the repositories if they have the same UUID. Then there is a directory structure of foreign repositories where the directory name is the name to be used. This should provide ample flexibility and be able to handle the cases where branches and the trunk switch places often.

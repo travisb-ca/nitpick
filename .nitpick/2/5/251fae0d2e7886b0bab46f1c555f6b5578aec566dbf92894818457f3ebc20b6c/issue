@@ -1,0 +1,22 @@
+Component: Core
+Date: 2012-07-24 05:08:40
+Depends_On: 4ebf2a29c639c7e3f4c2eb1824bbf126d9631dc742f48c9371a10a8983353ee5
+Duplicate_Of: 
+Fix_By: Next_Release
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Major
+State: Open
+Title: Modifiable Readonly Foreign Repositories
+Type: Feature
+--
+An additional useful feature for foreign repositories may be to allow adding comments and changing states of readonly subservient databases. Say if a project had an issue database and some distro also does and the maintainer uses the distro database as a subservient database.
+
+In this case the maintainer won't have write access to the distro database, but could still see and handle bugs locally. Then if they could place new comments or modifications into the appropriate directory and have them merged correctly locally then the distro database would get the comments and state changes when they caught up. This would allow comments from a branch on bugs created in the trunk to be made.
+
+Something similar would be to allow adding comments and changing state to issue repositories which are readonly and won't be merged. Like if a maintainer wanted to do a readonly import of issues from a distro bug tracker using different software.
+
+I'm unsure how useful this feature would be and so have split it out from the original issue to be considered after 1.0.
