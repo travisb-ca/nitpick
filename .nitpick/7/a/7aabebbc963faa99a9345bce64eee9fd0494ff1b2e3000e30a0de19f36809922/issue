@@ -1,0 +1,16 @@
+Component: Core
+Date: 2012-07-24 06:33:56
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.0
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Major
+State: Open
+Title: Creating a new repository uses configuration of higher level repo
+Type: Bug
+--
+When you create a new Nitpick repository where there is already an existing Nitpick repository at a higher level in the directory structure the new repository will have the configuration of the higher level repository instead of the default configuration.
