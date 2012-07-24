@@ -1,0 +1,16 @@
+Component: Web_UI
+Date: 2012-07-24 01:47:29
+Depends_On: 
+Duplicate_Of: 
+Fix_By: Next_Release
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Minor
+State: Open
+Title: Strike out closed issues
+Type: Feature
+--
+With all the inter-issue linking going on inside comments and dependent issues and duplicate issue it would be quite nice if those links were struck through when the issue in question is closed.

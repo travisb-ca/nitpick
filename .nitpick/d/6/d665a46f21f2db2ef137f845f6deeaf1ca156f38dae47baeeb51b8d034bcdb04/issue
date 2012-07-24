@@ -1,0 +1,16 @@
+Component: Documentation
+Date: 2012-07-24 01:45:49
+Depends_On: 
+Duplicate_Of: 
+Fix_By: Next_Release
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Critical
+State: Open
+Title: Create Documentation/Tutorial
+Type: Bug
+--
+I don't have any real documentation for Nitpick yet. I really should write some if I ever hope to have users other than myself.

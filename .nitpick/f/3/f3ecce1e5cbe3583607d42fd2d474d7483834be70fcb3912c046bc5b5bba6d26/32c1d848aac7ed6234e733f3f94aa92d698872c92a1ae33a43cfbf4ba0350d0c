@@ -1,0 +1,6 @@
+Attachment: 
+Date: 2012-07-24 01:40:43
+Parent: issue
+User: travisb@travisbrown.ca
+--
+There would have to be some sort of moderation when moving issues back to the primary VCS copy. Maybe a recommended setup would be to have a plain filesystem/VCS export version of the repository with the script/whatever Public UI running. Then every so often a person can run a synchronization/moderation script which gives simple choices to add the public change for a bug to the repo or not.
