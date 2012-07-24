@@ -1,17 +1,17 @@
-Severity: Minor
-Title: Inter-Issue linking
+Component: Web_UI
+Date: 2012-06-17 23:29:18
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.0
+Owner: travisb@travisbrown.ca
+Priority: 1
 Reported_By: travisb@travisbrown.ca
 Resolution: Fixed
-Component: Web_UI
-Priority: 1
-Date: 2012-06-17 23:29:18
-State: Closed
-Fix_By: Next_Release
-Owner: travisb@travisbrown.ca
-Type: Feature
 Seen_In_Build: 
-Depends_On:
-Duplicate_Of:
+Severity: Minor
+State: Closed
+Title: Inter-Issue linking
+Type: Feature
 --
 It's often useful to refer to other issues with a bug tracker. Currently there is no easy way to do this. The user has to copy the issue hash out of the URL and paste it into the message. Then they'll have to paste it back into the URL to view it.
 

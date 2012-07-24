@@ -1,16 +1,16 @@
-Severity: Minor
-Title: Attachment Support
-Priority: 1
+Component: Core
 Date: 2012-06-18 04:00:37
-State: Open
-Fix_By: Next_Release
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.0
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: travisb@travisbrown.ca
 Resolution: None
 Seen_In_Build: 
-Reported_By: travisb@travisbrown.ca
+Severity: Minor
+State: Open
+Title: Attachment Support
 Type: Feature
-Component: Core
-Owner: travisb@travisbrown.ca
-Depends_On:
-Duplicate_Of:
 --
 It is often quite useful to have attachments along with an issue, for traces or core dumps or things like that. Add this feature.

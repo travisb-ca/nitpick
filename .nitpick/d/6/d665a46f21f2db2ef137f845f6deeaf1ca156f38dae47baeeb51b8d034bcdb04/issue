@@ -2,7 +2,7 @@ Component: Documentation
 Date: 2012-07-24 01:45:49
 Depends_On: 
 Duplicate_Of: 
-Fix_By: Next_Release
+Fix_By: 1.0
 Owner: travisb@travisbrown.ca
 Priority: 1
 Reported_By: travisb@travisbrown.ca

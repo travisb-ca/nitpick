@@ -1,16 +1,16 @@
-Severity: Major
-Title: Start Webbrowsers on Linux
+Component: Web_UI
+Date: 2012-06-17 23:23:27
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.0
+Owner: travisb@travisbrown.ca
+Priority: 1
 Reported_By: travisb@travisbrown.ca
 Resolution: Fixed
-Component: Web_UI
-Priority: 1
-Date: 2012-06-17 23:23:27
-State: Closed
-Fix_By: Next_Release
-Owner: travisb@travisbrown.ca
-Type: Feature
 Seen_In_Build: 
-Depends_On:
-Duplicate_Of:
+Severity: Major
+State: Closed
+Title: Start Webbrowsers on Linux
+Type: Feature
 --
 Figure out how to put forth a good effort to open a tab/start a webbrowser when running on Linux and starting the web UI.

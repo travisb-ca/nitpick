@@ -1,8 +1,8 @@
 Component: Core
 Date: 2012-07-20 03:03:03
-Depends_On: 73f8e6dd0ab6a2858c2075260ee34fa71be9db8d1bf29c69958c7cc4bf269c84 
+Depends_On: 73f8e6dd0ab6a2858c2075260ee34fa71be9db8d1bf29c69958c7cc4bf269c84
 Duplicate_Of: 
-Fix_By: Next_Release
+Fix_By: 1.0
 Owner: travisb@travisbrown.ca
 Priority: 1
 Reported_By: travisb@travisbrown.ca

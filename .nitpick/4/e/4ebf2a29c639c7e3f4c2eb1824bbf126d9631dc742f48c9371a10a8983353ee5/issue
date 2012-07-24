@@ -1,17 +1,17 @@
-Severity: Major
-Title: Parallel Databases
-Priority: 1
+Component: Core
 Date: 2012-06-17 23:18:57
-State: Open
-Fix_By: Eventually
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.0
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: travisb@travisbrown.ca
 Resolution: None
 Seen_In_Build: 
-Reported_By: travisb@travisbrown.ca
+Severity: Major
+State: Open
+Title: Parallel Databases
 Type: Feature
-Component: Core
-Owner: travisb@travisbrown.ca
-Depends_On:
-Duplicate_Of:
 --
 Currently Nitpick only supports one single database. This works fine as long as the intent is to use the bug tracker only on a single branch view at a time.
 

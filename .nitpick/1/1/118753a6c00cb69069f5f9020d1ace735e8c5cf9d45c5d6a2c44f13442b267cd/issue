@@ -1,17 +1,17 @@
-Severity: Major
-Title: Issue Filtering and Sorting Support
+Component: Web_UI
+Date: 2012-06-17 23:30:58
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.0
+Owner: travisb@travisbrown.ca
+Priority: 1
 Reported_By: travisb@travisbrown.ca
 Resolution: Fixed
-Component: Web_UI
-Priority: 1
-Date: 2012-06-17 23:30:58
-State: Closed
-Fix_By: Next_Release
-Owner: travisb@travisbrown.ca
-Type: Feature
 Seen_In_Build: 
-Depends_On:
-Duplicate_Of:
+Severity: Major
+State: Closed
+Title: Issue Filtering and Sorting Support
+Type: Feature
 --
 The great advantage of the Web UI is that it's an easy way to interact with significant amounts of data.
 

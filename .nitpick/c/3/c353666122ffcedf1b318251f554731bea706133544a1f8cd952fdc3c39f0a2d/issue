@@ -1,6 +1,8 @@
 Component: Web_UI
 Date: 2012-07-19 18:03:07
-Fix_By: Next_Release
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.0
 Owner: travisb@travisbrown.ca
 Priority: 1
 Reported_By: travisb@travisbrown.ca
@@ -10,7 +12,5 @@ Severity: Major
 State: Closed
 Title: Add Issue Hash to Issue Page
 Type: Bug
-Depends_On:
-Duplicate_Of:
 --
 When referring to other bugs it's necessary to paste the hash of the issue, but the only easy way to get the issue hash is to copy and paste it from the URL. There should be a field displayed to make this easier.

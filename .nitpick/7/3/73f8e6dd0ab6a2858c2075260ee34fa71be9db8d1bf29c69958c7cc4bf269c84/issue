@@ -2,7 +2,7 @@ Component: Core
 Date: 2012-07-19 18:00:54
 Depends_On: 
 Duplicate_Of: 
-Fix_By: Next_Release
+Fix_By: 1.0
 Owner: travisb@travisbrown.ca
 Priority: 1
 Reported_By: travisb@travisbrown.ca
