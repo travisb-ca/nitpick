@@ -33,6 +33,7 @@ import copy
 import re
 import base64
 import cgi
+import uuid
 
 DATEFORMAT = '%Y-%m-%d %H:%M:%S'
 FILLWIDTH = 69
@@ -1520,6 +1521,12 @@ def cmd_init(args):
 	users.write(default_users)
 	users.close()
 	backend.add_changes(users_filename)
+
+	uuid_filename = args.dir + '/uuid'
+	uuid_file = open(uuid_filename, 'w')
+	uuid_file.write(uuid.uuid4().hex)
+	uuid_file.close()
+	backend.add_changes(uuid_filename)
 
 	backend.ignore(args.dir + '/issue_cache')
 
