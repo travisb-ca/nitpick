@@ -65,6 +65,11 @@ default_users = """
 Unassigned
 """
 
+db = None
+def load_db():
+	global db
+	db = IssueDB()
+
 class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 	def log_request(code = -1, size = -1):
 		pass
@@ -254,7 +259,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 	def format_issue(self, issue):
 		leader = ''
 		follower = ''
-		if issue in config.issue_db.keys() and config.issue_db[issue]['State'] == config.issues['state'][-1]:
+		if issue in db.issues() and db.issue(issue)['State'] == config.issues['state'][-1]:
 			leader = '<strike>'
 			follower = '</strike>'
 
@@ -262,7 +267,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		return output
 
 	def root(self):
-		load_issue_db()
+		db.load_issue_db()
 
 		self.start_doc('')
 
@@ -481,7 +486,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 
 		def skip_filter(issue, key, accept_list):
-			if accept_list != [] and config.issue_db[issue][key] not in accept_list:
+			if accept_list != [] and db.issue(issue)[key] not in accept_list:
 				return True
 			else:
 				return False
@@ -492,7 +497,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 
 		def sort_issues(issue):
-			issue_obj = config.issue_db[issue]
+			issue_obj = db.issue(issue)
 
 			if sort_field == 'Component':
 				return config.issues['components'].index(issue_obj['Component'])
@@ -535,7 +540,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 
 		self.output('</tr>\n')
-		issues = config.issue_db.keys()
+		issues = db.issues()
 
                 # Perform a presort so the output will always be stable
                 issues.sort()
@@ -571,17 +576,17 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			row_colour = (row_colour + 1) % 2
 
 			output_field(issue, show_ID,            issue[:8])
-			output_field(issue, show_type,          config.issue_db[issue]['Type'])
-			output_field(issue, show_date,          config.issue_db[issue]['Date'])
-			output_field(issue, show_severity,      config.issue_db[issue]['Severity'])
-			output_field(issue, show_priority,      config.issue_db[issue]['Priority'])
-			output_field(issue, show_component,     config.issue_db[issue]['Component'])
-			output_field(issue, show_fix_by,        config.issue_db[issue]['Fix_By'])
-			output_field(issue, show_seen_in_build, config.issue_db[issue]['Seen_In_Build'])
-			output_field(issue, show_state,         config.issue_db[issue]['State'])
-			output_field(issue, show_resolution,    config.issue_db[issue]['Resolution'])
-			output_field(issue, show_owner,         config.issue_db[issue]['Owner'])
-			output_field(issue, show_title,         config.issue_db[issue]['Title'])
+			output_field(issue, show_type,          db.issue(issue)['Type'])
+			output_field(issue, show_date,          db.issue(issue)['Date'])
+			output_field(issue, show_severity,      db.issue(issue)['Severity'])
+			output_field(issue, show_priority,      db.issue(issue)['Priority'])
+			output_field(issue, show_component,     db.issue(issue)['Component'])
+			output_field(issue, show_fix_by,        db.issue(issue)['Fix_By'])
+			output_field(issue, show_seen_in_build, db.issue(issue)['Seen_In_Build'])
+			output_field(issue, show_state,         db.issue(issue)['State'])
+			output_field(issue, show_resolution,    db.issue(issue)['Resolution'])
+			output_field(issue, show_owner,         db.issue(issue)['Owner'])
+			output_field(issue, show_title,         db.issue(issue)['Title'])
 
 			self.output('</tr>\n')
 
@@ -592,11 +597,11 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 	def issue(self):
 		issue_hash = self.path[7:]
 		
-		load_issue_db()
+		db.load_issue_db()
 
 		self.start_doc('Issue %s' % issue_hash)
 
-		issue = parse_file(config.issue_db[issue_hash]['path'] + '/issue')
+		issue = parse_file(db.issue(issue_hash)['path'] + '/issue')
 
 		self.output('<p><a href="/">Back to issue list</a></p>\n')
 
@@ -639,10 +644,10 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('<p>Depends_On: %s</p>\n' % shorten_and_link_issues(issue['Depends_On']))
 		self.output('<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<textarea rows="1" cols="70" name="depends_on">%s</textarea></p>\n' % issue['Depends_On'])
 
-		dependents = issue_dependent_of(issue_hash)
+		dependents = db.issue_dependent_of(issue_hash)
 		self.output('<p>Dependent_Of: %s</p>\n' % shorten_and_link_issues(dependents))
 
-		duplicate_issues = get_issue_duplicates(issue_hash)
+		duplicate_issues = db.get_issue_duplicates(issue_hash)
 
 		self.output('<p>Duplicate_Of: %s</p>\n' % shorten_and_link_issues(duplicate_issues))
 		self.output('<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<textarea rows="1" cols="70" name="duplicate_of">%s</textarea></p>\n' % issue['Duplicate_Of'])
@@ -671,7 +676,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.output('<div class="issue_comment_children">\n')
 
-		comment_stack = produce_comment_tree(issue_hash)
+		comment_stack = db.produce_comment_tree(issue_hash)
 		comment_stack.reverse()
 		comment_depth = [1] * len(comment_stack)
 		parent_children_stack = [2] * len(comment_stack)
@@ -739,9 +744,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		else:
 			comment = self.request_args['comment']
 
-		load_issue_db()
+		db.load_issue_db()
 
-		comment_parent = find_comment_parent(issue, comment)
+		comment_parent = db.find_comment_parent(issue, comment)
 
 		if comment_parent == None:
 			self.output('No such issue')
@@ -872,7 +877,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.end_doc()
 
 	def add_comment_post(self):
-		load_issue_db()
+		db.load_issue_db()
 
 		if 'date' not in self.request_args.keys() or \
 		   'parent' not in self.request_args.keys() or \
@@ -892,7 +897,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				'content' : self.request_args['content']
 			}
 
-		comment_filename = add_comment(self.request_args['issue'], comment)
+		comment_filename = db.add_comment(self.request_args['issue'], comment)
 
 		self.start_doc('Comment %s added' % comment_filename)
 		self.output('<p>Successfully added the comment</p>\n')
@@ -903,7 +908,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		config.uncommitted_changes = True
 
 	def update_issue_post(self):
-		load_issue_db()
+		db.load_issue_db()
 
 		if 'issue' not in self.request_args.keys() or \
 		   'severity' not in self.request_args.keys() or \
@@ -921,40 +926,40 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			   self.end_doc()
 			   return
 
-		issue = disambiguate_hash(self.request_args['issue'])
+		issue = db.disambiguate_hash(self.request_args['issue'])
 
-		if config.issue_db[issue]['Severity'] == self.request_args['severity'] and \
-			config.issue_db[issue]['Priority'] == self.request_args['priority'] and \
-			config.issue_db[issue]['Owner'] == self.request_args['owner'] and \
-			config.issue_db[issue]['State'] == self.request_args['state'] and \
-			config.issue_db[issue]['Type'] == self.request_args['type'] and \
-			config.issue_db[issue]['Component'] == self.request_args['component'] and \
-			config.issue_db[issue]['Resolution'] == self.request_args['resolution'] and \
-			config.issue_db[issue]['Depends_On'] == self.request_args['depends_on'] and \
-			config.issue_db[issue]['Duplicate_Of'] == self.request_args['duplicate_of'] and \
-			config.issue_db[issue]['Fix_By'] == self.request_args['fix_by']:
+		if db.issue(issue)['Severity'] == self.request_args['severity'] and \
+			db.issue(issue)['Priority'] == self.request_args['priority'] and \
+			db.issue(issue)['Owner'] == self.request_args['owner'] and \
+			db.issue(issue)['State'] == self.request_args['state'] and \
+			db.issue(issue)['Type'] == self.request_args['type'] and \
+			db.issue(issue)['Component'] == self.request_args['component'] and \
+			db.issue(issue)['Resolution'] == self.request_args['resolution'] and \
+			db.issue(issue)['Depends_On'] == self.request_args['depends_on'] and \
+			db.issue(issue)['Duplicate_Of'] == self.request_args['duplicate_of'] and \
+			db.issue(issue)['Fix_By'] == self.request_args['fix_by']:
 				self.start_doc('No change')
 				self.output('<p>No change sent, no change made</p>')
 				self.output('<a href="/issue/%s">Back to issue %s</a>\n' % (issue, issue[:8]))
 				self.end_doc()
 				return
 
-		if config.issue_db[issue]['Severity'] != self.request_args['severity']:
-			change_issue(issue, 'Severity', self.request_args['severity'])
-		if config.issue_db[issue]['Priority'] != self.request_args['priority']:
-			change_issue(issue, 'Priority', self.request_args['priority'])
-		if config.issue_db[issue]['Owner'] != self.request_args['owner']:
-			change_issue(issue, 'Owner', self.request_args['owner'])
-		if config.issue_db[issue]['State'] != self.request_args['state']:
-			change_issue(issue, 'State', self.request_args['state'])
-		if config.issue_db[issue]['Type'] != self.request_args['type']:
-			change_issue(issue, 'Type', self.request_args['type'])
-		if config.issue_db[issue]['Component'] != self.request_args['component']:
-			change_issue(issue, 'Component', self.request_args['component'])
-		if config.issue_db[issue]['Resolution'] != self.request_args['resolution']:
-			change_issue(issue, 'Resolution', self.request_args['resolution'])
-		if config.issue_db[issue]['Fix_By'] != self.request_args['fix_by']:
-			change_issue(issue, 'Fix_By', self.request_args['fix_by'])
+		if db.issue(issue)['Severity'] != self.request_args['severity']:
+			db.change_issue(issue, 'Severity', self.request_args['severity'])
+		if db.issue(issue)['Priority'] != self.request_args['priority']:
+			db.change_issue(issue, 'Priority', self.request_args['priority'])
+		if db.issue(issue)['Owner'] != self.request_args['owner']:
+			db.change_issue(issue, 'Owner', self.request_args['owner'])
+		if db.issue(issue)['State'] != self.request_args['state']:
+			db.change_issue(issue, 'State', self.request_args['state'])
+		if db.issue(issue)['Type'] != self.request_args['type']:
+			db.change_issue(issue, 'Type', self.request_args['type'])
+		if db.issue(issue)['Component'] != self.request_args['component']:
+			db.change_issue(issue, 'Component', self.request_args['component'])
+		if db.issue(issue)['Resolution'] != self.request_args['resolution']:
+			db.change_issue(issue, 'Resolution', self.request_args['resolution'])
+		if db.issue(issue)['Fix_By'] != self.request_args['fix_by']:
+			db.change_issue(issue, 'Fix_By', self.request_args['fix_by'])
 
 		# Returns a string of issues if valid, or None if invalid
 		def check_issue_list_string(issues):
@@ -962,17 +967,17 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 			output = ''
 			for issue in issue_list:
-				if issue in config.issue_db.keys():
+				if issue in db.issues():
 					output += '%s ' % issue
 				else:
-					disambiguated = disambiguate_hash(issue)
+					disambiguated = db.disambiguate_hash(issue)
 					if disambiguated is None or disambiguated == '':
 						return None
 					else:
 						output += '%s ' % disambiguated
 			return output
 
-		if config.issue_db[issue]['Depends_On'] != self.request_args['depends_on']:
+		if db.issue(issue)['Depends_On'] != self.request_args['depends_on']:
 			issues = check_issue_list_string(self.request_args['depends_on'])
 			if issues == None:
 				self.start_doc('Invalid Issues to be dependend on')
@@ -980,9 +985,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				self.end_doc()
 				return
 			else:
-				change_issue(issue, 'Depends_On', issues)
+				db.change_issue(issue, 'Depends_On', issues)
 
-		if config.issue_db[issue]['Duplicate_Of'] != self.request_args['duplicate_of']:
+		if db.issue(issue)['Duplicate_Of'] != self.request_args['duplicate_of']:
 			issues = check_issue_list_string(self.request_args['duplicate_of'])
 			if issues == None:
 				self.start_doc('Invalid Issues to be duplicate of')
@@ -990,9 +995,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				self.end_doc()
 				return
 			else:
-				change_issue(issue, 'Duplicate_Of', issues)
+				db.change_issue(issue, 'Duplicate_Of', issues)
 
-		issue_filename = config.issue_db[issue]['path'] + '/issue'
+		issue_filename = db.issue(issue)['path'] + '/issue'
 
 		self.start_doc('Issues %s updated' % issue[:8])
 		self.output('<p>Successfully updated issue %s</p>\n' % issue[:8])
@@ -1040,7 +1045,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				'content' : self.request_args['content']
 			}
 
-		issue_filename, issue_hash = add_issue(issue)
+		issue_filename, issue_hash = db.add_issue(issue)
 
 		self.start_doc('Created Issue %s' % issue_filename)
 		self.output('<p>Successfully create the issue</p>\n')
@@ -1357,80 +1362,238 @@ def load_config():
 
 	return True
 
-# Save the issue_db cache after modifying it
-def save_issue_db():
-	cache_file = gzip.open(config.db_path + 'issue_cache', 'w')
-	cPickle.dump(config.issue_db, cache_file)
-	cache_file.close()
+class IssueDB:
+	uuid = ''
+	db = {}
 
-# Load the list of issues and some basic information about each one.
-# Returns a dict keyed on issue hash which contains the a dict with all the
-# fields in the issue files, except the content.
-#
-# An additional field of 'path' exists which is the directory of the issue
-# An internal field of 'issue_db_cached_date' also exists.
-def load_issue_db():
-	try:
-		cache_file = gzip.open(config.db_path + 'issue_cache', 'r')
-		config.issue_db = cPickle.load(cache_file)
+	def __init__(self):
+		self.load_issue_db()
+
+	def issues(self):
+		return self.db.keys()
+
+	def issue(self, hash):
+		return self.db[hash]
+
+	# Save the issue_db cache after modifying it
+	def save_issue_db(self):
+		cache_file = gzip.open(config.db_path + 'issue_cache', 'w')
+		cPickle.dump(self.db, cache_file)
 		cache_file.close()
-	except:
-		# Something is wrong with the cache, so start again
-		config.issue_db = {'format' : ISSUE_CACHE_FORMAT}
 
-	if 'format' in config.issue_db.keys() and config.issue_db['format'] != ISSUE_CACHE_FORMAT:
-		config.issue_db = {'format' : ISSUE_CACHE_FORMAT}
+	# Load the list of issues and some basic information about each one.
+	# Returns a dict keyed on issue hash which contains the a dict with all the
+	# fields in the issue files, except the content.
+	#
+	# An additional field of 'path' exists which is the directory of the issue
+	# An internal field of 'issue_db_cached_date' also exists.
+	def load_issue_db(self):
+		try:
+			cache_file = gzip.open(config.db_path + 'issue_cache', 'r')
+			self.db = cPickle.load(cache_file)
+			cache_file.close()
+		except:
+			# Something is wrong with the cache, so start again
+			self.db = {'format' : ISSUE_CACHE_FORMAT}
 
-	# Ensure that the cache is up to date
-	checked_issues = []
-	for outer_dir in os.listdir(config.db_path):
-		if len(outer_dir) != 1 or not os.path.isdir(config.db_path + outer_dir):
-			continue
+		if 'format' in self.db.keys() and self.db['format'] != ISSUE_CACHE_FORMAT:
+			self.db = {'format' : ISSUE_CACHE_FORMAT}
 
-		for inner_dir in os.listdir(config.db_path + outer_dir):
-			if len(inner_dir) != 1 or not os.path.isdir(config.db_path + outer_dir + '/' + inner_dir):
+		uuid_file = open(config.db_path + 'uuid', 'r')
+		self.uuid = uuid_file.read()
+
+		# Ensure that the cache is up to date
+		checked_issues = []
+		for outer_dir in os.listdir(config.db_path):
+			if len(outer_dir) != 1 or not os.path.isdir(config.db_path + outer_dir):
 				continue
 
-			for hash in os.listdir(config.db_path + outer_dir + '/' + inner_dir):
-				if hash[0] == '.': 
-					# Some VCSes use dotfiles on a per directory basis
+			for inner_dir in os.listdir(config.db_path + outer_dir):
+				if len(inner_dir) != 1 or not os.path.isdir(config.db_path + outer_dir + '/' + inner_dir):
 					continue
 
-				hash_path = config.db_path + outer_dir + '/' + inner_dir + '/' + hash
+				for hash in os.listdir(config.db_path + outer_dir + '/' + inner_dir):
+					if hash[0] == '.': 
+						# Some VCSes use dotfiles on a per directory basis
+						continue
 
-				checked_issues.append(hash)
+					hash_path = config.db_path + outer_dir + '/' + inner_dir + '/' + hash
 
-				if hash not in config.issue_db or \
-					config.issue_db[hash]['issue_db_cached_date'] != os.path.getmtime(hash_path + '/issue'):
-					config.issue_db[hash] = parse_file(hash_path + '/issue')
-					del config.issue_db[hash]['content']
-					config.issue_db[hash]['issue_db_cached_date'] = os.path.getmtime(hash_path + '/issue')
-				config.issue_db[hash]['path'] = hash_path
+					checked_issues.append(hash)
 
-	# Delete any issues which no longer exist
-	for issue in config.issue_db.keys():
-		if issue not in checked_issues:
-			del config.issue_db[issue]
+					if hash not in self.db or \
+						self.db[hash]['issue_db_cached_date'] != os.path.getmtime(hash_path + '/issue'):
+						self.db[hash] = parse_file(hash_path + '/issue')
+						del self.db[hash]['content']
+						self.db[hash]['issue_db_cached_date'] = os.path.getmtime(hash_path + '/issue')
+					self.db[hash]['path'] = hash_path
 
-	save_issue_db()
+		# Delete any issues which no longer exist
+		for issue in self.db.keys():
+			if issue not in checked_issues:
+				del self.db[issue]
 
-# Turn a partial hash into a full hash
-# Returns:
-# 	- None on hash not found
-# 	- '' on ambiguous result
-# 	- the hash on success
-def disambiguate_hash(partial_hash):
-	fullhash = ''
+		self.save_issue_db()
 
-	for hash in config.issue_db.keys():
-		if partial_hash in hash:
-			if fullhash != '':
-				return ''
+	# Turn a partial hash into a full hash
+	# Returns:
+	# 	- None on hash not found
+	# 	- '' on ambiguous result
+	# 	- the hash on success
+	def disambiguate_hash(self, partial_hash):
+		fullhash = ''
+
+		for hash in self.db.keys():
+			if partial_hash in hash:
+				if fullhash != '':
+					return ''
+				else:
+					fullhash = hash
+		if fullhash == '':
+			return None
+		return fullhash
+
+	# Load the entire comment tree for the given issue hash and return it as a tree.
+	#
+	# The direct object is a list of comments. Each comment is then a dictionary with all the usual
+	# fields along with an additional field, 'children' which is a list of children comment.
+	def produce_comment_tree(self, issue):
+		issue_path = self.db[issue]['path'] + '/'
+
+		# Load all the comments
+		comments = {}
+		for file in os.listdir(issue_path):
+			if not os.path.isfile(issue_path + file):
+				continue
+			if '.' in file or file == 'issue': # Only select comments, not attachments or the root issue
+				continue
+
+			comments[file] = parse_file(issue_path + file)
+			comments[file]['children'] = []
+			comments[file]['hash'] = file
+
+		# Pack them into a tree
+		comment_tree = []
+		for comment in comments.values():
+			if comment['Parent'] == 'issue':
+				comment_tree.append(comment)
 			else:
-				fullhash = hash
-	if fullhash == '':
-		return None
-	return fullhash
+				comments[comment['Parent']]['children'].append(comment)
+
+		# Now order the tree based upon the dates
+		for comment in comments.values():
+			comment['children'].sort(key = lambda child: time.mktime(time.strptime(child['Date'], DATEFORMAT)))
+		comment_tree.sort(key = lambda comment: time.mktime(time.strptime(comment['Date'], DATEFORMAT)))
+
+		return comment_tree
+
+	def _issue_referenced_in_field(self, issue, field):
+		output = ''
+		for hash in self.db.keys():
+			if issue in self.db[hash][field]:
+				output += '%s ' % hash
+		return output
+
+	# Return a space separated list of the issues the given issue is a dependent of.
+	def issue_dependent_of(self, issue):
+		return self._issue_referenced_in_field(issue, 'Depends_On')
+
+	def issue_duplicate_of(self, issue):
+		return self._issue_referenced_in_field(issue, 'Duplicate_Of')
+
+	# Return a string of space separated issue hashes the given issue is a duplicate of
+	def get_issue_duplicates(self, issue):
+		duplicate_issues = ''
+		if len(self.db[issue]['Duplicate_Of']) > 10:
+			duplicate_issues = self.db[issue]['Duplicate_Of'] + ' '
+		duplicate_issues += self.issue_duplicate_of(issue)
+
+		return duplicate_issues
+
+	# Take an issue dict and add it to the system. Does not commit.
+	#
+	# Returns (issue filename, issue hash)
+	def add_issue(self, issue):
+		hash = hashlib.sha256(cPickle.dumps(issue)).hexdigest()
+
+		issue_dir = config.db_path + hash[0] + '/' + hash[1] + '/' + hash
+		config.vcs.mkdir(issue_dir)
+
+		issue_filename = issue_dir + '/issue'
+		format_file(issue_filename, issue)
+
+		config.vcs.add_changes(issue_filename)
+
+		return (issue_filename, hash)
+
+	# Take a comment dict and add it to the system. Does not commit.
+	#
+	# Returns the comment filename
+	def add_comment(self, issue, comment):
+		hash = hashlib.sha256(cPickle.dumps(comment)).hexdigest()
+
+		comment_filename = self.db[issue]['path'] + '/' + hash
+		format_file(comment_filename, comment)
+
+		config.vcs.add_changes(comment_filename)
+
+		return comment_filename
+
+	# Check that the issue exists and that it has the comment to reply to if one is supplied.
+	# Returns
+	# 	(issue hash, parent id) - on Success
+	# 	None                    - If the issue does not exist
+	# 	''                      - If the issue is ambiguous
+	# 	(issue hash, None)      - If a comment was specified and it doesn't exist
+	# 	(issue hash, '')        - If the comment is ambiguous
+	def find_comment_parent(self, partial_issue, partial_comment):
+		issue = self.disambiguate_hash(partial_issue)
+		if issue == None:
+			return None
+		elif issue == '':
+			return ''
+
+		parent = 'issue'
+
+		if partial_comment:
+			for file in os.listdir(self.db[issue]['path']):
+				if not os.path.isfile(self.db[issue]['path'] + '/' + file):
+					continue
+				if '.' in file or file == 'issue': # Only support comments, not attachments or the root issue
+					continue
+
+				if partial_comment in file:
+					if parent != 'issue':
+						return (issue, '')
+					else:
+						parent = file
+			if parent == 'issue':
+				return (issue, None)
+		
+		return (issue, parent)
+
+	def change_issue(self, issue, prop, newvalue):
+		if config.db_path == '':
+			return False
+
+		self.load_issue_db()
+
+		issue = self.disambiguate_hash(issue)
+		if issue == None:
+			print' No such issue'
+			return False
+		elif issue == '':
+			print "Ambiguous issue ID. Please use a longer string"
+			return False
+
+		issue_filename = self.db[issue]['path'] + '/issue'
+		issue = parse_file(issue_filename)
+		issue[prop] = newvalue
+		format_file(issue_filename, issue)
+
+		config.vcs.add_changes(issue_filename)
+
+		return True
 
 # Ensure that there is an editor to use for editing files
 # Returns None and prints an error if no editor is found.
@@ -1444,63 +1607,6 @@ def editor_found():
 	else:
 		print 'Editor not found in $EDITOR, please set this variable and try again'
 		return None
-
-# Load the entire comment tree for the given issue hash and return it as a tree.
-#
-# The direct object is a list of comments. Each comment is then a dictionary with all the usual
-# fields along with an additional field, 'children' which is a list of children comment.
-def produce_comment_tree(issue):
-	issue_path = config.issue_db[issue]['path'] + '/'
-
-	# Load all the comments
-	comments = {}
-	for file in os.listdir(issue_path):
-		if not os.path.isfile(issue_path + file):
-			continue
-		if '.' in file or file == 'issue': # Only select comments, not attachments or the root issue
-			continue
-
-		comments[file] = parse_file(issue_path + file)
-		comments[file]['children'] = []
-		comments[file]['hash'] = file
-
-	# Pack them into a tree
-	comment_tree = []
-	for comment in comments.values():
-		if comment['Parent'] == 'issue':
-			comment_tree.append(comment)
-		else:
-			comments[comment['Parent']]['children'].append(comment)
-
-	# Now order the tree based upon the dates
-	for comment in comments.values():
-		comment['children'].sort(key = lambda child: time.mktime(time.strptime(child['Date'], DATEFORMAT)))
-	comment_tree.sort(key = lambda comment: time.mktime(time.strptime(comment['Date'], DATEFORMAT)))
-
-	return comment_tree
-
-def _issue_referenced_in_field(issue, field):
-	output = ''
-	for hash in config.issue_db.keys():
-		if issue in config.issue_db[hash][field]:
-			output += '%s ' % hash
-	return output
-
-# Return a space separated list of the issues the given issue is a dependent of.
-def issue_dependent_of(issue):
-	return _issue_referenced_in_field(issue, 'Depends_On')
-
-def issue_duplicate_of(issue):
-	return _issue_referenced_in_field(issue, 'Duplicate_Of')
-
-# Return a string of space separated issue hashes the given issue is a duplicate of
-def get_issue_duplicates(issue):
-	duplicate_issues = ''
-	if len(config.issue_db[issue]['Duplicate_Of']) > 10:
-		duplicate_issues = config.issue_db[issue]['Duplicate_Of'] + ' '
-	duplicate_issues += issue_duplicate_of(issue)
-
-	return duplicate_issues
 
 def cmd_init(args):
 	backend = BACKENDS[args.vcs]
@@ -1533,22 +1639,6 @@ def cmd_init(args):
 	backend.commit()
 
 	return True
-
-# Take an issue dict and add it to the system. Does not commit.
-#
-# Returns (issue filename, issue hash)
-def add_issue(issue):
-	hash = hashlib.sha256(cPickle.dumps(issue)).hexdigest()
-
-	issue_dir = config.db_path + hash[0] + '/' + hash[1] + '/' + hash
-	config.vcs.mkdir(issue_dir)
-
-	issue_filename = issue_dir + '/issue'
-	format_file(issue_filename, issue)
-
-	config.vcs.add_changes(issue_filename)
-
-	return (issue_filename, hash)
 
 def cmd_new(args):
 	if config.db_path == '':
@@ -1591,7 +1681,7 @@ def cmd_new(args):
 	issue = parse_file(config.db_path + 'new.tmp')
 	os.unlink(config.db_path + 'new.tmp')
 
-	issue_filename, issue_hash = add_issue(issue)
+	issue_filename, issue_hash = db.add_issue(issue)
 
 	config.vcs.commit()
 
@@ -1601,32 +1691,32 @@ def cmd_list(args):
 	if config.db_path == '':
 		return False
 
-	load_issue_db()
+	load_db()
 
-	for hash in config.issue_db.keys():
+	for hash in db.issues():
 		if hash == 'format':
 			continue
 
-		if not args.all and args.state != config.issue_db[hash]['State']:
+		if not args.all and args.state != db.issue(hash)['State']:
 			continue
 
-		if not args.all and args.component and args.component != config.issue_db[hash]['Component']:
+		if not args.all and args.component and args.component != db.issue(hash)['Component']:
 			continue
 
 		if args.fullhash:
 			printhash = hash
 		else:
 			printhash = hash[:8]
-		print "%s (%s): %s" % (printhash, config.issue_db[hash]['State'], config.issue_db[hash]['Title'])
+		print "%s (%s): %s" % (printhash, db.issue(hash)['State'], db.issue(hash)['Title'])
 	return True
 
 def cmd_cat(args):
 	if config.db_path == '':
 		return False
 
-	load_issue_db()
+	load_db()
 
-	hash = disambiguate_hash(args.issue)
+	hash = db.disambiguate_hash(args.issue)
 	if hash == None:
 		print "No such issue"
 		return False
@@ -1649,11 +1739,11 @@ def cmd_cat(args):
 
 	if not args.noformat:
 		print '|',
-	print "Dependent_Of: %s" % issue_dependent_of(hash)
+	print "Dependent_Of: %s" % db.issue_dependent_of(hash)
 
 	if not args.noformat:
 		print '|',
-	print "Duplicate_Of: %s" % get_issue_duplicates(hash)
+	print "Duplicate_Of: %s" % db.get_issue_duplicates(hash)
 
 	if 'content' in issue.keys():
 		if not args.noformat:
@@ -1670,7 +1760,7 @@ def cmd_cat(args):
 		if not args.noformat:
 			print '+' + '=' * FILLWIDTH
 
-	comment_stack = produce_comment_tree(hash)
+	comment_stack = db.produce_comment_tree(hash)
 	comment_stack.reverse()
 	comment_depth = [1] * len(comment_stack)
 	parent_children_stack = [2] * len(comment_stack)
@@ -1722,52 +1812,6 @@ def cmd_cat(args):
 
 	return True
 
-# Check that the issue exists and that it has the comment to reply to if one is supplied.
-# Returns
-# 	(issue hash, parent id) - on Success
-# 	None                    - If the issue does not exist
-# 	''                      - If the issue is ambiguous
-# 	(issue hash, None)      - If a comment was specified and it doesn't exist
-# 	(issue hash, '')        - If the comment is ambiguous
-def find_comment_parent(partial_issue, partial_comment):
-	issue = disambiguate_hash(partial_issue)
-	if issue == None:
-		return None
-	elif issue == '':
-		return ''
-
-	parent = 'issue'
-
-	if partial_comment:
-		for file in os.listdir(config.issue_db[issue]['path']):
-			if not os.path.isfile(config.issue_db[issue]['path'] + '/' + file):
-				continue
-			if '.' in file or file == 'issue': # Only support comments, not attachments or the root issue
-				continue
-
-			if partial_comment in file:
-				if parent != 'issue':
-					return (issue, '')
-				else:
-					parent = file
-		if parent == 'issue':
-			return (issue, None)
-	
-	return (issue, parent)
-
-# Take a comment dict and add it to the system. Does not commit.
-#
-# Returns the comment filename
-def add_comment(issue, comment):
-	hash = hashlib.sha256(cPickle.dumps(comment)).hexdigest()
-
-	comment_filename = config.issue_db[issue]['path'] + '/' + hash
-	format_file(comment_filename, comment)
-
-	config.vcs.add_changes(comment_filename)
-
-	return comment_filename
-
 def cmd_comment(args):
 	if config.db_path == '':
 		return False
@@ -1780,9 +1824,9 @@ def cmd_comment(args):
 		print 'Failed to determine username. Please set NITPICK_USERNAME'
 		return False
 
-	load_issue_db()
+	load_db()
 
-	comment_parent = find_comment_parent(args.issue, args.comment)
+	comment_parent = db.find_comment_parent(args.issue, args.comment)
 	if comment_parent == None:
 		print 'No such issue'
 		return False
@@ -1806,7 +1850,7 @@ def cmd_comment(args):
 			'User'       : config.username,
 			'content'    : 'Enter comment here'
 		}
-	comment_filename = config.issue_db[issue]['path'] + '/comment.tmp'
+	comment_filename = db.issue(issue)['path'] + '/comment.tmp'
 	format_file(comment_filename, comment)
 	result = os.system(editor + ' ' + comment_filename)
 
@@ -1819,78 +1863,55 @@ def cmd_comment(args):
 	comment = parse_file(comment_filename)
 	os.unlink(comment_filename)
 
-	comment_filename = add_comment(issue, comment)
+	comment_filename = db.add_comment(issue, comment)
 
 	config.vcs.commit()
 	return True
 
-def change_issue(issue, prop, newvalue):
-	if config.db_path == '':
-		return False
-
-	load_issue_db()
-
-	issue = disambiguate_hash(issue)
-	if issue == None:
-		print' No such issue'
-		return False
-	elif issue == '':
-		print "Ambiguous issue ID. Please use a longer string"
-		return False
-
-	issue_filename = config.issue_db[issue]['path'] + '/issue'
-	issue = parse_file(issue_filename)
-	issue[prop] = newvalue
-	format_file(issue_filename, issue)
-
-	config.vcs.add_changes(issue_filename)
-
-	return True
-
 def cmd_state(args):
-	if change_issue(args.issue, 'State', args.newstate):
+	if db.change_issue(args.issue, 'State', args.newstate):
 		config.vcs.commit()
 		return True
 	else:
 		return False
 
 def cmd_severity(args):
-	if change_issue(args.issue, 'Severity', args.newseverity):
+	if db.change_issue(args.issue, 'Severity', args.newseverity):
 		config.vcs.commit()
 		return True
 	else:
 		return False
 
 def cmd_component(args):
-	if change_issue(args.issue, 'Component', args.newcomponent):
+	if db.change_issue(args.issue, 'Component', args.newcomponent):
 		config.vcs.commit()
 		return True
 	else:
 		return False
 
 def cmd_priority(args):
-	if change_issue(args.issue, 'Priority', args.newpriority):
+	if db.change_issue(args.issue, 'Priority', args.newpriority):
 		config.vcs.commit()
 		return True
 	else:
 		return False
 
 def cmd_resolution(args):
-	if change_issue(args.issue, 'Resolution', args.newresolution):
+	if db.change_issue(args.issue, 'Resolution', args.newresolution):
 		config.vcs.commit()
 		return True
 	else:
 		return False
 
 def cmd_type(args):
-	if change_issue(args.issue, 'Type', args.newtype):
+	if db.change_issue(args.issue, 'Type', args.newtype):
 		config.vcs.commit()
 		return True
 	else:
 		return False
 
 def cmd_fixby(args):
-	if change_issue(args.issue, 'Fix_By', args.newfixby):
+	if db.change_issue(args.issue, 'Fix_By', args.newfixby):
 		config.vcs.commit()
 		return True
 	else:
@@ -1910,7 +1931,7 @@ def cmd_owner(args):
 		print "Unknown user"
 		return False
 
-	if change_issue(args.issue, 'Owner', fulluser):
+	if db.change_issue(args.issue, 'Owner', fulluser):
 		config.vcs.commit()
 		return True
 	else:
@@ -1928,7 +1949,7 @@ def cmd_web(args):
 	if config.db_path == '':
 		return False
 
-	load_issue_db()
+	load_db()
 
 	server = BaseHTTPServer.HTTPServer(('localhost', args.port), nitpick_web)
 
