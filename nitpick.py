@@ -249,6 +249,16 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 			'''))
 
+	def format_issue(self, issue):
+		leader = ''
+		follower = ''
+		if issue in config.issue_db.keys() and config.issue_db[issue]['State'] == config.issues['state'][-1]:
+			leader = '<strike>'
+			follower = '</strike>'
+
+		output = '%s<a href="/issue/%s">%s</a>%s' % (leader, issue, issue[:8], follower)
+		return output
+
 	def root(self):
 		load_issue_db()
 
@@ -620,7 +630,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			issue_list = issue_list_string.split(' ')
 			output = ''
 			for issue in issue_list:
-				output += '<a href="/issue/%s">%s</a> ' % (issue, issue[:8])
+				output += '%s ' % (self.format_issue(issue))
 
 			return output
 
@@ -643,8 +653,11 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('<div class="issue_comment">\n')
 		self.output('<div class="issue_comment_content">\n')
 
+		def link_issue(match):
+			return self.format_issue(match.group(0))
+
 		linked_content = re.sub(URL_REGEX, '<a href="\\1">\\1</a>', issue['content'])
-		linked_content = re.sub(ISSUE_REGEX, '<a href="/issue/\\1">\\1</a>', linked_content)
+		linked_content = re.sub(ISSUE_REGEX, link_issue, linked_content)
 		self.output('<p>%s</p>\n' % linked_content)
 
 		self.output('<form action="/add_comment" method="get">\n')
@@ -681,7 +694,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				self.output('%s: %s<br/>\n' % (field, comment[field]))
 
 			linked_content = re.sub(URL_REGEX, '<a href="\\1">\\1</a>', comment['content'])
-			linked_content = re.sub(ISSUE_REGEX, '<a href="/issue/\\1">\\1</a>', linked_content)
+			linked_content = re.sub(ISSUE_REGEX, link_issue, linked_content)
 			self.output('<p>%s</p>\n' % linked_content)
 
 			self.output('<form action="/add_comment" method="get">\n')

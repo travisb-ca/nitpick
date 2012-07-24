@@ -1,0 +1,6 @@
+Attachment: 
+Date: 2012-07-24 03:44:02
+Parent: issue
+User: travisb@travisbrown.ca
+--
+I'm using the depreciated <strike> element, but I don't trust CSS to work correctly in the text browsers.
