@@ -65,6 +65,8 @@ default_users = """
 Unassigned
 """
 
+default_config = copy.deepcopy(config.issues)
+
 db = None
 def load_db():
 	global db
@@ -1613,8 +1615,8 @@ def cmd_init(args):
 	config.db_path = args.dir
 
 	def_config = {'vcs' : args.vcs}
-	for key in config.issues.keys():
-		def_config[key] = ' '.join(config.issues[key])
+	for key in default_config.keys():
+		def_config[key] = ' '.join(default_config[key])
 
 	backend.mkdir(args.dir + '/config')
 
