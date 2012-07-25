@@ -1,0 +1,16 @@
+Attachment: 
+Date: 2012-07-25 23:16:17
+Parent: issue
+User: travisb@travisbrown.ca
+--
+This feature required adding a uuid to the repository. The following short script can be run inside the .nitpick directory to create the necessary uuid file.
+
+#!/usr/bin/env python2.7
+
+import uuid
+
+uuid_file = open('uuid', 'w')
+uuid_file.write(uuid.uuid4().hex)
+uuid_file.close()
+
+Once the uuid file has been created you must add and commit it to the VCS manually.
