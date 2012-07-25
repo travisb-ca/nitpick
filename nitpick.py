@@ -377,7 +377,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('<div class="field_select_box">\n')
 		self.output('Select Fields to Display<br/>\n')
 		if db.has_foreign():
-			output_field_selectors('Repo',  'show_repo',          show_repo)
+			output_field_selectors('Project',  'show_repo',          show_repo)
 		output_field_selectors('ID',            'show_ID',            show_ID)
 		output_field_selectors('Type',          'show_type',          show_type)
 		output_field_selectors('Date',          'show_date',          show_date)
@@ -404,7 +404,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.output('<div class="filter_select_box">\n')
 		if db.has_foreign():
-			output_filter_options('Repository', 'filter_repo', db.repos(),                filter_repo)
+			output_filter_options('Project', 'filter_repo', db.repos(),                filter_repo)
 		output_filter_options('Components', 'filter_components', config.issues['components'], filter_components)
 		output_filter_options('Fix_By',     'filter_fix_by',     config.issues['fix_by'],     filter_fix_by)
 		output_filter_options('Severity',   'filter_severity',   config.issues['severity'],   filter_severity)
@@ -486,7 +486,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				self.output('<th class="issue_list"><a href="/%s">%s %s %s</a></th> ' % (arg_string, sort_token, label, sort_token))
 
 		if db.has_foreign():
-			output_row_header(show_repo,  'Repo', page_args)
+			output_row_header(show_repo,  'Project', page_args)
 		output_row_header(show_ID,            'ID', page_args)
 		output_row_header(show_type,          'Type', page_args)
 		output_row_header(show_date,          'Date', page_args)
@@ -633,7 +633,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.output('<div class="issue_metadata">\n')
 		if db.has_foreign():
-			self.output('<p>Repository: %s</p>\n' % db.issue(issue_hash)['repo'])
+			self.output('<p>Project: %s</p>\n' % db.issue(issue_hash)['repo'])
 		self.output('<p>Issue: %s</p>\n' % issue_hash)
 		self.output('<p>Title: %s</p>\n' % cgi.escape(issue['Title']))
 		self.output('<p>Date: %s</p>\n' % issue['Date'])
