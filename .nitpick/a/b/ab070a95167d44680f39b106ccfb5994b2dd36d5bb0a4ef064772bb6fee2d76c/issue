@@ -1,0 +1,16 @@
+Component: VCS
+Date: 2012-07-25 07:12:26
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.0
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Blocker
+State: Open
+Title: SVN support doesn't commit to svn:external foreign projects
+Type: Bug
+--
+When you comment on a foreign project or create an issue in that foreign project and it isn't a clone the commit controls will not commit those changes.

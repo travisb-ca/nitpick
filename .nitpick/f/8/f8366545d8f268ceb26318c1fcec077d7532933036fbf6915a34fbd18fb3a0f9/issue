@@ -1,0 +1,16 @@
+Component: Core
+Date: 2012-07-25 07:14:03
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.0
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Blocker
+State: Open
+Title: Issues which have disappeared won't be deleted from cache
+Type: Bug
+--
+I had to disable removing issues which have disappeared from the repository from the cache in order to support merging issue lists from various foreign project clones. Re-implement this support.
