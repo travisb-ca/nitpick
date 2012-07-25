@@ -277,6 +277,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		if self.request_args == {}:
 			# Use defaults since this is the first time here
+			show_repo          = True
 			show_ID            = True
 			show_type          = False
 			show_date          = False
@@ -291,6 +292,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			show_title         = True
 		else:
 			# Use whatever the user provided
+			show_repo          = False
 			show_ID            = False
 			show_type          = False
 			show_date          = False
@@ -304,6 +306,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			show_owner         = False
 			show_title         = False
 
+		filter_repo       = []
 		filter_components = []
 		filter_fix_by     = []
 		filter_severity   = []
@@ -321,6 +324,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				arg_val = self.request_args[arg_name] == '1'
 			return arg_val
 
+		if db.has_foreign():
+			show_repo  = extract_show_field_arg('show_repo',          show_ID)
 		show_ID            = extract_show_field_arg('show_ID',            show_ID)
 		show_type          = extract_show_field_arg('show_type',          show_type)
 		show_date          = extract_show_field_arg('show_date',          show_date)
@@ -342,6 +347,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 					arg_val = [self.request_args[arg_name]]
 			return arg_val
 
+		if db.has_foreign():
+			filter_repo = extract_filter_arg('filter_repo',     filter_repo)
 		filter_components = extract_filter_arg('filter_components', filter_components)
 		filter_fix_by     = extract_filter_arg('filter_fix_by',     filter_fix_by)
 		filter_severity   = extract_filter_arg('filter_severity',   filter_severity)
@@ -369,6 +376,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.output('<div class="field_select_box">\n')
 		self.output('Select Fields to Display<br/>\n')
+		if db.has_foreign():
+			output_field_selectors('Repo',  'show_repo',          show_repo)
 		output_field_selectors('ID',            'show_ID',            show_ID)
 		output_field_selectors('Type',          'show_type',          show_type)
 		output_field_selectors('Date',          'show_date',          show_date)
@@ -394,6 +403,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.output('</select></div>\n')
 
 		self.output('<div class="filter_select_box">\n')
+		if db.has_foreign():
+			output_filter_options('Repository', 'filter_repo', db.repos(),                filter_repo)
 		output_filter_options('Components', 'filter_components', config.issues['components'], filter_components)
 		output_filter_options('Fix_By',     'filter_fix_by',     config.issues['fix_by'],     filter_fix_by)
 		output_filter_options('Severity',   'filter_severity',   config.issues['severity'],   filter_severity)
@@ -414,6 +425,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('<div class="issue_list"><table class="issue_list" cellspacing="0"> <tr class="issue_list"> ')
 		
 		page_args = {
+				'show_repo'          : show_repo,
 				'show_ID'            : show_ID,
 				'show_type'          : show_type,
 				'show_date'          : show_date,
@@ -473,6 +485,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 				self.output('<th class="issue_list"><a href="/%s">%s %s %s</a></th> ' % (arg_string, sort_token, label, sort_token))
 
+		if db.has_foreign():
+			output_row_header(show_repo,  'Repo', page_args)
 		output_row_header(show_ID,            'ID', page_args)
 		output_row_header(show_type,          'Type', page_args)
 		output_row_header(show_date,          'Date', page_args)
@@ -534,6 +548,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			if sort_field == 'Title':
 				return issue_obj['Title']
 
+			if sort_field == 'Repo':
+				return db.repos().index(issue_obj['repo'])
+
 			if sort_field == 'ID':
 				return issue
 
@@ -557,6 +574,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			if issue == 'format':
 				continue
 
+			if db.has_foreign() and skip_filter(issue, 'repo', filter_repo):
+				continue
 			if skip_filter(issue, 'Component',  filter_components):
 				continue
 			if skip_filter(issue, 'Fix_By',     filter_fix_by):
@@ -577,6 +596,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.output('<tr class="issue_list_tr%d">' % row_colour)
 			row_colour = (row_colour + 1) % 2
 
+			if db.has_foreign():
+				output_field(issue, show_repo, db.issue(issue)['repo'])
 			output_field(issue, show_ID,            issue[:8])
 			output_field(issue, show_type,          db.issue(issue)['Type'])
 			output_field(issue, show_date,          db.issue(issue)['Date'])
@@ -611,6 +632,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue_hash)
 
 		self.output('<div class="issue_metadata">\n')
+		if db.has_foreign():
+			self.output('<p>Repository: %s</p>\n' % db.issue(issue_hash)['repo'])
 		self.output('<p>Issue: %s</p>\n' % issue_hash)
 		self.output('<p>Title: %s</p>\n' % cgi.escape(issue['Title']))
 		self.output('<p>Date: %s</p>\n' % issue['Date'])
@@ -1368,9 +1391,16 @@ class IssueDB:
 	uuid = ''
 	db = {}
 	foreign_repos = False
+	repo_list = []
 
 	def __init__(self):
 		self.load_issue_db()
+
+	def has_foreign(self):
+		return self.foreign_repos
+
+	def repos(self):
+		return self.repo_list
 
 	def issues(self):
 		issue_list = []
@@ -1400,8 +1430,11 @@ class IssueDB:
 	# fields in the issue files, except the content.
 	#
 	# An additional field of 'path' exists which is the directory of the issue
+	# An additional field of 'repo' exists which is the name of the repository the issue is from
 	# An internal field of 'issue_db_cached_date' also exists.
 	def load_issue_db(self):
+		self.repo_list = ['local']
+
 		try:
 			cache_file = gzip.open(config.db_path + 'issue_cache', 'r')
 			self.db = cPickle.load(cache_file)
@@ -1415,16 +1448,32 @@ class IssueDB:
 
 		uuid_file = open(config.db_path + 'uuid', 'r')
 		self.uuid = uuid_file.read()
+		uuid_file.close()
 
 		if os.path.exists(config.db_path + 'foreign') and os.path.isdir(config.db_path + 'foreign'):
 			self.foreign_repos = True
 
-		self.update_cache_from_repo(config.db_path, self.uuid)
+			for foreign_repo in os.listdir(config.db_path + 'foreign'):
+				if foreign_repo[0] == '.':
+					# Skip VCS dotfiles
+					continue
+
+				foreign_path = config.db_path + 'foreign/' + foreign_repo + '/'
+
+				uuid_file = open(foreign_path + 'uuid', 'r')
+				foreign_uuid = uuid_file.read()
+				uuid_file.close()
+
+				self.update_cache_from_repo(foreign_path, foreign_uuid, foreign_repo)
+				self.repo_list.append(foreign_repo)
+
+		self.update_cache_from_repo(config.db_path, self.uuid, 'local')
 
 		self.save_issue_db()
 
-	def update_cache_from_repo(self, path, uuid):
-		self.db[uuid] = {}
+	def update_cache_from_repo(self, path, uuid, repo_name):
+		if uuid not in self.db:
+			self.db[uuid] = {}
 
 		# Ensure that the cache is up to date
 		checked_issues = []
@@ -1451,11 +1500,13 @@ class IssueDB:
 						del self.db[uuid][hash]['content']
 						self.db[uuid][hash]['issue_db_cached_date'] = os.path.getmtime(hash_path + '/issue')
 					self.db[uuid][hash]['path'] = hash_path
+					self.db[uuid][hash]['repo'] = repo_name
 
 		# Delete any issues which no longer exist
 		for issue in self.db[uuid].keys():
 			if issue not in checked_issues:
-				del self.db[uuid][issue]
+				#del self.db[uuid][issue]
+				pass
 
 	# Turn a partial hash into a full hash
 	# Returns:
