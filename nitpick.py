@@ -1373,10 +1373,21 @@ class IssueDB:
 		self.load_issue_db()
 
 	def issues(self):
-		return self.db[self.uuid].keys()
+		issue_list = []
+		for repo in self.db.keys():
+			if repo == 'format':
+				continue
+			issue_list.extend(self.db[repo].keys())
+
+		return issue_list
 
 	def issue(self, hash):
-		return self.db[self.uuid][hash]
+		for repo in self.db.keys():
+			if repo == 'format':
+				continue
+			if hash in self.db[repo]:
+				return self.db[repo][hash]
+		return None
 
 	# Save the issue_db cache after modifying it
 	def save_issue_db(self):
