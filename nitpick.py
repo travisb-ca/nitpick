@@ -832,6 +832,15 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		date = time.strftime(DATEFORMAT, time.gmtime())
 		self.output('<p>Date: %s<input type="hidden" name="date" value="%s"/></p>\n' % (date, date))
 
+		if db.has_foreign():
+			self.output('<p>Project: <select name="repo">\n')
+			for repo in db.repos():
+				self.output('<option ')
+				if repo == 'local':
+					self.output('selected="selected" ')
+				self.output('value="%s">%s</option>\n' % (repo, repo))
+			self.output('</select></p>\n')
+
 		self.output('<p>Title: <input type="text" name="title" value="Issue Title"/></p>\n')
 
 		self.output('<p>Type: <select name="type">\n')
@@ -1046,6 +1055,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		   'reported_by' not in self.request_args.keys() or \
 		   'depends_on' not in self.request_args.keys() or \
 		   'duplicate_of' not in self.request_args.keys() or \
+		   (db.has_foreign() and ('repo' not in self.request_args.keys() or \
+		   	self.request_args['repo'] not in db.repos())) or \
 		   'content' not in self.request_args.keys():
 			   self.start_doc('Error')
 			   self.output('Invalid arguments')
@@ -1070,7 +1081,11 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				'content' : self.request_args['content']
 			}
 
-		issue_filename, issue_hash = db.add_issue(issue)
+		if 'repo' in self.request_args.keys():
+			repo = self.request_args['repo']
+		else:
+			repo = 'local'
+		issue_filename, issue_hash = db.add_issue(issue, repo)
 
 		self.start_doc('Created Issue %s' % issue_filename)
 		self.output('<p>Successfully create the issue</p>\n')
@@ -1391,7 +1406,7 @@ class IssueDB:
 	uuid = ''
 	db = {}
 	foreign_repos = False
-	repo_list = []
+	repo_list = {}
 	repo_paths = {}
 
 	def __init__(self):
@@ -1401,7 +1416,7 @@ class IssueDB:
 		return self.foreign_repos
 
 	def repos(self):
-		return self.repo_list
+		return self.repo_list.keys()
 
 	def issues(self):
 		issue_list = []
@@ -1439,7 +1454,7 @@ class IssueDB:
 		self.uuid = uuid_file.read()
 		uuid_file.close()
 
-		self.repo_list = ['local']
+		self.repo_list = {'local' : self.uuid}
 		self.repo_paths = { self.uuid : [config.db_path] }
 
 		try:
@@ -1469,7 +1484,7 @@ class IssueDB:
 
 				self.update_cache_from_repo(foreign_path, foreign_uuid, foreign_repo)
 
-				self.repo_list.append(foreign_repo)
+				self.repo_list[foreign_repo] = foreign_uuid
 				if foreign_uuid in self.repo_paths:
 					self.repo_paths[foreign_uuid].append(foreign_path)
 				else:
@@ -1601,10 +1616,11 @@ class IssueDB:
 	# Take an issue dict and add it to the system. Does not commit.
 	#
 	# Returns (issue filename, issue hash)
-	def add_issue(self, issue):
+	def add_issue(self, issue, repo = 'local'):
 		hash = hashlib.sha256(cPickle.dumps(issue)).hexdigest()
 
-		issue_dir = config.db_path + hash[0] + '/' + hash[1] + '/' + hash
+		repo_dir = self.repo_paths[self.repo_list[repo]][0]
+		issue_dir = repo_dir + hash[0] + '/' + hash[1] + '/' + hash
 		config.vcs.mkdir(issue_dir)
 
 		issue_filename = issue_dir + '/issue'
