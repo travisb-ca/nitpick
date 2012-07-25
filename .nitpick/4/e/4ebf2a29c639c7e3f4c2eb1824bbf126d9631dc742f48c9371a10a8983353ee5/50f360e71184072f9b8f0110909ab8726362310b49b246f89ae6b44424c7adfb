@@ -1,0 +1,8 @@
+Attachment: 
+Date: 2012-07-25 06:06:08
+Parent: 9a0db8b6ac1c9782b42ba11f24db54291ebf3dd6ae5e950dfdd237199c820b33
+User: travisb@travisbrown.ca
+--
+Additional work includes:
+ - Handling issues which have been deleted across repository clones
+ - Combining all the filterable lists from the various projects so they can all be filtered upon
