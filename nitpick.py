@@ -1495,7 +1495,7 @@ class IssueDB:
 					checked_issues.append(hash)
 
 					if hash not in self.db[uuid] or \
-						self.db[uuid][hash]['issue_db_cached_date'] != os.path.getmtime(hash_path + '/issue'):
+						self.db[uuid][hash]['issue_db_cached_date'] < os.path.getmtime(hash_path + '/issue'):
 						self.db[uuid][hash] = parse_file(hash_path + '/issue')
 						del self.db[uuid][hash]['content']
 						self.db[uuid][hash]['issue_db_cached_date'] = os.path.getmtime(hash_path + '/issue')
