@@ -37,7 +37,7 @@ import uuid
 
 DATEFORMAT = '%Y-%m-%d %H:%M:%S'
 FILLWIDTH = 69
-ISSUE_CACHE_FORMAT = 1
+ISSUE_CACHE_FORMAT = 2
 URL_REGEX = '([a-z]+://[a-zA-Z0-9]+\.[a-zA-Z0-9.]+[a-zA-Z0-9/\-.%&?=+_,]*)'
 ISSUE_REGEX = '([a-f0-9]{8,64})'
 POSIX_CLI_BROWSERS = ['w3m', 'elinks', 'links', 'lynx']
@@ -1367,15 +1367,16 @@ def load_config():
 class IssueDB:
 	uuid = ''
 	db = {}
+	foreign_repos = False
 
 	def __init__(self):
 		self.load_issue_db()
 
 	def issues(self):
-		return self.db.keys()
+		return self.db[self.uuid].keys()
 
 	def issue(self, hash):
-		return self.db[hash]
+		return self.db[self.uuid][hash]
 
 	# Save the issue_db cache after modifying it
 	def save_issue_db(self):
@@ -1404,38 +1405,46 @@ class IssueDB:
 		uuid_file = open(config.db_path + 'uuid', 'r')
 		self.uuid = uuid_file.read()
 
+		if os.path.exists(config.db_path + 'foreign') and os.path.isdir(config.db_path + 'foreign'):
+			self.foreign_repos = True
+
+		self.update_cache_from_repo(config.db_path, self.uuid)
+
+		self.save_issue_db()
+
+	def update_cache_from_repo(self, path, uuid):
+		self.db[uuid] = {}
+
 		# Ensure that the cache is up to date
 		checked_issues = []
-		for outer_dir in os.listdir(config.db_path):
-			if len(outer_dir) != 1 or not os.path.isdir(config.db_path + outer_dir):
+		for outer_dir in os.listdir(path):
+			if len(outer_dir) != 1 or not os.path.isdir(path + outer_dir):
 				continue
 
-			for inner_dir in os.listdir(config.db_path + outer_dir):
-				if len(inner_dir) != 1 or not os.path.isdir(config.db_path + outer_dir + '/' + inner_dir):
+			for inner_dir in os.listdir(path + outer_dir):
+				if len(inner_dir) != 1 or not os.path.isdir(path + outer_dir + '/' + inner_dir):
 					continue
 
-				for hash in os.listdir(config.db_path + outer_dir + '/' + inner_dir):
+				for hash in os.listdir(path + outer_dir + '/' + inner_dir):
 					if hash[0] == '.': 
 						# Some VCSes use dotfiles on a per directory basis
 						continue
 
-					hash_path = config.db_path + outer_dir + '/' + inner_dir + '/' + hash
+					hash_path = path + outer_dir + '/' + inner_dir + '/' + hash
 
 					checked_issues.append(hash)
 
-					if hash not in self.db or \
-						self.db[hash]['issue_db_cached_date'] != os.path.getmtime(hash_path + '/issue'):
-						self.db[hash] = parse_file(hash_path + '/issue')
-						del self.db[hash]['content']
-						self.db[hash]['issue_db_cached_date'] = os.path.getmtime(hash_path + '/issue')
-					self.db[hash]['path'] = hash_path
+					if hash not in self.db[uuid] or \
+						self.db[uuid][hash]['issue_db_cached_date'] != os.path.getmtime(hash_path + '/issue'):
+						self.db[uuid][hash] = parse_file(hash_path + '/issue')
+						del self.db[uuid][hash]['content']
+						self.db[uuid][hash]['issue_db_cached_date'] = os.path.getmtime(hash_path + '/issue')
+					self.db[uuid][hash]['path'] = hash_path
 
 		# Delete any issues which no longer exist
-		for issue in self.db.keys():
+		for issue in self.db[uuid].keys():
 			if issue not in checked_issues:
-				del self.db[issue]
-
-		self.save_issue_db()
+				del self.db[uuid][issue]
 
 	# Turn a partial hash into a full hash
 	# Returns:
@@ -1445,7 +1454,7 @@ class IssueDB:
 	def disambiguate_hash(self, partial_hash):
 		fullhash = ''
 
-		for hash in self.db.keys():
+		for hash in self.issues():
 			if partial_hash in hash:
 				if fullhash != '':
 					return ''
@@ -1460,7 +1469,7 @@ class IssueDB:
 	# The direct object is a list of comments. Each comment is then a dictionary with all the usual
 	# fields along with an additional field, 'children' which is a list of children comment.
 	def produce_comment_tree(self, issue):
-		issue_path = self.db[issue]['path'] + '/'
+		issue_path = self.issue(issue)['path'] + '/'
 
 		# Load all the comments
 		comments = {}
@@ -1491,8 +1500,8 @@ class IssueDB:
 
 	def _issue_referenced_in_field(self, issue, field):
 		output = ''
-		for hash in self.db.keys():
-			if issue in self.db[hash][field]:
+		for hash in self.issues():
+			if issue in self.issue(hash)[field]:
 				output += '%s ' % hash
 		return output
 
@@ -1506,8 +1515,8 @@ class IssueDB:
 	# Return a string of space separated issue hashes the given issue is a duplicate of
 	def get_issue_duplicates(self, issue):
 		duplicate_issues = ''
-		if len(self.db[issue]['Duplicate_Of']) > 10:
-			duplicate_issues = self.db[issue]['Duplicate_Of'] + ' '
+		if len(self.issue(issue)['Duplicate_Of']) > 10:
+			duplicate_issues = self.issue(issue)['Duplicate_Of'] + ' '
 		duplicate_issues += self.issue_duplicate_of(issue)
 
 		return duplicate_issues
@@ -1534,7 +1543,7 @@ class IssueDB:
 	def add_comment(self, issue, comment):
 		hash = hashlib.sha256(cPickle.dumps(comment)).hexdigest()
 
-		comment_filename = self.db[issue]['path'] + '/' + hash
+		comment_filename = self.issue(issue)['path'] + '/' + hash
 		format_file(comment_filename, comment)
 
 		config.vcs.add_changes(comment_filename)
@@ -1558,8 +1567,8 @@ class IssueDB:
 		parent = 'issue'
 
 		if partial_comment:
-			for file in os.listdir(self.db[issue]['path']):
-				if not os.path.isfile(self.db[issue]['path'] + '/' + file):
+			for file in os.listdir(self.issue(issue)['path']):
+				if not os.path.isfile(self.issue(issue)['path'] + '/' + file):
 					continue
 				if '.' in file or file == 'issue': # Only support comments, not attachments or the root issue
 					continue
@@ -1588,7 +1597,7 @@ class IssueDB:
 			print "Ambiguous issue ID. Please use a longer string"
 			return False
 
-		issue_filename = self.db[issue]['path'] + '/issue'
+		issue_filename = self.issue(issue)['path'] + '/issue'
 		issue = parse_file(issue_filename)
 		issue[prop] = newvalue
 		format_file(issue_filename, issue)
