@@ -1416,7 +1416,9 @@ class IssueDB:
 		return self.foreign_repos
 
 	def repos(self):
-		return self.repo_list.keys()
+		result = copy.copy(self.repo_list.keys())
+		result.sort()
+		return result
 
 	def issues(self):
 		issue_list = []
