@@ -1249,10 +1249,14 @@ class SVN(VCS):
 	@staticmethod
 	def commit():
 		os.system("svn ci -q -m \"Nitpick commit\" " + config.db_path)
+		if db.has_foreign():
+			os.system("for external in `svn stat %s | grep ^X | awk '{print $2}'`; do svn ci -q -m \"Nitpick commit\" $external;done" % config.db_path)
 
 	@staticmethod
 	def revert():
 		os.system("svn revert -q -R " + config.db_path)
+		if db.has_foreign():
+			os.system("for external in `svn stat %s | grep ^X | awk '{print $2}'`; do svn revert -q -R $external;done" % config.db_path)
 		os.system("svn stat " + config.db_path + " | grep ^?| xargs rm -rf")
 
 	@staticmethod
