@@ -1,0 +1,12 @@
+Attachment: 
+Date: 2012-07-25 05:39:51
+Parent: issue
+User: travisb@travisbrown.ca
+--
+I've gotten a basic implementation complete. Issues are collated across multiple repositories.
+
+I've renamed this feature 'Foreign Projects'.
+
+I believe I've got a last wins for Issue metadata.
+
+What's left to do are collating comments across repositories when displaying an issue and checking on commit support.
