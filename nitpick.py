@@ -1392,6 +1392,7 @@ class IssueDB:
 	db = {}
 	foreign_repos = False
 	repo_list = []
+	repo_paths = {}
 
 	def __init__(self):
 		self.load_issue_db()
@@ -1431,9 +1432,15 @@ class IssueDB:
 	#
 	# An additional field of 'path' exists which is the directory of the issue
 	# An additional field of 'repo' exists which is the name of the repository the issue is from
+	# An additional field of 'repo_uuid' exists which is the uuid of the repository the issue is from
 	# An internal field of 'issue_db_cached_date' also exists.
 	def load_issue_db(self):
+		uuid_file = open(config.db_path + 'uuid', 'r')
+		self.uuid = uuid_file.read()
+		uuid_file.close()
+
 		self.repo_list = ['local']
+		self.repo_paths = { self.uuid : [config.db_path] }
 
 		try:
 			cache_file = gzip.open(config.db_path + 'issue_cache', 'r')
@@ -1445,10 +1452,6 @@ class IssueDB:
 
 		if 'format' in self.db.keys() and self.db['format'] != ISSUE_CACHE_FORMAT:
 			self.db = {'format' : ISSUE_CACHE_FORMAT}
-
-		uuid_file = open(config.db_path + 'uuid', 'r')
-		self.uuid = uuid_file.read()
-		uuid_file.close()
 
 		if os.path.exists(config.db_path + 'foreign') and os.path.isdir(config.db_path + 'foreign'):
 			self.foreign_repos = True
@@ -1465,10 +1468,15 @@ class IssueDB:
 				uuid_file.close()
 
 				self.update_cache_from_repo(foreign_path, foreign_uuid, foreign_repo)
+
 				self.repo_list.append(foreign_repo)
+				if foreign_uuid in self.repo_paths:
+					self.repo_paths[foreign_uuid].append(foreign_path)
+				else:
+					self.repo_paths[foreign_uuid] = [foreign_path]
 
 		self.update_cache_from_repo(config.db_path, self.uuid, 'local')
-
+		
 		self.save_issue_db()
 
 	def update_cache_from_repo(self, path, uuid, repo_name):
@@ -1501,6 +1509,7 @@ class IssueDB:
 						self.db[uuid][hash]['issue_db_cached_date'] = os.path.getmtime(hash_path + '/issue')
 					self.db[uuid][hash]['path'] = hash_path
 					self.db[uuid][hash]['repo'] = repo_name
+					self.db[uuid][hash]['repo_uuid'] = uuid
 
 		# Delete any issues which no longer exist
 		for issue in self.db[uuid].keys():
@@ -1531,19 +1540,21 @@ class IssueDB:
 	# The direct object is a list of comments. Each comment is then a dictionary with all the usual
 	# fields along with an additional field, 'children' which is a list of children comment.
 	def produce_comment_tree(self, issue):
-		issue_path = self.issue(issue)['path'] + '/'
+		issue_obj = self.issue(issue)
 
 		# Load all the comments
 		comments = {}
-		for file in os.listdir(issue_path):
-			if not os.path.isfile(issue_path + file):
-				continue
-			if '.' in file or file == 'issue': # Only select comments, not attachments or the root issue
-				continue
+		for repo_path in self.repo_paths[issue_obj['repo_uuid']]:
+			issue_path = repo_path + issue[0] + '/' + issue[1] + '/' + issue + '/'
+			for file in os.listdir(issue_path):
+				if not os.path.isfile(issue_path + file):
+					continue
+				if '.' in file or file == 'issue': # Only select comments, not attachments or the root issue
+					continue
 
-			comments[file] = parse_file(issue_path + file)
-			comments[file]['children'] = []
-			comments[file]['hash'] = file
+				comments[file] = parse_file(issue_path + file)
+				comments[file]['children'] = []
+				comments[file]['hash'] = file
 
 		# Pack them into a tree
 		comment_tree = []
