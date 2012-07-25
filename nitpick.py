@@ -1561,6 +1561,11 @@ class IssueDB:
 		comments = {}
 		for repo_path in self.repo_paths[issue_obj['repo_uuid']]:
 			issue_path = repo_path + issue[0] + '/' + issue[1] + '/' + issue + '/'
+
+			if not os.path.exists(issue_path):
+				# Don't fail if an issue doesn't have comments in a clone
+				continue
+
 			for file in os.listdir(issue_path):
 				if not os.path.isfile(issue_path + file):
 					continue
