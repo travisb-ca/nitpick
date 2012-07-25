@@ -1562,7 +1562,11 @@ class IssueDB:
 			if comment['Parent'] == 'issue':
 				comment_tree.append(comment)
 			else:
-				comments[comment['Parent']]['children'].append(comment)
+				if comment['Parent'] not in comments:
+					comment['Parent'] = 'issue'
+					comment_tree.append(comment)
+				else:
+					comments[comment['Parent']]['children'].append(comment)
 
 		# Now order the tree based upon the dates
 		for comment in comments.values():
@@ -1636,21 +1640,24 @@ class IssueDB:
 			return None
 		elif issue == '':
 			return ''
+		issue_obj = self.issue(issue)
 
 		parent = 'issue'
 
 		if partial_comment:
-			for file in os.listdir(self.issue(issue)['path']):
-				if not os.path.isfile(self.issue(issue)['path'] + '/' + file):
-					continue
-				if '.' in file or file == 'issue': # Only support comments, not attachments or the root issue
-					continue
+			for repo_path in self.repo_paths[issue_obj['repo_uuid']]:
+				issue_path = repo_path + issue[0] + '/' + issue[1] + '/' + issue + '/'
+				for file in os.listdir(issue_path):
+					if not os.path.isfile(issue_path + file):
+						continue
+					if '.' in file or file == 'issue': # Only support comments, not attachments or the root issue
+						continue
 
-				if partial_comment in file:
-					if parent != 'issue':
-						return (issue, '')
-					else:
-						parent = file
+					if partial_comment in file:
+						if parent != 'issue':
+							return (issue, '')
+						else:
+							parent = file
 			if parent == 'issue':
 				return (issue, None)
 		
