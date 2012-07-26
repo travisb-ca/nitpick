@@ -1474,6 +1474,7 @@ class IssueDB:
 		if 'format' in self.db.keys() and self.db['format'] != ISSUE_CACHE_FORMAT:
 			self.db = {'format' : ISSUE_CACHE_FORMAT}
 
+		checked_issues = {}
 		if os.path.exists(config.db_path + 'foreign') and os.path.isdir(config.db_path + 'foreign'):
 			self.foreign_repos = True
 
@@ -1488,7 +1489,12 @@ class IssueDB:
 				foreign_uuid = uuid_file.read()
 				uuid_file.close()
 
-				self.update_cache_from_repo(foreign_path, foreign_uuid, foreign_repo)
+
+				if foreign_uuid not in checked_issues.keys():
+					checked_issues[foreign_uuid] = []
+
+				checked_issues[foreign_uuid].extend(
+						self.update_cache_from_repo(foreign_path, foreign_uuid, foreign_repo))
 
 				self.repo_list[foreign_repo] = (foreign_uuid, foreign_path)
 				if foreign_uuid in self.repo_paths:
@@ -1496,8 +1502,20 @@ class IssueDB:
 				else:
 					self.repo_paths[foreign_uuid] = [foreign_path]
 
-		self.update_cache_from_repo(config.db_path, self.uuid, 'local')
+		if self.uuid not in checked_issues.keys():
+			checked_issues[self.uuid] = []
+
+		checked_issues[self.uuid].extend(
+				self.update_cache_from_repo(config.db_path, self.uuid, 'local'))
 		
+
+		# Delete any issues which no longer exist
+		for repo in checked_issues.keys():
+			for issue in self.db[repo].keys():
+				if issue not in checked_issues[repo]:
+					del self.db[repo][issue]
+					pass
+
 		self.save_issue_db()
 
 	def update_cache_from_repo(self, path, uuid, repo_name):
@@ -1531,12 +1549,7 @@ class IssueDB:
 					self.db[uuid][hash]['path'] = hash_path
 					self.db[uuid][hash]['repo'] = repo_name
 					self.db[uuid][hash]['repo_uuid'] = uuid
-
-		# Delete any issues which no longer exist
-		for issue in self.db[uuid].keys():
-			if issue not in checked_issues:
-				#del self.db[uuid][issue]
-				pass
+		return checked_issues
 
 	# Turn a partial hash into a full hash
 	# Returns:
