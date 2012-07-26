@@ -719,7 +719,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 			self.output('<div class="issue_comment">\n')
 			self.output('<div class="issue_comment_content">\n')
-			for field in comment.keys():
+			for field in ['hash', 'Date', 'User', 'Attachment']:
 				if field in ['content', 'children', 'Parent', 'Attachment-filename']:
 					continue
 				if field == 'Attachment':
