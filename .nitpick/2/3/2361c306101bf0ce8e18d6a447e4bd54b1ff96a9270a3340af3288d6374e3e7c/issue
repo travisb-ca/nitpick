@@ -1,0 +1,18 @@
+Component: Core
+Date: 2012-07-26 05:03:51
+Depends_On: 9dec8aa96a3e075e1052309ef7d91db36968023952a0b9919db87b942fa5dcd2 
+Duplicate_Of: 
+Fix_By: Next_Release
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Minor
+State: Open
+Title: Offline Attachments
+Type: Feature
+--
+It would be useful, when a repository has a number of large attachments and the system supports it, to allow offline attachments. These are attachments where the file itself isn't immediately available. One example would be if the file was deleted in HEAD of a SVN repo. The file can still be retrieved from the history, but isn't in the current version.
+
+This is especially useful with centralized repositories because the size of the checkout can be usefully reduced if large attachments to old issues are taken offline. There is less advantage for DVCSes because the local clone will contain the attachments anyways.
