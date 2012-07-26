@@ -34,6 +34,7 @@ import re
 import base64
 import cgi
 import uuid
+import cgi
 
 DATEFORMAT = '%Y-%m-%d %H:%M:%S'
 FILLWIDTH = 69
@@ -719,9 +720,12 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.output('<div class="issue_comment">\n')
 			self.output('<div class="issue_comment_content">\n')
 			for field in comment.keys():
-				if field in ['content', 'children', 'Parent']:
+				if field in ['content', 'children', 'Parent', 'Attachment-filename']:
 					continue
-				if field == 'Attachment' and comment['Attachment'] == '':
+				if field == 'Attachment':
+					if comment['Attachment'] != '': # Has a real attachment
+						self.output('%s: <a href="/attachment/%s/%s/%s">%s</a><br/>\n' %
+								(field, issue_hash, comment['Attachment'],comment['Attachment-filename'], comment['Attachment-filename']))
 					continue
 
 				self.output('%s: %s<br/>\n' % (field, cgi.escape(comment[field])))
@@ -795,7 +799,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		# Here we know that the issue and parent are good to use
 		self.output('<div class="add_comment">\n')
-		self.output('<form name="comment" action="/add_comment" method="post">\n')
+		self.output('<form name="comment" enctype="multipart/form-data" action="/add_comment" method="post">\n')
 		self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue)
 		self.output('<input type="hidden" name="parent" value="%s"/>\n' % parent)
 
@@ -810,7 +814,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.output('value="%s">%s</option>\n' % (username, username))
 		self.output('</select></p>\n')
 
-		self.output('<p>Attachment: </p>\n')
+		self.output('<p>Attachment: <input type="file" name="attachment"/> ')
+		self.output('<input type="text" name="attachment_name" value="filename.bin" size="40"/></p>\n')
 
 		self.output('<p><textarea name="content" rows="20" cols="80">Enter comment here</textarea></p>\n')
 
@@ -910,6 +915,34 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.end_doc()
 
+	def attachment(self):
+		db.load_issue_db()
+
+		args = self.path.split('/')
+
+		issue = db.disambiguate_hash(args[2])
+
+		if issue == None or issue == '':
+			self.start_doc('Error')
+			self.output('Invalid arguments')
+			self.end_doc()
+			return
+
+		attachment_path = db.issue(issue)['path'] + '/' + args[3] + '.data'
+		if not os.path.exists(attachment_path):
+			self.start_doc('Error')
+			self.output('Invalid arguments')
+			self.end_doc()
+			return
+
+		self.send_response(200)
+		self.send_header('Content-Type', 'application/octet-stream')
+		self.end_headers()
+
+		attachment = open(attachment_path, 'r')
+		self.wfile.write(attachment.read())
+		attachment.close()
+
 	def add_comment_post(self):
 		db.load_issue_db()
 
@@ -917,19 +950,34 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		   'parent' not in self.request_args.keys() or \
 		   'username' not in self.request_args.keys() or \
 		   'content' not in self.request_args.keys() or \
+		   'attachment' not in self.request_args.keys() or \
+		   'attachment_name' not in self.request_args.keys() or \
 		   'issue' not in self.request_args.keys():
 			   self.start_doc('Error')
 			   self.output('Invalid arguments')
 			   self.end_doc()
 			   return
 
+		if self.request_args['attachment_name'] == '' and len(self.request_args['attachment']) > 0:
+			self.start_doc('Attachment Requires filename')
+			self.output('The attachment requires a filename')
+			self.end_doc()
+			return
+
 		comment = {
 				'Date' : self.request_args['date'],
 				'Parent' : self.request_args['parent'],
 				'User' : self.request_args['username'],
 				'Attachment' : '',
+				'Attachment-filename' : '',
 				'content' : self.request_args['content']
 			}
+
+		attachment_hash = db.add_attachment(self.request_args['issue'],
+						    self.request_args['attachment'])
+		if attachment_hash != None:
+			comment['Attachment'] = attachment_hash
+			comment['Attachment-filename'] = self.request_args['attachment_name']
 
 		comment_filename = db.add_comment(self.request_args['issue'], comment)
 
@@ -1152,6 +1200,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.new_issue()
 		elif '/?' in self.path:
 			self.root()
+		elif '/attachment/' in self.path:
+			self.attachment()
 		elif '/favicon.ico' == self.path:
 			self.favicon()
 		else:
@@ -1162,14 +1212,23 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		#print 'got post path %s' % self.path
 
 		self.request_args = {}
-		args = self.rfile.read(int(self.headers['Content-Length']))
-		if len(args) > 0:
-			for var in args.split('&'):
-				key_value = var.split('=')
-				key = urllib.unquote(key_value[0])
-				value = urllib.unquote_plus(key_value[1])
 
-				self.request_args[key] = value
+		if self.path != '/add_comment':
+			args = self.rfile.read(int(self.headers['Content-Length']))
+			if len(args) > 0:
+				for var in args.split('&'):
+					key_value = var.split('=')
+					key = urllib.unquote(key_value[0])
+					value = urllib.unquote_plus(key_value[1])
+
+					self.request_args[key] = value
+		else:
+			# /add_comment receives form data as multi-part/form because it may have an attachment
+			content_type_options = cgi.parse_header(self.headers['Content-Type'])[1]
+			args = cgi.parse_multipart(self.rfile, content_type_options)
+			
+			for name in args.keys():
+				self.request_args[name] = args[name][0]
 
 		if '/add_comment' == self.path:
 			self.add_comment_post()
@@ -1688,6 +1747,24 @@ class IssueDB:
 		config.vcs.add_changes(comment_filename)
 
 		return comment_filename
+
+	# Create an attachment. Returns the attachment hash or None if there is no attachment created.
+	# The latter could happen if the empty string is passed in for the content.
+	def add_attachment(self, issue, content):
+		if len(content) == 0:
+			return None
+
+		hash = hashlib.sha256(content).hexdigest()
+
+		data_file_name = self.issue(issue)['path'] + '/' + hash + '.data'
+
+		data_file = open(data_file_name, 'w')
+		data_file.write(content)
+		data_file.close()
+		config.vcs.add_changes(data_file_name)
+
+		return hash
+
 
 	# Check that the issue exists and that it has the comment to reply to if one is supplied.
 	# Returns

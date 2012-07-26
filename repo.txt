@@ -64,13 +64,9 @@ Issue:
 
 Comment:
 	- Attachment
+	- Attachment-filename
 	- Date
 	- Parent
 	- User
 	o Comment
-
-Attachment:
-	- Date
-	- Short_Description
-	o Description
 
