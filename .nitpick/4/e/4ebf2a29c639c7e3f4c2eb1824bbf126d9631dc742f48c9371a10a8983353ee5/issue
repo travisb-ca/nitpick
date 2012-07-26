@@ -1,6 +1,6 @@
 Component: Core
 Date: 2012-06-17 23:18:57
-Depends_On: 1c696e163ec0ae39029e1258229626dcd47825d1efc5ac26390ce89f9964da87 ab070a95167d44680f39b106ccfb5994b2dd36d5bb0a4ef064772bb6fee2d76c f8366545d8f268ceb26318c1fcec077d7532933036fbf6915a34fbd18fb3a0f9
+Depends_On: 1c696e163ec0ae39029e1258229626dcd47825d1efc5ac26390ce89f9964da87 ab070a95167d44680f39b106ccfb5994b2dd36d5bb0a4ef064772bb6fee2d76c f8366545d8f268ceb26318c1fcec077d7532933036fbf6915a34fbd18fb3a0f9 4a6ab62b46688e459f690c44b72ce34783b7889d64b8ba708594b856861742f6 
 Duplicate_Of: 
 Fix_By: 1.0
 Owner: travisb@travisbrown.ca
@@ -9,7 +9,7 @@ Reported_By: travisb@travisbrown.ca
 Resolution: Fixed
 Seen_In_Build: 
 Severity: Major
-State: Closed
+State: Open
 Title: Parallel Databases
 Type: Feature
 --

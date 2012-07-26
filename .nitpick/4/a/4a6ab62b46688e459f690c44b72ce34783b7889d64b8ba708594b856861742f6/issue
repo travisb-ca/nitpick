@@ -1,0 +1,16 @@
+Component: Core
+Date: 2012-07-26 04:36:53
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.0
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Blocker
+State: Open
+Title: Foreign Projects fail if the repository configuration isn't the same
+Type: Bug
+--
+If you have foreign projects which have different repository configurations for valid states, say one has a Documentation component and the other doesn't, then Nitpick will fail. It will also be impossible to enforce proper metadata suggestions or to determine when issues are closed in the general case. It is possible if the closed state in all repositories is the same.
