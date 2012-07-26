@@ -1,0 +1,6 @@
+Attachment: 
+Date: 2012-07-26 04:05:26
+Parent: issue
+User: travisb@travisbrown.ca
+--
+Instead of filtering them out I've made them valid targets to create the repository in. This is more capable for less complexity in the code.

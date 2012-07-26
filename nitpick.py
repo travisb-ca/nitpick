@@ -1460,7 +1460,7 @@ class IssueDB:
 		self.uuid = uuid_file.read()
 		uuid_file.close()
 
-		self.repo_list = {'local' : self.uuid}
+		self.repo_list = {'local' : (self.uuid, config.db_path)}
 		self.repo_paths = { self.uuid : [config.db_path] }
 
 		try:
@@ -1490,7 +1490,7 @@ class IssueDB:
 
 				self.update_cache_from_repo(foreign_path, foreign_uuid, foreign_repo)
 
-				self.repo_list[foreign_repo] = foreign_uuid
+				self.repo_list[foreign_repo] = (foreign_uuid, foreign_path)
 				if foreign_uuid in self.repo_paths:
 					self.repo_paths[foreign_uuid].append(foreign_path)
 				else:
@@ -1630,7 +1630,7 @@ class IssueDB:
 	def add_issue(self, issue, repo = 'local'):
 		hash = hashlib.sha256(cPickle.dumps(issue)).hexdigest()
 
-		repo_dir = self.repo_paths[self.repo_list[repo]][0]
+		repo_dir = self.repo_list[repo][1]
 		issue_dir = repo_dir + hash[0] + '/' + hash[1] + '/' + hash
 		config.vcs.mkdir(issue_dir)
 
