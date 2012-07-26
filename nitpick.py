@@ -1360,6 +1360,34 @@ def format_file(path, data):
 		file.write("%s" % data['content'])
 	file.close()
 
+def _load_config(repo_path):
+	conf = parse_file(repo_path + 'config/config')
+	for key in ['components', 'fix_by', 'priority', 'severity', 'state', 'resolution', 'type']:
+		if config.issues[key] == []:
+			first_run = True
+		else:
+			first_run = False
+		
+		if key in conf.keys():
+			conf_items = string.split(conf[key], sep = ' ')
+			conf_items.reverse()
+			for item in conf_items:
+				if item not in config.issues[key]:
+					if first_run:
+						config.issues[key].insert(0, item)
+					else:
+						config.issues[key].insert(-1, item)
+	if config.vcs == None:
+		for key in ['vcs']:
+			if key in conf.keys() and conf[key] in BACKENDS:
+				config.vcs = BACKENDS[conf[key]]
+
+	config.users = []
+	for line in fileinput.input(repo_path + 'config/users'):
+		if line != '\n' and line not in config.users:
+			config.users.append(string.strip(line))
+
+
 # Load the configuration out of the database.
 #
 # Returns True on success, False if the database couldn't be located
@@ -1374,18 +1402,10 @@ def load_config():
 	if config.db_path == '':
 		return False
 
-	conf = parse_file(config.db_path + 'config/config')
 	for key in ['components', 'fix_by', 'priority', 'severity', 'state', 'resolution', 'type']:
-		if key in conf.keys():
-			config.issues[key] = string.split(conf[key], sep = ' ')
-	for key in ['vcs']:
-		if key in conf.keys() and conf[key] in BACKENDS:
-			config.vcs = BACKENDS[conf[key]]
-
-	config.users = []
-	for line in fileinput.input(config.db_path + 'config/users'):
-		if line != '\n':
-			config.users.append(string.strip(line))
+		config.issues[key] = []
+	
+	_load_config(config.db_path)
 
 	# Try to figure out the username to use.
 	if 'NITPICK_USERNAME' in os.environ:
@@ -1495,6 +1515,8 @@ class IssueDB:
 
 				checked_issues[foreign_uuid].extend(
 						self.update_cache_from_repo(foreign_path, foreign_uuid, foreign_repo))
+
+				_load_config(foreign_path)
 
 				self.repo_list[foreign_repo] = (foreign_uuid, foreign_path)
 				if foreign_uuid in self.repo_paths:

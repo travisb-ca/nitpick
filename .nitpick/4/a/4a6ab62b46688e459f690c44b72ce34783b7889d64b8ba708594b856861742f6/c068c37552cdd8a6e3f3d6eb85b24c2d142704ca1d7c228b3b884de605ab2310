@@ -1,0 +1,8 @@
+Attachment: 
+Date: 2012-07-26 04:41:07
+Parent: issue
+User: travisb@travisbrown.ca
+--
+The proper solution is to take the configuration of all the repositories and combine the items. This won't help with enforcement of options, but Nitpick doesn't do that on the commandline either.
+
+I think it's acceptable to require a compatible set of the various states among all the foreign and local projects when using foreign projects at all. At least you'll be able to view and filter based up project specific items, even if you have trouble modifying the state or creating new issues in the super-repository.
