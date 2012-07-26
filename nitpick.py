@@ -548,7 +548,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			if sort_field == 'Title':
 				return issue_obj['Title']
 
-			if sort_field == 'Repo':
+			if sort_field == 'Project':
 				return db.repos().index(issue_obj['repo'])
 
 			if sort_field == 'ID':
