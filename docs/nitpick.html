@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+	<title>Nitpick - Manual</title>
+</head>
+<body>
+	<h1>Table of Contents</h1>
+	<ul>
+		<li><a href="#quick_start">Quick Start</a></li>
+		<li><a href="#what_is_nitpick">What is Nitpick?</a></li>
+		<li><a href="#installation">Installation</a></li>
+		<li><a href="#basic_usage">Basic Usage</a></li> <ul>
+			<li><a href="#creating_a_repository">Creating a Repository</a></li>
+			<li><a href="#starting_the_web_interface">Starting the Web Interface</a></li>
+			<li><a href="#creating_issues">Creating Issues</a></li>
+			<li><a href="#commenting">Commenting</a></li>
+			<li><a href="#issue_source_control">Issue Source Control</a></li>
+			<li><a href="#attachments">Attachments</a></li>
+			<li><a href="#duplicate_issues">Duplicate Issues</a></li>
+			<li><a href="#dependent_issues">Dependent Issues</a></li>
+		</ul>
+		<li><a href="#advanced_usage">Advanced Usage</a></li> <ul>
+			<li><a href="#configuring_nitpick">Configuring Nitpick</a></li>
+			<li><a href="#foreign_projects">Foreign Projects</a></li> <ul>
+				<li><a href="#between_branches">Between Branches</a></li>
+				<li><a href="#across_projects">Across Projects</a></li>
+			</ul>
+		</ul>
+	</ul>
+
+
+	<a name="quick_start"><a href="#quick_start"><h1>Quick Start</h1></a></a>
+		If you want to get started with Nitpick as quickly as possible these are the steps
+		you have to follow:
+		<ol>
+			<li>Download Nitpick and place nitpick.py into a directory in you path. You
+			may wish to rename the file nitpick</li>
+
+			<li>At the root of your project you must create a Nitpick repository. Run
+			the command <tt>nitpick init --vcs <i>vcs</i></tt> where <i>vcs</i> is the
+			VCS your project uses. Currently supported are: <tt>file</tt>, <tt>git</tt>,
+			<tt>hg</tt> and <tt>svn</tt>.</li>
+
+			<li>Start the Nitpick Web Interface by running the command <tt>nitpick
+				web</tt> somewhere in the directory tree at or above your project
+			root</li>
+
+			<li>Create issues, comment on those issues and hit the <tt>Commit</tt>
+			button to commit those changes into your local VCS.</li>
+		</ol>
+
+	<a name="what_is_nitpick"><a href="#what_is_nitpick"><h1>What is Nitpick?</h1></a></a>
+		<p>
+		Nitpick is a distributed issue tracker which keeps the issues alongside the code in
+		the project verson control system. Similar to traditional centralized issue or bug
+		trackers you can create issues, comment on issues, change various bits of metadata
+		about issues and add attachments to issues. Unlike traditional issue trackers there
+		is no central web server you have to access. Instead the issue database lives beside
+		the source code inside the same version control system.
+		</p>
+
+		<p>
+		Having the issue database beside the code provides several advantages over
+		traditional issue trackers. The first of these is that no matter where the developer
+		is they can view, modify and create issues. There is no central web server which
+		requires Internet to access. For projects which use a DVCS like git or Mercurial,
+		the advantages of having the issues beside the project are similar to the advantages
+		of using those systems over a centralized VCS. These include disconnected operation
+		and increased redundancy of the issue database, there is no central point of
+		failure.
+		</p>
+
+		<p>
+	 	One big feature of storing the issue database beside the code in a VCS is that when
+		you branch the code you are also branching the issue database. If you create a
+		branch to solve some particular issue then inside that branch you can create
+		comments against that issue to document various decisions. Within that same branch
+		you would mark the issue as closed and when that branch was merged back into the
+		mainline the issue database there will automatically be updated with the new issue
+		status.
+		</p>
+
+		<p>
+		Conversely, if a new long lived branch is created then new issues can be created
+		against only that branch. There is no guessing which branch an issue corresponds to
+		because the current issue database always refers to the current branch. Nitpick also
+		supports combining multiple Nitpick repositories across multiple branches to provide
+		a complete view to the developer. For more about this advanced feature see <a
+			href="#foreign_projects">Foreign Projects</a> below.
+		</p>
+
+	<a name="installation"><a href="#installation"><h1>Installation</h1></a></a>
+		<p>
+		Nitpick is a self contained system written in Python. All that it requires is a
+		complete standard installation of Python 2.7. No additional Python libraries are
+		required. Nitpick also requires the standard command line tools for you VCS.
+		</p>
+
+		<p>
+		As a single file program installation is simply copying nitpick.py into a directory
+		in your path and ensuring that the file is executable. An optional, but recommended,
+		step is to rename the file nitpick, with no extension. All the commands in this
+		manual will be written assuming you have named the Nitpick file "nitpick", but any
+		name you desire will work.
+		</p>
+		
+		<p>
+		Once Nitpick has been copied into place you are ready to start using it. No
+		additional configuration is necessary.
+		</p>
+
+	<a name="basic_usage"><a href="#basic_usage"><h1>Basic Usage</h1></a></a>
+
+	<a name="creating_a_repository"><a href="#creating_a_repository"><h2>Creating a Repository</h2></a></a>
+		<p>
+		Unless you already have a project which has a Nitpick repository created for it you
+		will have to create a new Nitpick repository. To do so you simply need to open a
+		shell and go to the root of your project in source control. Once there you need only
+		run the command <tt>nitpick init --vcs <i>vcs</i></tt>. This command will create a
+		new Nitpick repository in the current directory under the hidden directory
+		<tt>.nitpick</tt>. It will automatically initialize a default, empty repository and
+		attempt to commit it to the VCS.
+		</p>
+
+		<p><i>vcs</i> must be chosen from the supported list of VCSes. Currently
+		<tt>git</tt>, <tt>hg</tt>, <tt>svn</tt> and <tt>file</tt> are supported. The first
+		three are well known VCSes. The <tt>file</tt> VCS is a null VCS which creates an
+		unversioned Nitpick repository. This can be useful if you want to play around or try
+		Nitpick with an unsupported VCS, though the <tt>file</tt> VCS doesn't support
+		committing and reverting as the other VCS options do.
+		</p>
+
+		<p>
+		If you use the Mercurial, <tt>hg</tt>, VCS option there is one additional step. In
+		the project root you should see that the .hgignore file has been created/modified.
+		You should review this file to ensure that it is acceptable. Nitpick has a few
+		administrative files within its repository which must not be committed to the VCS
+		and Nitpick will automatically add these files to the ignore list of the VCS. Since
+		Mercurial requires modifying a user file it will not commit the ignore list
+		automatically.
+		</p>
+
+	<a name="starting_the_web_interface"><a href="#starting_the_web_interface"><h2>Starting the Web Interface</h2></a></a>
+		<p>
+		Though there is a command line interface to Nitpick, it is not the preferred
+		interface and exists primarily for scripts and power users. The preferred interface
+		is the Web Interface.
+		</p>
+
+		<p>
+		The Web Interface uses an embedded web server to serve pages to your local browser
+		in order to create a familiar interface. Nitpick will attempt to cause your local
+		browser to open a new tab or window to the Nitpick Web Interface. If contacting a
+		graphical browser fails it will attempt to find and start one of the standard
+		terminal browsers instead. Failing that Nitpick will notify you of the address where
+		you can view the Web Interface.
+		</p>
+
+		<p>
+		Starting the Nitpick Web Interface is as easy as running the command <tt>nitpick
+			web</tt> inside your project. Nitpick will automatically search the parent
+		and grandparents, etc. of the current directory to search for a Nitpick repository.
+		</p>
+
+		<p>
+		Starting the Web Interface on a repository will bring up the issue list, which will
+		look something like:
+		</p>
+
+
+	<a name="creating_issues"><a href="#creating_issues"><h2>Creating Issues</h2></a></a>
+
+	<a name="commenting"><a href="#commenting"><h2>Commenting</h2></a></a>
+
+	<a name="issue_source_control"><a href="#issue_source_control"><h2>Issue Source Control</h2></a></a>
+
+	<a name="attachments"><a href="#attachments"><h2>Attachments</h2></a></a>
+
+	<a name="duplicate_issues"><a href="#duplicate_issues"><h2>Duplicate Issues</h2></a></a>
+
+	<a name="dependent_issues"><a href="#dependent_issues"><h2>Dependent Issues</h2></a></a>
+
+	<a name="advanced_usage"><a href="#advanced_usage"><h1>Advanced Usage</h1></a></a>
+
+	<a name="configuring_nitpick"><a href="#configuring_nitpick"><h2>Configuring Nitpick</h2></a></a>
+
+	<a name="foreign_projects"><a href="#foreign_projects"><h2>Foreign Projects</h2></a></a>
+
+	<a name="between_branches"><a href="#between_branches"><h3>Between Branches</h3></a></a>
+
+	<a name="across_projects"><a href="#across_projects"><h3>Across Projects</h3></a></a>
+</body>
+</html>
