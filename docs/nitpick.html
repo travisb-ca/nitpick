@@ -2,6 +2,19 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 <head>
 	<title>Nitpick - Manual</title>
+	<style type="text/css">
+		.screenshot {
+			width: 90%;
+			margin-left: auto;
+			margin-right: auto;
+			border-width: 0.1em;
+			border-style: solid;
+		}
+
+		.screenshot img {
+			width: 100%;
+		}
+	</style>
 </head>
 <body>
 	<h1>Table of Contents</h1>
@@ -13,11 +26,12 @@
 			<li><a href="#creating_a_repository">Creating a Repository</a></li>
 			<li><a href="#starting_the_web_interface">Starting the Web Interface</a></li>
 			<li><a href="#creating_issues">Creating Issues</a></li>
-			<li><a href="#commenting">Commenting</a></li>
+			<li><a href="#commenting">Commenting and Modifying Issues</a></li>
 			<li><a href="#issue_source_control">Issue Source Control</a></li>
 			<li><a href="#attachments">Attachments</a></li>
 			<li><a href="#duplicate_issues">Duplicate Issues</a></li>
 			<li><a href="#dependent_issues">Dependent Issues</a></li>
+			<li><a href="#sorting_and_filtering">Sorting and Filtering</a></li>
 		</ul>
 		<li><a href="#advanced_usage">Advanced Usage</a></li> <ul>
 			<li><a href="#configuring_nitpick">Configuring Nitpick</a></li>
@@ -166,19 +180,243 @@
 		Starting the Web Interface on a repository will bring up the issue list, which will
 		look something like:
 		</p>
+		<div class="screenshot"><img class="screenshot" src="images/empty_list.png"/></div>
 
+		<p>
+		This is the first page you see when starting the web interface and it is simply a
+		list of sorting and filtering options, which are dealt with <a
+			href="#sorting_and_filtering">later</a>, and the list of issues in the
+		repository.
+		</p>
 
 	<a name="creating_issues"><a href="#creating_issues"><h2>Creating Issues</h2></a></a>
+		<p>
+		As you can see this is a new Nitpick repository and doesn't have any issues in it.
+		We create an issue by clicking the "Create new issue" link near the top of the page.
+		Clicking that link brings up the following page where we can fill in the fields for
+		the new issue:
+		</p>
 
-	<a name="commenting"><a href="#commenting"><h2>Commenting</h2></a></a>
+		<div class="screenshot"><img class="screenshot" src="images/new_issue.png"/></div>
+
+		<p>
+		There are several fields which are required or available when creating an issue.
+		Date is automatically filled in with the UTC date and time as of when you clicked
+		the New Issue link. In Title you should enter a short, but informative title for the
+		issue. Type is the type of the issue, the default value is chosen from the
+		configuration value, but you can select from the configured options here. Similarly
+		there is Component, Severity, Priority, Fix_By, State and Resolution. Resolution is
+		usually kept on the default until the issue is solved.
+		</p>
+
+		<p>
+		The Reported_By and Owner fields are a bit different. These fields are set to the
+		username of the issue reporter and the current person the issue is assigned to
+		respectively. The valid usernames must be configured in the Nitpick configuration
+		and if Nitpick is able to determine your username from the configured list (by
+		matching against your login name for example) then that suggestion will be
+		selected by default. It is important to note that you cannot change the Reported_By
+		field using the web interface after the issue has been created.
+		</p>
+
+		<p>
+		Then we have three free form fields, Seen_In_Build, Depends_On and Duplicate_Of.
+		Seen_In_Build is meant to contain a short description of when the problem was first
+		seen, such as the first version of the software the issue occurs in. Depends_On and
+		Duplicate_Of are usually left empty when creating a new issue, but are made
+		available should you have that information at creation time.
+		</p>
+
+		<p>
+		Finally there is a large textbox where the long form description of the issue can be
+		put. We'll set the various metadata fields and comment as shown in this image and
+		then submit the new issue.
+		</p>
+
+		<div class="screenshot"><img class="screenshot" src="images/new_issue_filled.png"/></div>
+
+		<p>
+		Submitting this issue will bring us to the following page:
+		</p>
+
+		<div class="screenshot"><img class="screenshot" src="images/submitted_issue.png"/></div>
+
+		<p>
+		From this page you can either go directly to the issue, or back to the issue list.
+		The issue list will show something similar to:
+		</p>
+
+		<div class="screenshot"><img class="screenshot" src="images/one_issue_list.png"/></div>
+
+		<p>
+		We can easily see that we now have one issue. Going to this issue page is as easy as
+		clicking on any link in the line for that issue. Doing so will bring us to the issue
+		page:
+		</p>
+
+		<div class="screenshot"><img class="screenshot" src="images/issue_ca69.png"/></div>
+
+	<a name="commenting"><a href="#commenting"><h2>Commenting and Modifying Issues</h2></a></a>
+		<p>
+		At the top of the issue page we see all the metadata about an issue. Most of it is
+		the same from when creating the issue, but we also have the full issue identifying
+		hash. This is useful for putting into the Depends_On or Duplicate_Of fields or in a
+		comment when referring to the issue. To update the issue you should make the
+		metadata modification you want and then click the "Update" button.
+		</p>
+
+		<p>
+		Below the metadata are the issue description and comments. While you can't edit the
+		issue description, you can add comments whenever necessary by clicking the "Add
+		Comment" button. Doing so will open the new comment page, like so:
+		</p>
+
+		<div class="screenshot"><img class="screenshot" src="images/add_comment.png"/></div>
+
+		<p>
+		There are a few fields here which must be filled in. As with the Reported_By field
+		previously mentioned the User field will suggest the current user if Nitpick can
+		determine a match from the repository configuration. The two attachment fields will
+		be left for <a href="#attachments">later</a>. That merely leaves the actual comment
+		itself. Filling the comment in and submitting will bring us back to the page where
+		we can choose to go back to the issue or to the list of issues. Going back to the
+		issue we can see our comment is there:
+		</p>
+
+		<div class="screenshot"><img class="screenshot" src="images/issue_ca69_1_comment.png"/></div>
+
+		<p>
+		Nitpick supports threaded comments if you use the per-comment "Reply" comment. Doing
+		so is recommended as it makes it easier to follow the discussion.
+		</p>
+
+		<div class="screenshot"><img class="screenshot" src="images/issue_ca69_x_comments.png"/></div>
 
 	<a name="issue_source_control"><a href="#issue_source_control"><h2>Issue Source Control</h2></a></a>
+		<p>
+		You may have noticed that after we created the issue some new buttons were created
+		at the top of each page beside the "Exit Web Interface" button.
+		</p>
+
+		<div class="screenshot"><img class="screenshot" src="images/issue_ca69.png"/></div>
+
+		<p>
+		These new buttons, "Commit Changes" and "Revert Changes", are part of Nitpick's
+		integration with your project VCS. Creating or modifying issues doesn't commit those
+		changes to you VCS until you press the "Commit Changes" button. This let's you
+		combine multiple Nitpick actions, such as commenting on multiple issues, into a
+		single commit to you VCS, reducing clutter in your history. It also gives you the
+		option to throw away any Nitpick changes you've made using the "Revert Changes"
+		button.
+		</p>
+
+		<p>
+		Those two buttons will restrict themselves to only the modified Nitpick data and
+		will not touch other files which have been modified in your working copy or
+		checkout. It is possible to commit changes to issues alongside the corresponding
+		code by including the modified Nitpick files when doing a normal commit using your
+		VCS. This is useful for keeping the code which fixes an issue and the marking of
+		that issue as complete together.
+		</p>
+
+		<p>
+		The VCS buttons only appear when using a real VCS (as opposed to the <tt>file</tt>
+		VCS option when creating the repository) and Nitpick believes that you have made
+		changes.
+		</p>
 
 	<a name="attachments"><a href="#attachments"><h2>Attachments</h2></a></a>
+		<p>
+		Nitpick supports including an attachment alongside any comment for an issue. This
+		lets you keep important debugging or design information alongside the issue under
+		discussion.
+		</p>
+
+		<div class="screenshot"><img class="screenshot" src="images/add_comment.png"/></div>
+
+		<p>
+		To add an attachment, when creating a comment simply select the file to attach and
+		provide a descriptive filename to be shown for that attachment.
+		</p>
+
+		<div class="screenshot"><img class="screenshot" src="images/add_attachment.png"/></div>
+
+		<p>
+		Submitting this comment with attachment will result in a new attachment which has a
+		link to the attachment.
+		</p>
+
+		<div class="screenshot"><img class="screenshot" src="images/issue_ca69_attachment.png"/></div>
 
 	<a name="duplicate_issues"><a href="#duplicate_issues"><h2>Duplicate Issues</h2></a></a>
+		<p>
+		Marking an issue as a duplicate of another is useful when you have several issues
+		reported and it is later determined that several issues are identical. In this case
+		it can be useful to maintain this information in an easily navigable form. For this
+		we have the Duplicate_Of field.
+		</p>
+		
+		<p>
+		This field is a space separated list of issue hashes which are a duplicate of this
+		issue. Duplicate issue markings are commutative. That is, if issue A is marked as a
+		duplicate of issue B and issue B is marked as a duplicate of issue C, issue A is
+		also a duplicate of issue C. Currently a limited set of cases similar to this are
+		traversed by Nitpick to produce the linked list of duplicate issues.
+		</p>
+
+		<p>
+		To see this in action let us create two more issues
+		</p>
+
+		<div class="screenshot"><img class="screenshot" src="images/three_issue_list.png"/></div>
+
+		<p>
+		Obviously issue 8fc9253b is a duplicate of ca6968b0. If we go to the issue page for
+		8fc9253b and enter a unique substring of the issue hash, like so:
+		</p>
+
+		<div class="screenshot"><img class="screenshot" src="images/make_duplicate.png"/></div>
+
+		<p>
+		When we update the issue with the "Update" button we'll see that the issue hash is
+		completed and there is a new link to the issue the current issue is a duplicate of.
+		</p>
+
+		<div class="screenshot"><img class="screenshot" src="images/duplicate_issue.png"/></div>
+
+		<p>
+		Because this issue is a duplicate of the other issue we see that other issue's hash
+		in the Duplicate_Of field. On the other issue we will see a link back to this issue,
+		but not the full hash in the Duplicate_Of field because this issue hasn't been
+		marked explicitly as a duplicate of the first issue.
+		</p>
 
 	<a name="dependent_issues"><a href="#dependent_issues"><h2>Dependent Issues</h2></a></a>
+		<p>
+		Recalling our list of issues, we will next see how to mark issues as dependent on
+		one another and how this can be useful to track down what still needs to be done.
+		</p>
+
+		<div class="screenshot"><img class="screenshot" src="images/three_issue_list.png"/></div>
+
+		<p>
+		Looking at our issues we see that we have one to implement the Foo Mangler. You
+		can't complete the documentation for the Foo Mangler until it is completed itself,
+		so it would be useful to mark that issue as a dependency of the documentation
+		effort. This is done similarly to marking an issue as a duplicate, but in the
+		Depends_On field instead.
+		</p>
+
+		<div class="screenshot"><img class="screenshot" src="images/depends_on.png"/></div>
+
+		<p>
+		Updating the issue will then show a link to the issue the documentation depends
+		upon.
+		</p>
+
+		<div class="screenshot"><img class="screenshot" src="images/depends_on_committed.png"/></div>
+
+	<a name="sorting_and_filtering"><a href="#sorting_and_filtering"><h2>Sorting and Filtering</h2></a></a>
 
 	<a name="advanced_usage"><a href="#advanced_usage"><h1>Advanced Usage</h1></a></a>
 
