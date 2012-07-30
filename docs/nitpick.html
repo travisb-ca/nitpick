@@ -416,7 +416,51 @@
 
 		<div class="screenshot"><img class="screenshot" src="images/depends_on_committed.png"/></div>
 
+		<p>
+		You'll note that the issue this issue depends on is now a link and further that it
+		is a struck-through link. This is because that issue is 'Closed' (actually in the
+		last configured state). If we go and look at that issue we will see that it has a
+		dependent issue. Since dependency is a directional relationship it is only possible
+		to add dependencies to the higher level issues.
+		</p>
+
+		<div class="screenshot"><img class="screenshot" src="images/dependent.png"/></div>
+
 	<a name="sorting_and_filtering"><a href="#sorting_and_filtering"><h2>Sorting and Filtering</h2></a></a>
+		<p>
+		If we look back at the issue list we would see a number of filtering and display
+		options at the top of the page as well as sorting options in the table header. These
+		are useful to search through the issues to find one which matches your criteria. For
+		example, if we wanted to find all the issues which are marked to be fixed for
+		Release 1.0 which were created around a certain time we could setup the filtering as
+		such:
+		</p>
+
+		<div class="screenshot"><img class="screenshot" src="images/filtering_setup.png"/></div>
+
+		<p>
+		Using the "Sort and Filter" button will submit these options and change the fields
+		shown and only issues which are Bugs will be shown.
+		</p>
+
+		<div class="screenshot"><img class="screenshot" src="images/filtered.png"/></div>
+
+		<p>
+		This has filtered the issues, but that isn't sufficient. In order for us to find
+		issues created around the correct time we need to sort on Date. We do that simply by
+		clicking on the Date header in the table. There are three sort options for each
+		column: neutral, ascending and descending. Only one column may be sorted on at a
+		time. Let us click the Date header once to sort it ascending.
+		</p>
+
+		<div class="screenshot"><img class="screenshot" src="images/sorted.png"/></div>
+
+		<p>
+		With this sorting it would be easy for us to find the date range we are looking for.
+		Clicking the header multiple times will cycle through the sorting choices. Saving a
+		filter and sort pattern is as easy as getting the settings correct and then creating
+		a bookmark using your browser.
+		</p>
 
 	<a name="advanced_usage"><a href="#advanced_usage"><h1>Advanced Usage</h1></a></a>
 
