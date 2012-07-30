@@ -1840,7 +1840,7 @@ def editor_found():
 
 def cmd_init(args):
 	backend = BACKENDS[args.vcs]
-	config.db_path = args.dir
+	config.db_path = args.dir + '/'
 
 	def_config = {'vcs' : args.vcs}
 	for key in default_config.keys():
@@ -1865,6 +1865,8 @@ def cmd_init(args):
 	backend.add_changes(uuid_filename)
 
 	backend.ignore(args.dir + '/issue_cache')
+
+	load_db()
 
 	backend.commit()
 
