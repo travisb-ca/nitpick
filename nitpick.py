@@ -484,7 +484,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 						arg_string += '%s=%s&' % (urllib.quote(argname), urllib.quote_plus(myargs[argname]))
 				arg_string = arg_string[:-1]
 
-				self.output('<th class="issue_list"><a href="/%s">%s %s %s</a></th> ' % (arg_string, sort_token, label, sort_token))
+				self.output('<th class="issue_list"><a href="/%s">%s&nbsp;%s&nbsp;%s</a></th> ' % (arg_string, sort_token, label, sort_token))
 
 		if db.has_foreign():
 			output_row_header(show_repo,  'Project', page_args)
