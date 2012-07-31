@@ -589,6 +589,13 @@
 		the foreign repositories. Comments will be created in an appropriate repository.
 		</p>
 
+		<p>
+		If using Subversion externals to create the link you must watch out for infinite
+		recursion when creating a link back to the current branch, such as if you wanted to
+		create a Foreign project to the trunk in the trunk so all branches would
+		automatically get the trunk as a Foreign project.
+		</p>
+
 	<a name="across_projects"><a href="#across_projects"><h3>Across Projects</h3></a></a>
 		<p>
 		Configuring Foreign Projects across several different projects works quite similar
