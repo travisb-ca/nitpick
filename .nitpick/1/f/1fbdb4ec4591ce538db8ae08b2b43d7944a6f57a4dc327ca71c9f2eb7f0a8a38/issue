@@ -1,0 +1,16 @@
+Component: Core
+Date: 2012-07-31 06:03:24
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.0
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Critical
+State: Open
+Title: Cannot reply to comments which are in local repo and foreign repo
+Type: Bug
+--
+If there is a comment to an issue which is in both the local repository and in a foreign repository then you are unable to reply to that comment. Instead an ambiguous comment hash error is returned.
