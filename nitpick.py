@@ -1793,7 +1793,7 @@ class IssueDB:
 						continue
 
 					if partial_comment in file:
-						if parent != 'issue':
+						if parent != 'issue' and parent != file:
 							return (issue, '')
 						else:
 							parent = file
