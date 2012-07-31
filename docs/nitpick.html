@@ -34,8 +34,12 @@
 			<li><a href="#sorting_and_filtering">Sorting and Filtering</a></li>
 		</ul>
 		<li><a href="#advanced_usage">Advanced Usage</a></li> <ul>
-			<li><a href="#configuring_nitpick">Configuring Nitpick</a></li>
+			<li><a href="#configuring_nitpick">Configuring Nitpick</a></li> <ul>
+				<li><a href="#configuring_users">Users</a></li>
+				<li><a href="#configuring_issues">Issues</a></li>
+			</ul>
 			<li><a href="#foreign_projects">Foreign Projects</a></li> <ul>
+				<li><a href="#configuring_foreign">Configuring</a></li>
 				<li><a href="#between_branches">Between Branches</a></li>
 				<li><a href="#across_projects">Across Projects</a></li>
 			</ul>
@@ -292,6 +296,11 @@
 
 		<div class="screenshot"><img class="screenshot" src="images/issue_ca69_x_comments.png"/></div>
 
+		<p>
+		Finally, putting an URL or issue hash in a comment will result in a link to that
+		URL/issue.
+		</p>
+
 	<a name="issue_source_control"><a href="#issue_source_control"><h2>Issue Source Control</h2></a></a>
 		<p>
 		You may have noticed that after we created the issue some new buttons were created
@@ -463,13 +472,132 @@
 		</p>
 
 	<a name="advanced_usage"><a href="#advanced_usage"><h1>Advanced Usage</h1></a></a>
+		<p>
+		What has been described above are the basic necessities of Nitpick usage. Nitpick
+		has a few more advanced features for those willing to do a bit of leg work.
+		</p>
 
 	<a name="configuring_nitpick"><a href="#configuring_nitpick"><h2>Configuring Nitpick</h2></a></a>
+		<p>
+		When a new Nitpick repository is created some reasonable defaults will be put in
+		place. It is possible to modify these settings to fit the needs of the project
+		better. As with all the issues and comments the configuration is made within the VCS
+		and follows the repository wherever it should go.
+		</p>
+
+		<p>
+		Most of the configuration knobs are lists of options for one field or another. When
+		this is the case the first element of the configured list is the default selection.
+		Nitpick makes no demands upon the lifecycle of an issue so option can, for the most
+		part, be configured in any order and with any name.
+		</p>
+
+	<a name="configuring_users"><a href="#configuring_users"><h3>Users</h3></a></a>
+		<p>
+		The most useful configuration is to fill out the user list. This list is contained
+		in the .nitpick/config/users file. The format is one user per line. The recommended
+		format is at least an email address, though the actual format is freeform.
+		</p>
+
+		<p>
+		One feature to keep in mind when filling this list in is that Nitpick will make an
+		attempt to suggest a better default user from this file for the current user. It
+		does this by finding the current user account as substring of one of the configured
+		users. Therefore if my user account is <tt>travisb</tt> and the user list contains
+		the value "<tt>Travis Brown (travisb)</tt>" and no other user which may make the
+		match ambiguous then Nitpick will select this user by default for fields where the
+		current user is appropriate. Such fields include the Reporter of new issues and the
+		user when creating comments.
+		</p>
+
+		<p>
+		If the Nitpick matching doesn't work due to ambiguous user matches or an account
+		name which doesn't match the user list (this could happen if my account username was
+		<tt>funnybunny</tt>, but it's my business email address which is in the user list)
+		then you can set the <tt>NITPICK_USERNAME</tt> environment variable to use that
+		user. Note that no matching into the user list will occur if you use this setting.
+		</p>
+	
+	<a name="configuring_issues"><a href="#configuring_issues"><h3>Issues</h3></a></a>
+		<p>
+		For issues Nitpick has a number of selectable metadata states. These are for things
+		like the issue component or target release, etc. These are all modifiable by
+		modifying the .nitpick/config/config file. The format of each line is the list name,
+		followed by a colon, followed by a space and then followed by a space separated list
+		of options. The first option will be taken as the default when creating new issues.
+		</p>
+
+		<p>
+		The <tt>state</tt> options are have a special case in that not only is the first
+		option in the list the default when creating new issues, but the last one in the
+		list is considered 'closed' by Nitpick. A closed issue will have any links to it
+		shown as struck out to show that the issue is closed.
+		</p>
+
+		<p>
+		With the above in mind it is recommended that the final <tt>state</tt> be Closed or
+		some project equivalent. It is further recommended that the first <tt>fix_by</tt> be
+		either the next release, or some triage release so new issues are kept at the
+		forefront.
+		</p>
 
 	<a name="foreign_projects"><a href="#foreign_projects"><h2>Foreign Projects</h2></a></a>
+		<p>
+		As a distributed issue tracker a Nitpick repository is contained beside the source
+		code in the project VCS. Though this model presents several advantages related to
+		issue states and comments following the code through branches, it also presents
+		difficulties in viewing issues across branches or between several projects spread
+		across multiple VCS repositories.
+		</p>
+
+		<p>
+		Nitpick solves this problem through Foreign Projects. A Foreign Project is another
+		Nitpick repository, usually a root Nitpick repository of another project or branch,
+		from which Nitpick will present a combined view of the issues and comments from all
+		the projects. It is possible to change the state of or comment on issues in these
+		Foreign Projects.
+		</p>
+
+		<p>
+		When Foreign Projects are configured there is an additional possible filtering
+		column, Project. The project of an issue will also be displayed on the issue page.
+		</p>
+
+	<a name="configuring_foreign"><a href="#configuring_foreign"><h3>Configuring</h3></a></a>
+		<p>
+		Configuring Foreign Projects is relatively simple. First you must create the
+		directory <tt>.nitpick/foreign</tt>. Inside this directory you must create links of
+		some sort to the foreign Nitpick repository. The name of the link will be the name
+		of the project when viewed inside the Nitpick Web Interface.
+		</p>
+
+		<p>
+		Any method of linking repositories which is functionally equivalent to a symlink or
+		directory should work. Support for the version control functionality working inside
+		Foreign projects varies with the capabilities of your VCS and Nitpick's support. For
+		example, Subversion externals are fully supported where nested git repositories are
+		not.
+		</p>
 
 	<a name="between_branches"><a href="#between_branches"><h3>Between Branches</h3></a></a>
+		<p>
+		One common use case for Foreign Projects is to combine issues and comments across
+		the current branch with those found on the project trunk. Such a setup is especially
+		useful between a release branch and the project trunk. In this situation the Foreign
+		Project is a branch of the local Nitpick repository. Issues will be combined across
+		them and it is possible to create issues in either the local repository or any of
+		the foreign repositories. Comments will be created in an appropriate repository.
+		</p>
 
 	<a name="across_projects"><a href="#across_projects"><h3>Across Projects</h3></a></a>
+		<p>
+		Configuring Foreign Projects across several different projects works quite similar
+		to configuring across branches. The only major different is that Nitpick will
+		combine all the configurations of the various repositories. That is, the set of all
+		possible issue states from all repositories will be used when filtering or creating
+		issues. It is recommended all projects have the same configuration. If this is not
+		then case then it is up to the user to ensure that a valid component, state or other
+		issue metadata is chosen for the particular project.
+		</p>
 </body>
 </html>
