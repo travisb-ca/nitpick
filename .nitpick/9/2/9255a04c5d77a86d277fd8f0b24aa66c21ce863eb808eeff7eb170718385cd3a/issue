@@ -6,10 +6,10 @@ Fix_By: 1.0
 Owner: travisb@travisbrown.ca
 Priority: 1
 Reported_By: travisb@travisbrown.ca
-Resolution: None
+Resolution: Fixed
 Seen_In_Build: 
 Severity: Major
-State: Open
+State: Closed
 Title: Don't show projects with an identical clone
 Type: Feature
 --

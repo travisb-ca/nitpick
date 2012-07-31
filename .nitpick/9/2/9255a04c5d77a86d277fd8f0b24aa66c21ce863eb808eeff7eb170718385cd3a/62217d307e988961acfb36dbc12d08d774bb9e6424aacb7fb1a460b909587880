@@ -1,0 +1,9 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-07-31 06:45:00
+Parent: issue
+User: travisb@travisbrown.ca
+--
+I've changed the default show_repo setting to be false if there isn't more than one repository UUID.
+
+I also ended up fixing a small bug which made turning off the project column not work if ID was enabled.
