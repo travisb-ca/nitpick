@@ -841,7 +841,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.output('<p>Project: <select name="repo">\n')
 			for repo in db.repos():
 				self.output('<option ')
-				if repo == 'local':
+				if repo == 'Local':
 					self.output('selected="selected" ')
 				self.output('value="%s">%s</option>\n' % (repo, repo))
 			self.output('</select></p>\n')
@@ -1132,7 +1132,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		if 'repo' in self.request_args.keys():
 			repo = self.request_args['repo']
 		else:
-			repo = 'local'
+			repo = 'Local'
 		issue_filename, issue_hash = db.add_issue(issue, repo)
 
 		self.start_doc('Created Issue %s' % issue_filename)
@@ -1539,7 +1539,7 @@ class IssueDB:
 		self.uuid = uuid_file.read()
 		uuid_file.close()
 
-		self.repo_list = {'local' : (self.uuid, config.db_path)}
+		self.repo_list = {'Local' : (self.uuid, config.db_path)}
 		self.repo_paths = { self.uuid : [config.db_path] }
 
 		try:
@@ -1587,7 +1587,7 @@ class IssueDB:
 			checked_issues[self.uuid] = []
 
 		checked_issues[self.uuid].extend(
-				self.update_cache_from_repo(config.db_path, self.uuid, 'local'))
+				self.update_cache_from_repo(config.db_path, self.uuid, 'Local'))
 		
 
 		# Delete any issues which no longer exist
@@ -1721,7 +1721,7 @@ class IssueDB:
 	# Take an issue dict and add it to the system. Does not commit.
 	#
 	# Returns (issue filename, issue hash)
-	def add_issue(self, issue, repo = 'local'):
+	def add_issue(self, issue, repo = 'Local'):
 		hash = hashlib.sha256(cPickle.dumps(issue)).hexdigest()
 
 		repo_dir = self.repo_list[repo][1]
