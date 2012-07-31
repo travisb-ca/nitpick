@@ -278,7 +278,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		if self.request_args == {}:
 			# Use defaults since this is the first time here
-			show_repo          = True
+			show_repo          = db.has_nonclones()
 			show_ID            = True
 			show_type          = False
 			show_date          = False
@@ -326,7 +326,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			return arg_val
 
 		if db.has_foreign():
-			show_repo  = extract_show_field_arg('show_repo',          show_ID)
+			show_repo  = extract_show_field_arg('show_repo',          show_repo)
 		show_ID            = extract_show_field_arg('show_ID',            show_ID)
 		show_type          = extract_show_field_arg('show_type',          show_type)
 		show_date          = extract_show_field_arg('show_date',          show_date)
@@ -1497,6 +1497,12 @@ class IssueDB:
 
 	def has_foreign(self):
 		return self.foreign_repos
+
+	def has_nonclones(self):
+		if len(self.db) > 2:
+			return True
+		else:
+			return False
 
 	def repos(self):
 		result = copy.copy(self.repo_list.keys())
