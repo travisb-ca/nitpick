@@ -1,0 +1,16 @@
+Component: Core
+Date: 2012-08-01 20:40:02
+Depends_On: 
+Duplicate_Of: 
+Fix_By: Eventually
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: Unassigned
+Resolution: None
+Seen_In_Build: 1.0.0-beta
+Severity: Minor
+State: Open
+Title: Add an Emacs Major mode
+Type: Feature
+--
+On the github issue tracker there has been a request to add an emacs major mode for Nitpick. Supposedly similiar to ditz-mode.
