@@ -2,6 +2,10 @@ Nitpick is a distributed issue tracker. It helps keep track of which nits you
 should pick. It's intended to be used with source code such that the issues can
 follow the code via whatever VCS or distribution mechanism.
 
+This is an abbreviated guide to configuring a Nitpick repository. For a user
+guide and tutorial you should look at docs/nitpick.html or
+http://travisbrown.ca/projects/nitpick/docs/nitpick.html.
+
 Once the repository has been created you will likely want to configure the
 repository. This is done by editing the files in .nitpick/config.
 
