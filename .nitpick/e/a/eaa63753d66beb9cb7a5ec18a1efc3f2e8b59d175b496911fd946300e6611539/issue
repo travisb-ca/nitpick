@@ -1,0 +1,16 @@
+Component: Web_UI
+Date: 2012-08-02 01:51:11
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.0
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: Fixed
+Seen_In_Build: 
+Severity: Major
+State: Closed
+Title: Multiple URLs not linked
+Type: Bug
+--
+As can be seen in issue b683523f9c4245af19fbd95c219641bd7e94c20db177c028051ede9dcb107d7d (b683523f9c4245af19fbd95c219641bd7e94c20db177c028051ede9dcb107d7d). If an issue description has more than one link (say http://travisbrown.ca/projects/nitpick/docs/nitpick.html and http://travisbrown.ca/projects/nitpick/docs/nitpick.html, then only the first one will be linked.
