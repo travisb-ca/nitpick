@@ -1556,7 +1556,7 @@ class IssueDB:
 			# Something is wrong with the cache, so start again
 			self.db = {'format' : ISSUE_CACHE_FORMAT}
 
-		if 'format' in self.db.keys() and self.db['format'] != ISSUE_CACHE_FORMAT:
+		if 'format' not in self.db.keys() or self.db['format'] != ISSUE_CACHE_FORMAT:
 			self.db = {'format' : ISSUE_CACHE_FORMAT}
 
 		checked_issues = {}
