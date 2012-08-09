@@ -1,0 +1,18 @@
+Component: VCS
+Date: 2012-08-09 19:52:05
+Depends_On: 
+Duplicate_Of: 
+Fix_By: Next_Release
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Major
+State: Open
+Title: VCS Hooks to email changes out.
+Type: Feature
+--
+Most issue trackers have some way to do email notification of changes. This would be good for Nitpick to do. Because of the distributed nature this should be done as part of some VCS hook. That way when the changes are pushed to a central location they can be multicast to interested parties.
+
+It might be easiest to multicast to every person who has an email address as the reporter, owner or commenter. Otherwise I'd have to add a CC field.
