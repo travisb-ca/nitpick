@@ -1,17 +1,17 @@
-Severity: Major
-Title: Public Web UI
-Priority: 1
+Component: Web_UI
 Date: 2012-06-20 00:17:23
-State: Open
-Fix_By: Eventually
+Depends_On: 
+Duplicate_Of: 
+Fix_By: Next_Release
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: travisb@travisbrown.ca
 Resolution: None
 Seen_In_Build: 
-Reported_By: travisb@travisbrown.ca
+Severity: Major
+State: Open
+Title: Public Web UI
 Type: Feature
-Component: Web_UI
-Owner: travisb@travisbrown.ca
-Depends_On:
-Duplicate_Of:
 --
 Having a local bug tracker which follows the developer and all is nice, but not sufficient. It must be possible to easily provide a public, modifiable copy of the tracker for use by QA people, or users.
 
