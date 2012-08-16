@@ -1,0 +1,16 @@
+Component: Web_UI
+Date: 2012-08-16 00:20:51
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.0
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Minor
+State: Open
+Title: Default filter selection should be selected
+Type: Bug
+--
+When the default state/resolution/etc. selection is used the selection boxes have nothing selected. This should instead default to the default selection being selected.

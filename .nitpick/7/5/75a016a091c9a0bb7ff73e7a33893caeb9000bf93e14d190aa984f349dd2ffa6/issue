@@ -1,17 +1,17 @@
-Severity: Minor
-Title: Close Browser Tab Automatically after exit
+Component: Web_UI
+Date: 2012-06-18 18:43:01
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.0
+Owner: travisb@travisbrown.ca
+Priority: 1
 Reported_By: travisb@travisbrown.ca
 Resolution: WontFix
-Component: Web_UI
-Priority: 1
-Date: 2012-06-18 18:43:01
-State: Closed
-Fix_By: Eventually
-Owner: travisb@travisbrown.ca
-Type: Feature
 Seen_In_Build: 
-Depends_On:
-Duplicate_Of:
+Severity: Minor
+State: Closed
+Title: Close Browser Tab Automatically after exit
+Type: Feature
 --
 It'd be nice if after you shut down the Nitpick process that the returned webpage from the exit form would also close the browser tab/window.
 

@@ -1,0 +1,16 @@
+Component: Web_UI
+Date: 2012-08-16 00:17:56
+Depends_On: 
+Duplicate_Of: 
+Fix_By: Next_Release
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Minor
+State: Open
+Title: Remember sort and filter settings between reloads
+Type: Feature
+--
+If you setup some sort and filter settings for the issue list, navigate away from the issue list and then back again you have to setup the sort and filter selections again. This should be remembered within a single browser view chain.
