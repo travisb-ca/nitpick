@@ -1,0 +1,16 @@
+Component: VCS
+Date: 2012-08-16 00:28:23
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.1
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Major
+State: Open
+Title: Failed VCS commit not shown to user
+Type: Bug
+--
+If the VCS fails to commit, say if there was an out-of-date version, Nitpick doesn't currently tell the user about this fact. This will lead the user to believe that their changes have been committed successfully when they haven't.

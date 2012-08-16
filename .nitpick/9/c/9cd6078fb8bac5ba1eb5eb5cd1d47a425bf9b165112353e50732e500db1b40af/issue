@@ -2,7 +2,7 @@ Component: Web_UI
 Date: 2012-06-18 18:12:29
 Depends_On: 
 Duplicate_Of: 
-Fix_By: Next_Release
+Fix_By: 1.1
 Owner: travisb@travisbrown.ca
 Priority: 1
 Reported_By: travisb@travisbrown.ca
