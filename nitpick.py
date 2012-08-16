@@ -398,7 +398,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.output('<div class="filter_select_item"><label>%s:</label><select name="%s" multiple="multiple" size="5">\n' % (label, option_name))
 			for option in option_list:
 				self.output('<option ')
-				if option in selected_list:
+				if option in selected_list or selected_list == []:
 					self.output('selected="selected" ')
 				self.output('value="%s">%s</option>\n' % (option, option))
 			self.output('</select></div>\n')

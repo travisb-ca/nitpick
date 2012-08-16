@@ -6,10 +6,10 @@ Fix_By: 1.0
 Owner: travisb@travisbrown.ca
 Priority: 1
 Reported_By: travisb@travisbrown.ca
-Resolution: None
+Resolution: Fixed
 Seen_In_Build: 
 Severity: Minor
-State: Open
+State: Closed
 Title: Default filter selection should be selected
 Type: Bug
 --
