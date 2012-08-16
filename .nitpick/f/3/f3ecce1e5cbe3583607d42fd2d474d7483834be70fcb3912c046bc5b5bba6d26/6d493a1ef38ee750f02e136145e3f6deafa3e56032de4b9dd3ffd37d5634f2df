@@ -1,0 +1,9 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-08-16 00:07:43
+Parent: 32c1d848aac7ed6234e733f3f94aa92d698872c92a1ae33a43cfbf4ba0350d0c
+User: travisb@travisbrown.ca
+--
+One possible way to do this would be to punt it off to the VCS. For many cases just looking at a diff and reverting anything which doesn't seem correct would cover many cases. This is likely what the initial tool will be like.
+
+In the future it would be possible, but significant work, to present a moderation view where anything which isn't part of the issue repository is coloured and a list between modified issues. But this would only be done if some scripting around the VCS isn't sufficient.

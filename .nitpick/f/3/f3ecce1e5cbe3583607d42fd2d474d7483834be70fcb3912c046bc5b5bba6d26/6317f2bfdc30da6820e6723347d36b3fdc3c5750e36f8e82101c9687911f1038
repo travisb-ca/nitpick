@@ -1,0 +1,7 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-08-16 00:11:13
+Parent: issue
+User: travisb@travisbrown.ca
+--
+It shouldn't be too hard to convert the web UI to run as a CGI script. The VCS type would have to be set to filesystem internally to avoid needing to call external commands. That would reduce the security impact. It's not like anybody would like the public changes committed to any repository automatically anyways. Even a DVCS where not all the changes end up in the canonical repository would be strained.
