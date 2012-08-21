@@ -1,0 +1,16 @@
+Component: Documentation
+Date: 2012-08-21 06:48:52
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.1
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Minor
+State: Open
+Title: Create Static copy of Nitpick bug database
+Type: Feature
+--
+It should be relatively simple, until issue f3ecce1e5cbe3583607d42fd2d474d7483834be70fcb3912c046bc5b5bba6d26 is fixed, to have a static copy of the Nitpick issue web UI put on the web for people to see what it looks like. It won't be dynamic, but most of the information is static anyways.
