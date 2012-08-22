@@ -943,6 +943,10 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.wfile.write(attachment.read())
 		attachment.close()
 
+	def robots(self):
+		self.send_response(404)
+		self.end_headers()
+
 	def add_comment_post(self):
 		db.load_issue_db()
 
@@ -1192,6 +1196,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		if '/' == self.path:
 			self.root()
+		elif '/robots.txt' == self.path:
+			self.robots()
 		elif '/issue/' in self.path:
 			self.issue()
 		elif '/add_comment' in self.path:
