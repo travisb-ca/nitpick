@@ -1,0 +1,7 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-08-27 23:03:12
+Parent: issue
+User: travisb@travisbrown.ca
+--
+The best way to implement this would seem to be with a generalized bug interchange format as an intermediate format. Elsewhere I am working on such a format.
