@@ -1,17 +1,17 @@
-Severity: Major
-Title: Synchronize with external bug trackers
-Priority: 4
+Component: Core
 Date: 2012-06-20 00:14:05
-State: Open
-Fix_By: Eventually
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.1
+Owner: travisb@travisbrown.ca
+Priority: 4
+Reported_By: travisb@travisbrown.ca
 Resolution: None
 Seen_In_Build: 
-Reported_By: travisb@travisbrown.ca
+Severity: Major
+State: Open
+Title: Synchronize with external bug trackers
 Type: Feature
-Component: Core
-Owner: travisb@travisbrown.ca
-Depends_On:
-Duplicate_Of:
 --
 Looking at the discussion at there two links http://kitenet.net/pipermail/dist-bugs/ and http://dist-bugs.branchable.com/ it seems that synchronizing with and existing bug trackers could be useful.
 

@@ -1,0 +1,22 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-08-30 05:47:05
+Parent: e2a4ef1225b072b892270d1a302eb96692ee17c07ecfd7405f91de0dab084ca6
+User: travisb@travisbrown.ca
+--
+I produce this static copy with two scripts. The first does the mirroring, the second does some sanitation.
+
+sync_issues.sh:
+
+#!/bin/bash
+rm -rf issues/*
+cd issues
+wget -rkE -nH --restrict-file-names=windows http://localhost:18080
+find . -name .svn -prune -o -type f -exec ../sync_helper.sh \{\} \;
+
+
+sync_helper.sh:
+
+#!/bin/bash
+cat ${1} | sed 's/@travisbrown.ca//g' > ${1}.tmp
+mv ${1}.tmp $1
