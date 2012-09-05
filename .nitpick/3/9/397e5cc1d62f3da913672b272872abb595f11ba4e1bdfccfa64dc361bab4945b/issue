@@ -1,0 +1,16 @@
+Component: Documentation
+Date: 2012-09-05 04:43:44
+Depends_On: b683523f9c4245af19fbd95c219641bd7e94c20db177c028051ede9dcb107d7d
+Duplicate_Of: 
+Fix_By: 1.1
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Major
+State: Open
+Title: Document Usecases
+Type: Feature
+--
+Distributed bug tracking isn't common so the possible usecases aren't widely known. Document the use cases I make use of and have verified to be useful. This should be done after I've added synchronization with other bug trackers since that will be an important use case.
