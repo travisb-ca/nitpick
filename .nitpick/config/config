@@ -6,4 +6,5 @@ vcs: svn
 fix_by: 1.1 Next_Release Eventually 1.0
 components: Documentation Web_UI VCS Core
 type: Bug Feature Regression
+project_name: Nitpick
 --
