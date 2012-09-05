@@ -20,20 +20,22 @@ default will be the first item in the list. When presented as a list of options
 all the options will be presented in the order listed in the configuration.
 
 The fields are as follows:
-components - The list of components which will be give as options
-	     Default: Documentation
-fix_by     - targets for when an issue should be closed by
-             Default: Next_Release
-priority   - Priority given to the issue
-             Default: 1 2 3 4 5
-severity   - Severity of the issue
-             Default: Blocker Critical Major Minor Trivial
-state      - Current state of the issue
-             Default: New Confirmed Open Diagnosed Fixed Closed
-resolution - Resolution of an issue after it has been dealt with
-             Default: None Fixed Duplicate WontFix Invalid WorksForMe
-type       - The various types of issues
-             Default: Bug Feature Regression
+components   - The list of components which will be give as options
+	       Default: Documentation
+fix_by       - targets for when an issue should be closed by
+               Default: Next_Release
+priority     - Priority given to the issue
+               Default: 1 2 3 4 5
+severity     - Severity of the issue
+               Default: Blocker Critical Major Minor Trivial
+state        - Current state of the issue
+               Default: New Confirmed Open Diagnosed Fixed Closed
+resolution   - Resolution of an issue after it has been dealt with
+               Default: None Fixed Duplicate WontFix Invalid WorksForMe
+type         - The various types of issues
+               Default: Bug Feature Regression
+project_name - The human readable name of the project to use when exporting bugs
+               Default: Nitpick Project
 
 The users file simply contains the list of selectable users, one per line, in a
 free form. By default the only user is the Unassigned user.

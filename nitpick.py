@@ -35,6 +35,8 @@ import base64
 import cgi
 import uuid
 import cgi
+import datetime
+import json
 
 DATEFORMAT = '%Y-%m-%d %H:%M:%S'
 FILLWIDTH = 69
@@ -54,6 +56,7 @@ class config:
 			'severity' : ['Blocker', 'Critical', 'Major', 'Minor', 'Trivial'],
 			'resolution': ['None', 'Fixed', 'Duplicate', 'WontFix', 'Invalid', 'WorksForMe'],
 			'type' : ['Bug', 'Feature', 'Regression'],
+			'project_name' : 'Nitpick Project',
 		}
 	users = ['Unassigned']
 	vcs = None
@@ -1532,6 +1535,13 @@ class IssueDB:
 				return self.db[repo][hash]
 		return None
 
+	def issue_repo(self, hash):
+		for repo in self.db.keys():
+			if repo == 'format':
+				continue
+			if hash in self.db[repo]:
+				return repo
+
 	# Save the issue_db cache after modifying it
 	def save_issue_db(self):
 		cache_file = gzip.open(config.db_path + 'issue_cache', 'w')
@@ -2252,6 +2262,91 @@ def cmd_web(args):
 
 	return True
 
+def cmd_export(args):
+	if config.db_path == '':
+		return False
+
+	load_db()
+
+	hash = db.disambiguate_hash(args.issue)
+	if hash == None:
+		print "No such issue"
+		return False
+	elif hash == '':
+		print "Ambiguous issue ID. Please use a longer string"
+		return False
+
+	issue = parse_file(config.db_path + hash[0] + '/' + hash[1] + '/' + hash + '/issue')
+
+	bug = {}
+	bug['format'] = 'http://travisbrown.ca/projects/bug_interchange.txt'
+	bug[hash] = {}
+	bug[hash]['metadata'] = {}
+	bug[hash]['metadata']['metadata_modified_at'] = datetime.datetime.now().isoformat()
+	bug[hash]['metadata']['project_name'] =  config.issues['project_name']
+	bug[hash]['metadata']['project_id'] =  db.issue_repo(hash)
+
+	field_equivalence = {
+			'Title' : 'title',
+			'Date' : 'created_at',
+			'State' : 'state',
+			'Severity' : 'severity',
+			'Component' : 'component',
+			'Reported_By' : 'reporter',
+			'Seen_In_Build' : 'seen_in',
+			'Owner' : 'owner',
+			'content' : 'description',
+			'Depends_On': '_depends_on',
+			'Duplicate_Of' : '_duplicate_of',
+			'Priority' : '_priority',
+			'Fix_By' : '_fix_by',
+			'Resolution' : '_resolution',
+			'Type' : '_type',
+
+		}
+
+	for key in issue.keys():
+		if key == 'Date':
+			bug[hash]['metadata'][field_equivalence[key]] = issue[key]
+		elif key == 'Depends_On' or key == 'Duplicate_Of':
+			if len(issue[key]) > 0:
+				bug[hash]['metadata'][field_equivalence[key]] = issue[key].split(' ')
+			else:
+				bug[hash]['metadata'][field_equivalence[key]] = []
+		else:
+			bug[hash]['metadata'][field_equivalence[key]] = issue[key]
+
+	comment_stack = db.produce_comment_tree(hash)
+	comment_stack.reverse()
+	comment_depth = [1] * len(comment_stack)
+	parent_children_stack = [2] * len(comment_stack)
+	depth = 0
+
+	while len(comment_stack) > 0:
+		comment = comment_stack.pop()
+		old_depth = depth
+		depth = comment_depth.pop()
+		parent_children = parent_children_stack.pop()
+
+		chash = comment['hash']
+		bug[hash][chash] = {}
+		bug[hash][chash]['name'] = comment['User']
+		bug[hash][chash]['created_at'] = comment['Date']
+		bug[hash][chash]['comment'] = comment['content']
+		bug[hash][chash]['in-reply-to'] = [comment['Parent']]
+
+		comment['children'].reverse()
+		comment_stack.extend(comment['children'])
+
+		if parent_children == 1 and len(comment['children']) == 1:
+			comment_depth.extend([depth] * len(comment['children']))
+		else:
+			comment_depth.extend([depth + 1] * len(comment['children']))
+		parent_children_stack.extend([len(comment['children'])] * len(comment['children']))
+
+	print json.dumps(bug, sort_keys=True, indent=4)
+	return True
+
 if __name__ == '__main__':
 	load_config()
 
@@ -2333,6 +2428,10 @@ if __name__ == '__main__':
 	web_cmd.add_argument('--port', type=int, default=18080, help='Start the web server on the given port. Default 18080')
 	web_cmd.add_argument('--browser', help='Command to use to open web interface in browser')
 	web_cmd.set_defaults(func=cmd_web)
+
+	export_cmd = subcmds.add_parser('export', help='Export given bug')
+	export_cmd.add_argument('issue')
+	export_cmd.set_defaults(func=cmd_export)
 
 	args = parser.parse_args()
 	result = args.func(args)
