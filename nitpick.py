@@ -2323,6 +2323,7 @@ def cmd_export(args):
 	comment_stack.reverse()
 	comment_depth = [1] * len(comment_stack)
 	parent_children_stack = [2] * len(comment_stack)
+	parent_stack = ['issue']
 	depth = 0
 
 	while len(comment_stack) > 0:
@@ -2331,12 +2332,15 @@ def cmd_export(args):
 		depth = comment_depth.pop()
 		parent_children = parent_children_stack.pop()
 
+		while parent_stack[-1] != comment['Parent']:
+			parent_stack.pop()
+
 		chash = comment['hash']
 		bug[hash][chash] = {}
 		bug[hash][chash]['name'] = comment['User']
 		bug[hash][chash]['created_at'] = format_date(comment['Date'])
 		bug[hash][chash]['comment'] = comment['content']
-		bug[hash][chash]['in-reply-to'] = [comment['Parent']]
+		bug[hash][chash]['in-reply-to'] = copy.copy(parent_stack)[-5:]
 
 		comment['children'].reverse()
 		comment_stack.extend(comment['children'])
@@ -2346,6 +2350,8 @@ def cmd_export(args):
 		else:
 			comment_depth.extend([depth + 1] * len(comment['children']))
 		parent_children_stack.extend([len(comment['children'])] * len(comment['children']))
+
+		parent_stack.append(comment['hash'])
 
 	print json.dumps(bug, sort_keys=True, indent=4)
 	return True
