@@ -56,10 +56,10 @@ class config:
 			'severity' : ['Blocker', 'Critical', 'Major', 'Minor', 'Trivial'],
 			'resolution': ['None', 'Fixed', 'Duplicate', 'WontFix', 'Invalid', 'WorksForMe'],
 			'type' : ['Bug', 'Feature', 'Regression'],
-			'project_name' : 'Nitpick Project',
 		}
 	users = ['Unassigned']
 	vcs = None
+	project_name = 'Nitpick Project'
 	db_path = ''
 	username = ''
 	endweb = False
@@ -1449,6 +1449,9 @@ def _load_config(repo_path):
 		for key in ['vcs']:
 			if key in conf.keys() and conf[key] in BACKENDS:
 				config.vcs = BACKENDS[conf[key]]
+	if config.project_name == 'Nitpick Project':
+		if 'project_name' in conf.keys():
+			config.project_name = conf['project_name']
 
 	config.users = []
 	for line in fileinput.input(repo_path + 'config/users'):
@@ -2286,7 +2289,7 @@ def cmd_export(args):
 	bug[hash] = {}
 	bug[hash]['metadata'] = {}
 	bug[hash]['metadata']['metadata_modified_at'] = datetime.datetime.now().isoformat()
-	bug[hash]['metadata']['project_name'] =  config.issues['project_name']
+	bug[hash]['metadata']['project_name'] =  config.project_name
 	bug[hash]['metadata']['project_id'] =  db.issue_repo(hash)
 
 	field_equivalence = {
