@@ -2278,6 +2278,9 @@ def cmd_export(args):
 
 	issue = parse_file(config.db_path + hash[0] + '/' + hash[1] + '/' + hash + '/issue')
 
+	def format_date(date):
+		return datetime.datetime.fromtimestamp(time.mktime(time.strptime(date, DATEFORMAT))).isoformat()
+
 	bug = {}
 	bug['format'] = 'http://travisbrown.ca/projects/bug_interchange.txt'
 	bug[hash] = {}
@@ -2307,7 +2310,7 @@ def cmd_export(args):
 
 	for key in issue.keys():
 		if key == 'Date':
-			bug[hash]['metadata'][field_equivalence[key]] = issue[key]
+			bug[hash]['metadata'][field_equivalence[key]] = format_date(issue[key])
 		elif key == 'Depends_On' or key == 'Duplicate_Of':
 			if len(issue[key]) > 0:
 				bug[hash]['metadata'][field_equivalence[key]] = issue[key].split(' ')
@@ -2331,7 +2334,7 @@ def cmd_export(args):
 		chash = comment['hash']
 		bug[hash][chash] = {}
 		bug[hash][chash]['name'] = comment['User']
-		bug[hash][chash]['created_at'] = comment['Date']
+		bug[hash][chash]['created_at'] = format_date(comment['Date'])
 		bug[hash][chash]['comment'] = comment['content']
 		bug[hash][chash]['in-reply-to'] = [comment['Parent']]
 
