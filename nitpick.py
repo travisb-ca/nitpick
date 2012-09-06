@@ -1696,6 +1696,27 @@ class IssueDB:
 			return None
 		return fullhash
 
+	# Return the list of comments for the given issue
+	def get_comment_list(self, issue):
+		issue_obj = self.issue(issue)
+
+		comments = []
+		for repo_path in self.repo_paths[issue_obj['repo_uuid']]:
+			issue_path = repo_path + issue[0] + '/' + issue[1] + '/' + issue + '/'
+
+			if not os.path.exists(issue_path):
+				# Don't fail if an issue doesn't have comments in a clone
+				continue
+
+			for file in os.listdir(issue_path):
+				if not os.path.isfile(issue_path + file):
+					continue
+				if '.' in file or file == 'issue': # Only select comments, not attachments or the root issue
+					continue
+
+				comments.append(file)
+		return comments
+
 	# Load the entire comment tree for the given issue hash and return it as a tree.
 	#
 	# The direct object is a list of comments. Each comment is then a dictionary with all the usual
@@ -1767,8 +1788,9 @@ class IssueDB:
 	# Take an issue dict and add it to the system. Does not commit.
 	#
 	# Returns (issue filename, issue hash)
-	def add_issue(self, issue, repo = 'Local'):
-		hash = hashlib.sha256(cPickle.dumps(issue)).hexdigest()
+	def add_issue(self, issue, repo = 'Local', hash = None):
+		if hash == None:
+			hash = hashlib.sha256(cPickle.dumps(issue)).hexdigest()
 
 		repo_dir = self.repo_list[repo][1]
 		issue_dir = repo_dir + hash[0] + '/' + hash[1] + '/' + hash
@@ -1784,8 +1806,9 @@ class IssueDB:
 	# Take a comment dict and add it to the system. Does not commit.
 	#
 	# Returns the comment filename
-	def add_comment(self, issue, comment):
-		hash = hashlib.sha256(cPickle.dumps(comment)).hexdigest()
+	def add_comment(self, issue, comment, hash = None):
+		if hash == None:
+			hash = hashlib.sha256(cPickle.dumps(comment)).hexdigest()
 
 		comment_filename = self.issue(issue)['path'] + '/' + hash
 		format_file(comment_filename, comment)
@@ -2286,6 +2309,46 @@ def cmd_web(args):
 
 	return True
 
+nitpick_to_bug = {
+	'Title'         : 'title',
+	'Date'          : 'created_at',
+	'State'         : 'state',
+	'Severity'      : 'severity',
+	'Component'     : 'component',
+	'Reported_By'   : 'reporter',
+	'Seen_In_Build' : 'seen_in',
+	'Owner'         : 'owner',
+	'content'       : 'description',
+	'Depends_On'    : '_depends_on',
+	'Duplicate_Of'  : '_duplicate_of',
+	'Priority'      : '_priority',
+	'Fix_By'        : '_fix_by',
+	'Resolution'    : '_resolution',
+	'Type'          : '_type',
+	'Project_Name'  : 'project_name',
+	'Project_ID'    : 'project_id',
+}
+
+bug_to_nitpick = {
+	'title'         : 'Title',
+	'created_at'    : 'Date',
+	'state'         : 'State',
+	'severity'      : 'Severity',
+	'component'     : 'Component',
+	'reporter'      : 'Reported_By',
+	'seen_in'       : 'Seen_In_Build',
+	'owner'         : 'Owner',
+	'description'   : 'content',
+	'_depends_on'   : 'Depends_On',
+	'_duplicate_of' : 'Duplicate_Of',
+	'_priority'     : 'Priority',
+	'_fix_by'       : 'Fix_By',
+	'_resolution'   : 'Resolution',
+	'_type'         : 'Type',
+	'project_name'  : 'Project_Name',
+	'project_id'    : 'Project_ID',
+}
+
 def format_issue_for_export(hash):
 	issue = parse_file(config.db_path + hash[0] + '/' + hash[1] + '/' + hash + '/issue')
 
@@ -2300,35 +2363,17 @@ def format_issue_for_export(hash):
 	bug[hash]['metadata']['project_name'] =  config.project_name
 	bug[hash]['metadata']['project_id'] =  db.issue_repo(hash)
 
-	field_equivalence = {
-			'Title' : 'title',
-			'Date' : 'created_at',
-			'State' : 'state',
-			'Severity' : 'severity',
-			'Component' : 'component',
-			'Reported_By' : 'reporter',
-			'Seen_In_Build' : 'seen_in',
-			'Owner' : 'owner',
-			'content' : 'description',
-			'Depends_On': '_depends_on',
-			'Duplicate_Of' : '_duplicate_of',
-			'Priority' : '_priority',
-			'Fix_By' : '_fix_by',
-			'Resolution' : '_resolution',
-			'Type' : '_type',
-
-		}
 
 	for key in issue.keys():
 		if key == 'Date':
-			bug[hash]['metadata'][field_equivalence[key]] = format_date(issue[key])
+			bug[hash]['metadata'][nitpick_to_bug[key]] = format_date(issue[key])
 		elif key == 'Depends_On' or key == 'Duplicate_Of':
 			if len(issue[key]) > 0:
-				bug[hash]['metadata'][field_equivalence[key]] = issue[key].split(' ')
+				bug[hash]['metadata'][nitpick_to_bug[key]] = issue[key].split(' ')
 			else:
-				bug[hash]['metadata'][field_equivalence[key]] = []
+				bug[hash]['metadata'][nitpick_to_bug[key]] = []
 		else:
-			bug[hash]['metadata'][field_equivalence[key]] = issue[key]
+			bug[hash]['metadata'][nitpick_to_bug[key]] = issue[key]
 
 	comment_stack = db.produce_comment_tree(hash)
 	comment_stack.reverse()
@@ -2352,6 +2397,7 @@ def format_issue_for_export(hash):
 		bug[hash][chash]['created_at'] = format_date(comment['Date'])
 		bug[hash][chash]['comment'] = comment['content']
 		bug[hash][chash]['in-reply-to'] = copy.copy(parent_stack)[-5:]
+		bug[hash][chash]['in-reply-to'].reverse()
 
 		comment['children'].reverse()
 		comment_stack.extend(comment['children'])
@@ -2382,6 +2428,85 @@ def cmd_export(args):
 
 	print format_issue_for_export(hash)
 
+	return True
+
+def cmd_import(args):
+	if config.db_path == '':
+		return False
+
+	load_db()
+
+	bug_file = open(args.bugfile, 'r')
+	bugs = json.load(bug_file)
+
+	def format_date(date):
+		timestamp = None
+
+		if len(date) == len('2012-09-05T05:48:39'):
+			# local time
+			timestamp = datetime.datetime.strptime(date[:19], '%Y-%m-%dT%H:%M:%S')
+		elif len(date) == len('2012-09-05T05:48:39Z'):
+			# UTC time
+			timestamp = datetime.datetime.strptime(date[:19], '%Y-%m-%dT%H:%M:%S')
+		else:
+			print 'Unsupported timestamp format "%s".' % date
+
+		return time.strftime(DATEFORMAT, timestamp.timetuple())
+
+	for bugid in bugs.keys():
+		if bugid == 'format':
+			continue
+
+		bug = bugs[bugid]
+
+		new_issue = False
+		issue = db.issue(bugid)
+		if issue == None:
+			# Create a new issue
+			new_issue = True
+			issue = {}
+
+		# First process metadata (if it exists) to ensure that the issue exists before handling the comments
+		if 'metadata' in bug.keys():
+			for key in bug['metadata'].keys():
+				if key in ['metadata_modified_at']:
+					continue
+
+				if key in ['_depends_on', '_duplicate_of']:
+					issue[bug_to_nitpick[key]] = ' '.join(bug['metadata'][key])
+				else:
+					issue[bug_to_nitpick[key]] = bug['metadata'][key]
+		if new_issue:
+			db.add_issue(issue, hash=bugid)
+
+		db.save_issue_db()
+		db.load_issue_db()
+
+		if new_issue:
+			existing_comments = []
+		else:
+			existing_comments = db.get_comment_list(bugid)
+
+		for commentid in bug.keys():
+			if commentid == 'metadata':
+				continue
+
+			if commentid in existing_comments:
+				# Comments are immutable and so don't get updated
+				continue
+
+			comment = bug[commentid]
+
+			issue_comment = {}
+			issue_comment['Attachment'] = ''
+			issue_comment['User'] = comment['name']
+			issue_comment['Date'] = format_date(comment['created_at'])
+			issue_comment['content'] = comment['comment']
+			issue_comment['Parent'] = comment['in-reply-to'][0]
+
+			db.add_comment(bugid, issue_comment, hash = commentid)
+
+	db.save_issue_db()
 	return True
 
 if __name__ == '__main__':
@@ -2469,6 +2594,10 @@ if __name__ == '__main__':
 	export_cmd = subcmds.add_parser('export', help='Export given bug')
 	export_cmd.add_argument('issue')
 	export_cmd.set_defaults(func=cmd_export)
+
+	import_cmd = subcmds.add_parser('import', help='Import all bugs in bug file')
+	import_cmd.add_argument('bugfile')
+	import_cmd.set_defaults(func=cmd_import)
 
 	args = parser.parse_args()
 	result = args.func(args)
