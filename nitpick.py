@@ -630,7 +630,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		issue = parse_file(db.issue(issue_hash)['path'] + '/issue')
 
-		self.output('<p><a href="/">Back to issue list</a></p>\n')
+		self.output('<p><a href="/">Back to issue list</a> ')
+		self.output('<a href="/export/%s.bug">Export</a></p>\n' % issue_hash)
 
 		self.output('<form action="/update_issue" method="post">\n')
 		self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue_hash)
@@ -950,6 +951,24 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.send_response(404)
 		self.end_headers()
 
+	def export(self):
+		db.load_issue_db()
+
+		args = self.path.split('/')
+		issue = db.disambiguate_hash(args[-1].split('.')[-2])
+
+		if issue == None or issue == '':
+			self.start_doc('Error')
+			self.output('Invalid arguments')
+			self.end_doc()
+			return
+
+		self.send_response(200)
+		self.send_header('Content-Type', 'application/json')
+		self.end_headers()
+
+		self.wfile.write(format_issue_for_export(issue))
+
 	def add_comment_post(self):
 		db.load_issue_db()
 
@@ -1213,6 +1232,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.attachment()
 		elif '/favicon.ico' == self.path:
 			self.favicon()
+		elif '/export/' in self.path:
+			self.export()
 		else:
 			print "Got unhandled get path %s" % self.path
 			self.root()
