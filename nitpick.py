@@ -1911,7 +1911,7 @@ def cmd_init(args):
 	backend = BACKENDS[args.vcs]
 	config.db_path = args.dir + '/'
 
-	def_config = {'vcs' : args.vcs}
+	def_config = {'vcs' : args.vcs, 'project_name' : 'Nitpick Project'}
 	for key in default_config.keys():
 		def_config[key] = ' '.join(default_config[key])
 
