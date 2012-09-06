@@ -2265,20 +2265,7 @@ def cmd_web(args):
 
 	return True
 
-def cmd_export(args):
-	if config.db_path == '':
-		return False
-
-	load_db()
-
-	hash = db.disambiguate_hash(args.issue)
-	if hash == None:
-		print "No such issue"
-		return False
-	elif hash == '':
-		print "Ambiguous issue ID. Please use a longer string"
-		return False
-
+def format_issue_for_export(hash):
 	issue = parse_file(config.db_path + hash[0] + '/' + hash[1] + '/' + hash + '/issue')
 
 	def format_date(date):
@@ -2356,7 +2343,24 @@ def cmd_export(args):
 
 		parent_stack.append(comment['hash'])
 
-	print json.dumps(bug, sort_keys=True, indent=4)
+	return json.dumps(bug, sort_keys=True, indent=4)
+
+def cmd_export(args):
+	if config.db_path == '':
+		return False
+
+	load_db()
+
+	hash = db.disambiguate_hash(args.issue)
+	if hash == None:
+		print "No such issue"
+		return False
+	elif hash == '':
+		print "Ambiguous issue ID. Please use a longer string"
+		return False
+
+	print format_issue_for_export(hash)
+
 	return True
 
 if __name__ == '__main__':
