@@ -2264,42 +2264,44 @@ def cmd_web(args):
 
 		return pslist
 
-	# Try to start a webbrowser to look at the UI
-	url = 'http://localhost:%d' % args.port
-	browser = None
-	if sys.platform == 'darwin': # Assume OSX
-		os.system('open %s' % url)
-	elif os.name == 'posix': # Assume Unix-like
-		if 'DISPLAY' in os.environ.keys() and os.environ['DISPLAY'] != "":
-			# Try a graphical browser first
-			
-			# If there is one running, it's the preferred one
-			ps = get_process_list()
-			for prog in POSIX_GUI_BROWSERS:
-				if prog[0] in ps:
-					try:
-						browser = subprocess.Popen([prog[1], url])
-						break
-					except:
-						pass
+        url = 'http://localhost:%d' % args.port
+        browser = None
 
-			# No known browser was running, try starting one
-			if not browser:
-				for prog in POSIX_GUI_BROWSERS:
-					try:
-						browser = subprocess.Popen([prog[1], url])
-						break
-					except:
-						pass
-			
-		# We haven't started a GUI browser, try a CLI browser
-		if not browser:
-			for prog in POSIX_CLI_BROWSERS:
-				try:
-					browser = subprocess.Popen([prog, url])
-					break
-				except:
-					pass
+        if not args.noopen:
+            # Try to start a webbrowser to look at the UI
+            if sys.platform == 'darwin': # Assume OSX
+                    os.system('open %s' % url)
+            elif os.name == 'posix': # Assume Unix-like
+                    if 'DISPLAY' in os.environ.keys() and os.environ['DISPLAY'] != "":
+                            # Try a graphical browser first
+                            
+                            # If there is one running, it's the preferred one
+                            ps = get_process_list()
+                            for prog in POSIX_GUI_BROWSERS:
+                                    if prog[0] in ps:
+                                            try:
+                                                    browser = subprocess.Popen([prog[1], url])
+                                                    break
+                                            except:
+                                                    pass
+
+                            # No known browser was running, try starting one
+                            if not browser:
+                                    for prog in POSIX_GUI_BROWSERS:
+                                            try:
+                                                    browser = subprocess.Popen([prog[1], url])
+                                                    break
+                                            except:
+                                                    pass
+                            
+                    # We haven't started a GUI browser, try a CLI browser
+                    if not browser:
+                            for prog in POSIX_CLI_BROWSERS:
+                                    try:
+                                            browser = subprocess.Popen([prog, url])
+                                            break
+                                    except:
+                                            pass
 	
 	while not config.endweb:
 		server.handle_request()
@@ -2596,6 +2598,7 @@ if __name__ == '__main__':
 	web_cmd = subcmds.add_parser('web', help='Start nitpick web interface')
 	web_cmd.add_argument('--port', type=int, default=18080, help='Start the web server on the given port. Default 18080')
 	web_cmd.add_argument('--browser', help='Command to use to open web interface in browser')
+        web_cmd.add_argument('--noopen', action='store_true', help='Do not open a browser')
 	web_cmd.set_defaults(func=cmd_web)
 
 	export_cmd = subcmds.add_parser('export', help='Export given bug')
