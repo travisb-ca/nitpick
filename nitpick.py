@@ -2462,7 +2462,6 @@ def cmd_import(args):
 		bug = bugs[bugid]
 
 		safe_bugid = urllib.quote(bugid, '')
-		print safe_bugid
 
 		new_issue = False
 		issue = db.issue(safe_bugid)
