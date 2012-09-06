@@ -1,0 +1,7 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-09-06 04:11:34
+Parent: issue
+User: travisb@travisbrown.ca
+--
+Nitpick supports the portable bug interchange format natively. The description of this format and conversion tools can be found at https://github.com/travisb-ca/bug_interchange
