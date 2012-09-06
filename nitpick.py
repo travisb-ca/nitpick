@@ -2479,6 +2479,8 @@ def cmd_import(args):
 
 				if key in ['_depends_on', '_duplicate_of']:
 					issue[bug_to_nitpick[key]] = ' '.join(bug['metadata'][key])
+				elif key in ['created_at']:
+					issue[bug_to_nitpick[key]] = format_date(bug['metadata'][key])
 				else:
 					issue[bug_to_nitpick[key]] = bug['metadata'][key]
 		if new_issue:
