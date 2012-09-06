@@ -6,10 +6,10 @@ Fix_By: 1.1
 Owner: travisb@travisbrown.ca
 Priority: 4
 Reported_By: travisb@travisbrown.ca
-Resolution: None
+Resolution: Fixed
 Seen_In_Build: 
 Severity: Major
-State: Open
+State: Closed
 Title: Synchronize with external bug trackers
 Type: Feature
 --
