@@ -1,0 +1,18 @@
+Component: Core
+Date: 2012-09-06 03:40:17
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.1
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Major
+State: Open
+Title: Straighten out timezones
+Type: Bug
+--
+The timestamp format handling is a bit fast and loose. Currently all timestamps are stored in a GMT time format without timezone information. Additionally the bug interchange import code doesn't parse all the various necessary formats.
+
+This needs to be dealt with and normalized. Dates should be shown either adjusted to local time or with timezone information. The bug import code should support all the necessary format options for ISO8601.
