@@ -2355,25 +2355,27 @@ def format_issue_for_export(hash):
 	def format_date(date):
 		return datetime.datetime.fromtimestamp(time.mktime(time.strptime(date, DATEFORMAT))).isoformat()
 
+	unsafe_hash = urllib.unquote(hash)
+
 	bug = {}
 	bug['format'] = 'http://travisbrown.ca/projects/bug_interchange.txt'
-	bug[hash] = {}
-	bug[hash]['metadata'] = {}
-	bug[hash]['metadata']['metadata_modified_at'] = datetime.datetime.now().isoformat()
-	bug[hash]['metadata']['project_name'] =  config.project_name
-	bug[hash]['metadata']['project_id'] =  db.issue_repo(hash)
+	bug[unsafe_hash] = {}
+	bug[unsafe_hash]['metadata'] = {}
+	bug[unsafe_hash]['metadata']['metadata_modified_at'] = datetime.datetime.now().isoformat()
+	bug[unsafe_hash]['metadata']['project_name'] =  config.project_name
+	bug[unsafe_hash]['metadata']['project_id'] =  db.issue_repo(hash)
 
 
 	for key in issue.keys():
 		if key == 'Date':
-			bug[hash]['metadata'][nitpick_to_bug[key]] = format_date(issue[key])
+			bug[unsafe_hash]['metadata'][nitpick_to_bug[key]] = format_date(issue[key])
 		elif key == 'Depends_On' or key == 'Duplicate_Of':
 			if len(issue[key]) > 0:
-				bug[hash]['metadata'][nitpick_to_bug[key]] = issue[key].split(' ')
+				bug[unsafe_hash]['metadata'][nitpick_to_bug[key]] = issue[key].split(' ')
 			else:
-				bug[hash]['metadata'][nitpick_to_bug[key]] = []
+				bug[unsafe_hash]['metadata'][nitpick_to_bug[key]] = []
 		else:
-			bug[hash]['metadata'][nitpick_to_bug[key]] = issue[key]
+			bug[unsafe_hash]['metadata'][nitpick_to_bug[key]] = issue[key]
 
 	comment_stack = db.produce_comment_tree(hash)
 	comment_stack.reverse()
@@ -2391,13 +2393,13 @@ def format_issue_for_export(hash):
 		while parent_stack[-1] != comment['Parent']:
 			parent_stack.pop()
 
-		chash = comment['hash']
-		bug[hash][chash] = {}
-		bug[hash][chash]['name'] = comment['User']
-		bug[hash][chash]['created_at'] = format_date(comment['Date'])
-		bug[hash][chash]['comment'] = comment['content']
-		bug[hash][chash]['in-reply-to'] = copy.copy(parent_stack)[-5:]
-		bug[hash][chash]['in-reply-to'].reverse()
+		chash = urllib.unquote(comment['hash'])
+		bug[unsafe_hash][chash] = {}
+		bug[unsafe_hash][chash]['name'] = comment['User']
+		bug[unsafe_hash][chash]['created_at'] = format_date(comment['Date'])
+		bug[unsafe_hash][chash]['comment'] = comment['content']
+		bug[unsafe_hash][chash]['in-reply-to'] = copy.copy(parent_stack)[-5:]
+		bug[unsafe_hash][chash]['in-reply-to'].reverse()
 
 		comment['children'].reverse()
 		comment_stack.extend(comment['children'])
@@ -2459,8 +2461,11 @@ def cmd_import(args):
 
 		bug = bugs[bugid]
 
+		safe_bugid = urllib.quote(bugid, '')
+		print safe_bugid
+
 		new_issue = False
-		issue = db.issue(bugid)
+		issue = db.issue(safe_bugid)
 		if issue == None:
 			# Create a new issue
 			new_issue = True
@@ -2477,7 +2482,7 @@ def cmd_import(args):
 				else:
 					issue[bug_to_nitpick[key]] = bug['metadata'][key]
 		if new_issue:
-			db.add_issue(issue, hash=bugid)
+			db.add_issue(issue, hash=safe_bugid)
 
 		db.save_issue_db()
 		db.load_issue_db()
@@ -2485,7 +2490,7 @@ def cmd_import(args):
 		if new_issue:
 			existing_comments = []
 		else:
-			existing_comments = db.get_comment_list(bugid)
+			existing_comments = db.get_comment_list(safe_bugid)
 
 		for commentid in bug.keys():
 			if commentid == 'metadata':
@@ -2504,7 +2509,8 @@ def cmd_import(args):
 			issue_comment['content'] = comment['comment']
 			issue_comment['Parent'] = comment['in-reply-to'][0]
 
-			db.add_comment(bugid, issue_comment, hash = commentid)
+			safe_commentid = urllib.quote(commentid, '')
+			db.add_comment(safe_bugid, issue_comment, hash = safe_commentid)
 
 	db.save_issue_db()
 	return True
