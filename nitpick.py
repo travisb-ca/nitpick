@@ -221,7 +221,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			""" % (title, focus_script)
 
 	def html_postamble(self):
-		return """</body></html>"""
+		return """Tracked by <a href="http://travisbrown.ca/projects/nitpick/docs/nitpick.html">Nitpick</a></body></html>"""
 
 	def output(self, string):
 		self.wfile.write(string)
