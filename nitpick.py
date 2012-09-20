@@ -2314,7 +2314,7 @@ def cmd_web(args):
 nitpick_to_bug = {
 	'Title'         : 'title',
 	'Date'          : 'created_at',
-	'State'         : 'state',
+	'State'         : 'status',
 	'Severity'      : 'severity',
 	'Component'     : 'component',
 	'Reported_By'   : 'reporter',
@@ -2334,7 +2334,7 @@ nitpick_to_bug = {
 bug_to_nitpick = {
 	'title'         : 'Title',
 	'created_at'    : 'Date',
-	'state'         : 'State',
+	'status'        : 'State',
 	'severity'      : 'Severity',
 	'component'     : 'Component',
 	'reporter'      : 'Reported_By',
