@@ -520,24 +520,38 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			issue_obj = db.issue(issue)
 
 			if sort_field == 'Component':
+				if issue_obj['Component'] not in config.issues['components']:
+					return 0
 				return config.issues['components'].index(issue_obj['Component'])
 
 			if sort_field == 'Fix_By':
+				if issue_obj['Fix_By'] not in config.issues['fix_by']:
+					return 0
 				return config.issues['fix_by'].index(issue_obj['Fix_By'])
 
 			if sort_field == 'Severity':
+				if issue_obj['Severity'] not in config.issues['severity']:
+					return 0
 				return config.issues['severity'].index(issue_obj['Severity'])
 
 			if sort_field == 'Priority':
+				if issue_obj['Priority'] not in config.issues['priority']:
+					return 0
 				return config.issues['priority'].index(issue_obj['Priority'])
 
 			if sort_field == 'State':
+				if issue_obj['State'] not in config.issues['state']:
+					return 0
 				return config.issues['state'].index(issue_obj['State'])
 
 			if sort_field == 'Resolution':
+				if issue_obj['Resolution'] not in config.issues['resolution']:
+					return 0
 				return config.issues['resolution'].index(issue_obj['Resolution'])
 
 			if sort_field == 'Type':
+				if issue_obj['Type'] not in config.issues['type']:
+					return 0
 				return config.issues['type'].index(issue_obj['Type'])
 
 			if sort_field == 'Date':
@@ -2470,7 +2484,23 @@ def cmd_import(args):
 		if issue == None:
 			# Create a new issue
 			new_issue = True
-			issue = {}
+			issue = {
+				'Title'         : 'Issue title',
+				'Severity'      : config.issues['severity'][0],
+				'Priority'      : config.issues['priority'][0],
+				'State'         : config.issues['state'][0],
+				'Type'          : config.issues['type'][0],
+				'Resolution'    : config.issues['resolution'][0],
+				'Component'     : config.issues['components'][0],
+				'Fix_By'        : config.issues['fix_by'][0],
+				'Seen_In_Build' : '',
+				'Date'          : time.strftime(DATEFORMAT, time.gmtime()),
+				'Owner'         : config.users[0],
+				'Reported_By'   : config.username,
+				'Depends_On'    : '',
+				'Duplicate_Of'  : '',
+				'content'       : 'Enter description here'
+				}
 
 		# First process metadata (if it exists) to ensure that the issue exists before handling the comments
 		if 'metadata' in bug.keys():
