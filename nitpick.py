@@ -315,7 +315,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		filter_fix_by     = []
 		filter_severity   = []
 		filter_priority   = []
-		filter_state      = []
+		filter_state      = config.issues['state'][:-1] # Don't show closed items by default
 		filter_resolution = []
 		filter_type       = []
 		filter_owner      = []
