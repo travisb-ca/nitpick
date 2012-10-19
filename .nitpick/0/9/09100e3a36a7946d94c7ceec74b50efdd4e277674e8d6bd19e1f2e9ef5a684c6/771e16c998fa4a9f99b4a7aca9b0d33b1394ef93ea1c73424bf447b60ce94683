@@ -1,0 +1,7 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-10-19 04:26:06
+Parent: issue
+User: travisb@travisbrown.ca
+--
+I've decided not to flatten the dependency graph. It's fairly complicated (since the graph is arbitrary) for little gain. One level seems to be sufficient for common cases.
