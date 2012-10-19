@@ -1797,6 +1797,29 @@ class IssueDB:
 			duplicate_issues = self.issue(issue)['Duplicate_Of'] + ' '
 		duplicate_issues += self.issue_duplicate_of(issue)
 
+		issue_list = duplicate_issues.split(' ')
+		for i in issue_list:
+			if i == '':
+				continue
+			if len(self.issue(i)['Duplicate_Of']) > 10:
+				duplicate_issues += self.issue(i)['Duplicate_Of'] + ' '
+			duplicate_issues += self.issue_duplicate_of(i)
+
+		issues = duplicate_issues.split(' ')
+
+		try:
+			issues.remove('')
+		except:
+			pass
+
+		try:
+			while True:
+				issues.remove(issue)
+		except:
+			pass
+
+		duplicate_issues = ' '.join(set(issues))
+
 		return duplicate_issues
 
 	# Take an issue dict and add it to the system. Does not commit.

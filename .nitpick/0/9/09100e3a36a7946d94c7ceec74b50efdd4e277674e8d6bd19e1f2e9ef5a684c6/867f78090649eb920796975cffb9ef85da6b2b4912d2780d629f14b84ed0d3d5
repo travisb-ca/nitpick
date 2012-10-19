@@ -1,0 +1,7 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-10-19 04:18:17
+Parent: issue
+User: travisb@travisbrown.ca
+--
+I've flattened the duplicate list. Now the entire reachable graph of duplicates will be shown as duplicate for an issue.
