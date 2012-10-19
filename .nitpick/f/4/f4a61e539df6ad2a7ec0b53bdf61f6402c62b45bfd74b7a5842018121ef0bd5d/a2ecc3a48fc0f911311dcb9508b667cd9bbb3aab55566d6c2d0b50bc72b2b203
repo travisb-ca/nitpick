@@ -1,0 +1,7 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-10-19 04:59:08
+Parent: issue
+User: travisb@travisbrown.ca
+--
+The most obvious way to remember settings between views of the index is to stash this in a cookie. This doesn't work for two reasons. The first is that it won't be different between browser sessions (ie. one browser can't have two different tabs open and keep different index settings). The second is that it would be difficult to shoehorn into the code layout since the output isn't buffered and you can't set headers after you send the html preamble.
