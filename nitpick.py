@@ -60,6 +60,7 @@ class config:
 	users = ['Unassigned']
 	vcs = None
 	project_name = 'Nitpick Project'
+	use_gantt = False
 	db_path = ''
 	username = ''
 	endweb = False
@@ -1488,6 +1489,12 @@ def _load_config(repo_path):
 		if 'project_name' in conf.keys():
 			config.project_name = conf['project_name']
 
+	if config.use_gantt == False and 'gantt' in conf.keys():
+		if conf['gantt'] == 'True':
+			config.use_gantt = True
+		else:
+			config.use_gantt = False
+
 	config.users = []
 	for line in fileinput.input(repo_path + 'config/users'):
 		if line != '\n' and line not in config.users:
@@ -1948,7 +1955,12 @@ def cmd_init(args):
 	backend = BACKENDS[args.vcs]
 	config.db_path = args.dir + '/'
 
-	def_config = {'vcs' : args.vcs, 'project_name' : 'Nitpick Project'}
+	def_config = {
+			'vcs'          : args.vcs,
+			'project_name' : 'Nitpick Project',
+			'gantt'        : False,
+		}
+
 	for key in default_config.keys():
 		def_config[key] = ' '.join(default_config[key])
 

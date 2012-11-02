@@ -36,6 +36,9 @@ type         - The various types of issues
                Default: Bug Feature Regression
 project_name - The human readable name of the project to use when exporting bugs
                Default: Nitpick Project
+gantt        - True or False, enable the UI options for producing Gantt charts with
+               scheduling information.
+	       Default: False
 
 The users file simply contains the list of selectable users, one per line, in a
 free form. By default the only user is the Unassigned user.
