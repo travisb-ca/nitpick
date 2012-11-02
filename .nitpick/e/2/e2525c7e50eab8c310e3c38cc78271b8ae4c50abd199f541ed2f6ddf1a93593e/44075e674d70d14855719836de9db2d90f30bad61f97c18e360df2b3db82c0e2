@@ -1,0 +1,9 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-11-02 04:39:57
+Parent: issue
+User: travisb@travisbrown.ca
+--
+One critical feature is some way to produce a project Gantt chart for a project overview.
+
+The use of this is to give a PM or interested developer a view of the critical path as currently assigned and some idea of how feasible the current schedule is. It would also be useful in determining what work is getting done.

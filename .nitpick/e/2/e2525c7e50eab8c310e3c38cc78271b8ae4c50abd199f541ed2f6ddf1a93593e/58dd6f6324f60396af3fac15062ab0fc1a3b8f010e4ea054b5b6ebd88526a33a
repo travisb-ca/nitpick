@@ -1,0 +1,9 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-11-02 05:22:54
+Parent: 44075e674d70d14855719836de9db2d90f30bad61f97c18e360df2b3db82c0e2
+User: travisb@travisbrown.ca
+--
+Resource balancing should be done by a human, it's simply too much work to automatically enter skill equivalences. The UI for this would be to click on the issue in the Gantt chart and it would open the bug. The user could then change the owner of the issue and recompute the Gantt chart.
+
+Of course the critical path should be specially coloured.

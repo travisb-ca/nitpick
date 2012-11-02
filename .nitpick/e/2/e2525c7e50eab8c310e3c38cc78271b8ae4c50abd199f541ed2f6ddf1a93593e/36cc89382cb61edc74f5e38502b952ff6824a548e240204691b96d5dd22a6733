@@ -1,0 +1,9 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-11-02 04:44:53
+Parent: issue
+User: travisb@travisbrown.ca
+--
+Another critical feature is a list of "What should I work on Next?". This would be a list of suggested issues for a developer to work on in the order that they should be done.
+
+This should take into account schedule needs, including scheduling between other developers, dependencies (ie. don't suggest an item with an unmet dependency) and arbitrary due dates (which could be Fix_by milestones).

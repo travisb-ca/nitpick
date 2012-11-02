@@ -1,0 +1,9 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-11-02 05:17:44
+Parent: issue
+User: travisb@travisbrown.ca
+--
+This feature should also automatically produce reasonable schedule dates for any particular item. This would be useful when using Nitpick as a personal scheduler, perhaps as part of a larger project.
+
+The idea is that you fill in the scheduling information and then any particular issue would have a reasonable finish date computed.

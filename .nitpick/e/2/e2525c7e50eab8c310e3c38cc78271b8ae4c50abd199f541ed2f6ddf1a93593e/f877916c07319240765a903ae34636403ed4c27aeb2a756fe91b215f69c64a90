@@ -1,0 +1,16 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-11-02 05:19:40
+Parent: 44075e674d70d14855719836de9db2d90f30bad61f97c18e360df2b3db82c0e2
+User: travisb@travisbrown.ca
+--
+To produce a Gantt chart any particular issue needs:
+- An owner
+- An estimated time of work
+- An estimated current completion
+- A started timestamp
+- A finished timestamp
+
+Every user also must have a number of hours per day (likely for any day of the week) they will be working on this project.
+
+Every Fix_By also requires a deadline so a critical path can be computed, though the system should attempt to find the minimum time option. Assuming that any single person will only ever work on a single issue at a time is reasonable.
