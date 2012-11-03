@@ -61,7 +61,7 @@ Issue:
 	- Title
 	- Type
 	- Units_of_Work
-	- Completion
+	- Percent_Complete
 	o Description
 
 Comment:

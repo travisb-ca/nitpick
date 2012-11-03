@@ -706,8 +706,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('<input type="number" name="units_of_work" value="%s" min="0" %s/></p>\n' % (issue['Units_of_Work'], hide))
 
 		if config.use_gantt:
-			self.output('<p>Completion: ')
-		self.output('<input type="number" name="completion" value="%s" min="0" max="100" %s/></p>\n' % (issue['Completion'], hide))
+			self.output('<p>Percent_Complete: ')
+		self.output('<input type="number" name="percent_complete" value="%s" min="0" max="100" %s/></p>\n' % (issue['Percent_Complete'], hide))
 
 		self.output('</div>\n')
 
@@ -947,8 +947,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('<input type="number" name="units_of_work" value="1000" min="0" %s/></p>\n' % hide)
 
 		if config.use_gantt:
-			self.output('<p>Completion: ')
-		self.output('<input type="number" name="completion" value="0" min="0" max="100" %s/></p>\n' % hide)
+			self.output('<p>Percent_Complete: ')
+		self.output('<input type="number" name="percent_complete" value="0" min="0" max="100" %s/></p>\n' % hide)
 
 		self.output('</div>\n')
 
@@ -1070,7 +1070,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		   'depends_on' not in self.request_args.keys() or \
 		   'duplicate_of' not in self.request_args.keys() or \
 		   'units_of_work' not in self.request_args.keys() or \
-		   'completion' not in self.request_args.keys() or \
+		   'percent_complete' not in self.request_args.keys() or \
 		   'fix_by' not in self.request_args.keys():
 			   self.start_doc('Error')
 			   self.output('Invalid arguments')
@@ -1089,7 +1089,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			db.issue(issue)['Depends_On'] == self.request_args['depends_on'] and \
 			db.issue(issue)['Duplicate_Of'] == self.request_args['duplicate_of'] and \
 			db.issue(issue)['Units_of_Work'] == self.request_args['units_of_work'] and \
-			db.issue(issue)['Completion'] == self.request_args['completion'] and \
+			db.issue(issue)['Percent_Complete'] == self.request_args['percent_complete'] and \
 			db.issue(issue)['Fix_By'] == self.request_args['fix_by']:
 				self.start_doc('No change')
 				self.output('<p>No change sent, no change made</p>')
@@ -1121,14 +1121,14 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				self.end_doc()
 				return
 			db.change_issue(issue, 'Units_of_Work', self.request_args['units_of_work'])
-		if db.issue(issue)['Completion'] != self.request_args['completion']:
-			if float(self.request_args['completion']) < 0 or float(self.request_args['completion']) > 100:
+		if db.issue(issue)['Percent_Complete'] != self.request_args['percent_complete']:
+			if float(self.request_args['percent_complete']) < 0 or float(self.request_args['percent_complete']) > 100:
 				self.start_doc('Invalid value')
-				self.output('<p>Invalid value for Completion %s. Must be between 0 and 100</p>' % self.request_args['completion'])
+				self.output('<p>Invalid value for Percent_Complete %s. Must be between 0 and 100</p>' % self.request_args['percent_complete'])
 				self.output('<a href="/issue/%s">Back to issue %s</a>\n' % (issue, issue[:8]))
 				self.end_doc()
 				return
-			db.change_issue(issue, 'Completion', self.request_args['completion'])
+			db.change_issue(issue, 'Percent_Complete', self.request_args['percent_complete'])
 
 		# Returns a string of issues if valid, or None if invalid
 		def check_issue_list_string(issues):
@@ -1191,7 +1191,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		   'depends_on' not in self.request_args.keys() or \
 		   'duplicate_of' not in self.request_args.keys() or \
 		   'units_of_work' not in self.request_args.keys() or \
-		   'completion' not in self.request_args.keys() or \
+		   'percent_complete' not in self.request_args.keys() or \
 		   (db.has_foreign() and ('repo' not in self.request_args.keys() or \
 		   	self.request_args['repo'] not in db.repos())) or \
 		   'content' not in self.request_args.keys():
@@ -1206,9 +1206,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.end_doc()
 			return
 
-		if float(self.request_args['completion']) < 0 or float(self.request_args['completion']) > 100:
+		if float(self.request_args['percent_complete']) < 0 or float(self.request_args['percent_complete']) > 100:
 			self.start_doc('Invalid value')
-			self.output('<p>Invalid value for Completion %s. Must be between 0 and 100</p>' % self.request_args['completion'])
+			self.output('<p>Invalid value for Percent_Complete %s. Must be between 0 and 100</p>' % self.request_args['percent_complete'])
 			self.end_doc()
 			return
 
@@ -1228,7 +1228,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				'Depends_On' : self.request_args['depends_on'],
 				'Duplicate_Of' : self.request_args['duplicate_of'],
 				'Units_of_Work' : self.request_args['units_of_work'],
-				'Completion' : self.request_args['completion'],
+				'Percent_Complete' : self.request_args['percent_complete'],
 				'content' : self.request_args['content']
 			}
 
