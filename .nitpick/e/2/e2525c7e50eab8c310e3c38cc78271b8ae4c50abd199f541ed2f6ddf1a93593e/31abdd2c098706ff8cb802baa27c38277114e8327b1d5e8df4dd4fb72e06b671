@@ -1,0 +1,11 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-11-03 17:32:00
+Parent: f877916c07319240765a903ae34636403ed4c27aeb2a756fe91b215f69c64a90
+User: travisb@travisbrown.ca
+--
+From the discussion here (http://curtis.lassam.net/pierc/#id-790719) is seems that it could be useful to support non hour based time measurements. Specifically complexity based estimates.
+
+If we allow integer values for time estimation of a project (nominally hours) and further allow float values for the time a dev has available on any particular average day of the week then we can either have that scaleless number represent hours or complexity units.
+
+This would enable the Agile style Planning Poker.
