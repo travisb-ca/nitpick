@@ -60,6 +60,8 @@ Issue:
 	- State
 	- Title
 	- Type
+	- Units_of_Work
+	- Completion
 	o Description
 
 Comment:

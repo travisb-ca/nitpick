@@ -696,6 +696,19 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.output('<p>Duplicate_Of: %s</p>\n' % shorten_and_link_issues(duplicate_issues))
 		self.output('<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<textarea rows="1" cols="70" name="duplicate_of">%s</textarea></p>\n' % issue['Duplicate_Of'])
+
+		hide = ''
+		if not config.use_gantt:
+			hide = 'hidden="yes"'
+
+		if config.use_gantt:
+			self.output('<p>Units_of_Work: ')
+		self.output('<input type="number" name="units_of_work" value="%s" min="0" %s/></p>\n' % (issue['Units_of_Work'], hide))
+
+		if config.use_gantt:
+			self.output('<p>Completion: ')
+		self.output('<input type="number" name="completion" value="%s" min="0" max="100" %s/></p>\n' % (issue['Completion'], hide))
+
 		self.output('</div>\n')
 
 		self.output('<input type="submit" value="Update" />\n')
@@ -924,6 +937,19 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.output('<p>Depends_On: <input type="text" name="depends_on" value=""/></p>\n')
 		self.output('<p>Duplicate_Of: <input type="text" name="duplicate_of" value=""/></p>\n')
+
+		hide = ''
+		if not config.use_gantt:
+			hide = 'hidden="yes"'
+
+		if config.use_gantt:
+			self.output('<p>Units_of_Work: ')
+		self.output('<input type="number" name="units_of_work" value="1000" min="0" %s/></p>\n' % hide)
+
+		if config.use_gantt:
+			self.output('<p>Completion: ')
+		self.output('<input type="number" name="completion" value="0" min="0" max="100" %s/></p>\n' % hide)
+
 		self.output('</div>\n')
 
 		self.output('<div class="new_issue_text_wrapper"><p><textarea name="content" rows="20" cols="80">Enter description here</textarea></p>\n')
@@ -1043,6 +1069,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		   'resolution' not in self.request_args.keys() or \
 		   'depends_on' not in self.request_args.keys() or \
 		   'duplicate_of' not in self.request_args.keys() or \
+		   'units_of_work' not in self.request_args.keys() or \
+		   'completion' not in self.request_args.keys() or \
 		   'fix_by' not in self.request_args.keys():
 			   self.start_doc('Error')
 			   self.output('Invalid arguments')
@@ -1060,6 +1088,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			db.issue(issue)['Resolution'] == self.request_args['resolution'] and \
 			db.issue(issue)['Depends_On'] == self.request_args['depends_on'] and \
 			db.issue(issue)['Duplicate_Of'] == self.request_args['duplicate_of'] and \
+			db.issue(issue)['Units_of_Work'] == self.request_args['units_of_work'] and \
+			db.issue(issue)['Completion'] == self.request_args['completion'] and \
 			db.issue(issue)['Fix_By'] == self.request_args['fix_by']:
 				self.start_doc('No change')
 				self.output('<p>No change sent, no change made</p>')
@@ -1083,6 +1113,10 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			db.change_issue(issue, 'Resolution', self.request_args['resolution'])
 		if db.issue(issue)['Fix_By'] != self.request_args['fix_by']:
 			db.change_issue(issue, 'Fix_By', self.request_args['fix_by'])
+		if db.issue(issue)['Units_of_Work'] != self.request_args['units_of_work']:
+			db.change_issue(issue, 'Units_of_Work', self.request_args['units_of_work'])
+		if db.issue(issue)['Completion'] != self.request_args['completion']:
+			db.change_issue(issue, 'Completion', self.request_args['completion'])
 
 		# Returns a string of issues if valid, or None if invalid
 		def check_issue_list_string(issues):
@@ -1144,6 +1178,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		   'reported_by' not in self.request_args.keys() or \
 		   'depends_on' not in self.request_args.keys() or \
 		   'duplicate_of' not in self.request_args.keys() or \
+		   'units_of_work' not in self.request_args.keys() or \
+		   'completion' not in self.request_args.keys() or \
 		   (db.has_foreign() and ('repo' not in self.request_args.keys() or \
 		   	self.request_args['repo'] not in db.repos())) or \
 		   'content' not in self.request_args.keys():
@@ -1167,6 +1203,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				'Reported_By' : self.request_args['reported_by'],
 				'Depends_On' : self.request_args['depends_on'],
 				'Duplicate_Of' : self.request_args['duplicate_of'],
+				'Units_of_Work' : self.request_args['units_of_work'],
+				'Completion' : self.request_args['completion'],
 				'content' : self.request_args['content']
 			}
 
@@ -2017,6 +2055,8 @@ def cmd_new(args):
 			'Reported_By'   : config.username,
 			'Depends_On'    : '',
 			'Duplicate_Of'  : '',
+			'Units_of_Work' : '1000', # A large default value to force people to estimate if they use that feature
+			'Completion'    : '0',
 			'content'       : 'Enter description here'
 		}
 	format_file(config.db_path + 'new.tmp', issue)
