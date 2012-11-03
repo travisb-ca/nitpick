@@ -1114,8 +1114,20 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		if db.issue(issue)['Fix_By'] != self.request_args['fix_by']:
 			db.change_issue(issue, 'Fix_By', self.request_args['fix_by'])
 		if db.issue(issue)['Units_of_Work'] != self.request_args['units_of_work']:
+			if float(self.request_args['units_of_work']) < 0:
+				self.start_doc('Invalid value')
+				self.output('<p>Invalid value for Units_of_Work %s. Must be greater or equal to zero</p>' % self.request_args['units_of_work'])
+				self.output('<a href="/issue/%s">Back to issue %s</a>\n' % (issue, issue[:8]))
+				self.end_doc()
+				return
 			db.change_issue(issue, 'Units_of_Work', self.request_args['units_of_work'])
 		if db.issue(issue)['Completion'] != self.request_args['completion']:
+			if float(self.request_args['completion']) < 0 or float(self.request_args['completion']) > 100:
+				self.start_doc('Invalid value')
+				self.output('<p>Invalid value for Completion %s. Must be between 0 and 100</p>' % self.request_args['completion'])
+				self.output('<a href="/issue/%s">Back to issue %s</a>\n' % (issue, issue[:8]))
+				self.end_doc()
+				return
 			db.change_issue(issue, 'Completion', self.request_args['completion'])
 
 		# Returns a string of issues if valid, or None if invalid
@@ -1187,6 +1199,18 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			   self.output('Invalid arguments')
 			   self.end_doc()
 			   return
+
+		if float(self.request_args['units_of_work']) < 0:
+			self.start_doc('Invalid value')
+			self.output('<p>Invalid value for Units_of_Work %s. Must be greater or equal to zero</p>' % self.request_args['units_of_work'])
+			self.end_doc()
+			return
+
+		if float(self.request_args['completion']) < 0 or float(self.request_args['completion']) > 100:
+			self.start_doc('Invalid value')
+			self.output('<p>Invalid value for Completion %s. Must be between 0 and 100</p>' % self.request_args['completion'])
+			self.end_doc()
+			return
 
 		issue = {
 				'Title' : self.request_args['title'],
