@@ -1,0 +1,32 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-11-03 17:46:47
+Parent: f877916c07319240765a903ae34636403ed4c27aeb2a756fe91b215f69c64a90
+User: travisb@travisbrown.ca
+--
+  Every Fix_By also requires a deadline so a critical path can be computed, though the system should attempt to find the minimum time option. Assuming that any single person will only ever work on a single issue at a time is reasonable.
+
+Let's evaluate why we need each item:
+
+o Owner - Needed so we can schedule in parallel
+
+o Estimated time - Needed so we know how long any particular issue will take
+
+o Current completion - Needed to straddle an issue on the current date line for scheduling. If we don't have this then we must assume when we schedule that any issue is either not yet started or done. This causes problems with lengthy items and causes the schedule to jitter. Of course, if developers don't keep their estimated completion up to date the same happens, but that could happen at a fixed time for the team.
+
+o Started Timestamp - Needed to record when work was started in order to pin the work in realtime in the past. Probably only necessary if you want to show a Gantt chart in the past.
+
+o Completion Timestamp - Needed to record when work actually stopped. Probably only necessary if you want to show the Gantt in the past.
+
+o Units of work per dev per day of week - Necessary to convert the time estimate of an issue into a number of days of work. Must be in the same unit as the work estimate for the issue, but otherwise requires no fixed unit.
+
+o Fix_By requires a name and date. Milestones require a deadline in order so know scheduling priorities. Issues themselves could have deadlines instead, but that would lose the effect of automated scheduling.
+
+
+From the above it seems that start timestamp and end timestamp aren't actually necessary since I don't know of any particular use for Gantt charts of the past. Of course there will still be a record of who did which issue, but pass-offs would be a bit funny. If that level of accuracy is necessary then new issues should be created for sub-issues instead of changing the ownership of a task.
+
+Summary of necessary new information:
+- Estimated units of work for task
+- Estimated percent completion for task
+- Estimated units of work per dev per day of week
+- Fix_By date
