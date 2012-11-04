@@ -1573,12 +1573,10 @@ def _load_config(repo_path):
 			work_units = work_units.group(2)
 
 		name = string.strip(name)
-		print 'name: %s units %s' % (name, work_units)
 
 		if name not in config.users:
 			config.users.append(name)
 			config.users_times[name] = work_units.split(',')
-			print config.users_times
 
 
 # Load the configuration out of the database.
