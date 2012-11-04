@@ -1558,9 +1558,27 @@ def _load_config(repo_path):
 			config.use_gantt = False
 
 	config.users = []
+	config.users_times = {}
 	for line in fileinput.input(repo_path + 'config/users'):
-		if line != '\n' and line not in config.users:
-			config.users.append(string.strip(line))
+		if line == '\n':
+			continue
+
+		work_units = re.search('(.*) \(([0-9.]+,[0-9.]+,[0-9.]+,[0-9.]+,[0-9.]+,[0-9.]+,[0-9.]+)\)', line)
+
+		if work_units == None:
+			name = line
+			work_units = '0,0,0,0,0,0,0'
+		else:
+			name = work_units.group(1)
+			work_units = work_units.group(2)
+
+		name = string.strip(name)
+		print 'name: %s units %s' % (name, work_units)
+
+		if name not in config.users:
+			config.users.append(name)
+			config.users_times[name] = work_units.split(',')
+			print config.users_times
 
 
 # Load the configuration out of the database.
