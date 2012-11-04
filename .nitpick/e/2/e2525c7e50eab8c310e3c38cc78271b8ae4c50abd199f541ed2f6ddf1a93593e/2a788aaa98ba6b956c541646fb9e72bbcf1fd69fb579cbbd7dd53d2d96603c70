@@ -1,0 +1,7 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-11-04 03:51:32
+Parent: a02bf5dbb6f11357b661aff58a1637c25b8c22b50f26c0b5a812ab5aab36ba56
+User: travisb@travisbrown.ca
+--
+One situation where multiple columns would be useful is when a developer has some tasks partially complete, but they've come upon a new dependency and had to stop. In that case the partially complete issue could have the work remaining start whenever the dependency is expected to be resolved with the completed portion above it, showing completion status. Since there would be two tasks listed for the same time period (some amount of work-to-be-done on its own in the developer row and the work-to-be-done of some other task overlapping the already completed work of the first issue.

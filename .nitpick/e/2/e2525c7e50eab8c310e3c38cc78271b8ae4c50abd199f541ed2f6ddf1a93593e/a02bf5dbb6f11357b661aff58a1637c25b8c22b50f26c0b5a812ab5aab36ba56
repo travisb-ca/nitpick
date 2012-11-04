@@ -1,0 +1,9 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-11-04 03:40:14
+Parent: f1695376f06823ab5cc6b9ad08b5e1ce85fcd62eee88c728f0cecbc41901ad39
+User: travisb@travisbrown.ca
+--
+After drawing some samples I don't think having a secondary grouping per person is valuable. Better to have one column per person with one task after another. Tasks should be colour coded for the Fix_By they are due for. On mouseover of one item it'd be very useful to highlight every task in the subtree, that is, every task the selected task depends upon and every task which depends upon the selected task.
+
+I suppose that this isn't a Gantt chart at all, but seems that it would be more useful. It'd be similar to a complex project Gantt chart if it were filtered to a single milestone.
