@@ -1527,6 +1527,8 @@ def format_file(path, data):
 	file.close()
 
 def _load_config(repo_path):
+	config.fix_by_dates = {}
+
 	conf = parse_file(repo_path + 'config/config')
 	for key in ['components', 'fix_by', 'priority', 'severity', 'state', 'resolution', 'type']:
 		if config.issues[key] == []:
@@ -1538,11 +1540,26 @@ def _load_config(repo_path):
 			conf_items = string.split(conf[key], sep = ' ')
 			conf_items.reverse()
 			for item in conf_items:
-				if item not in config.issues[key]:
-					if first_run:
-						config.issues[key].insert(0, item)
+				if key != 'fix_by':
+					item_val = item
+					item_date = ''
+				else:
+					due_date = re.search('(.*)\{([0-9]{4,}-(01|02|03|04|05|06|07|08|09|10|11|12)-([012][1-9]|10|20|30|31))\}', item)
+					if due_date == None:
+						item_val = item
+						item_date = ''
 					else:
-						config.issues[key].insert(-1, item)
+						item_val = due_date.group(1)
+						item_date = due_date.group(2)
+
+				if item_val not in config.issues[key]:
+					if first_run:
+						config.issues[key].insert(0, item_val)
+					else:
+						config.issues[key].insert(-1, item_val)
+					if key == 'fix_by':
+						config.fix_by_dates[item_val] = item_date
+
 	if config.vcs == None:
 		for key in ['vcs']:
 			if key in conf.keys() and conf[key] in BACKENDS:
