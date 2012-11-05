@@ -2033,6 +2033,182 @@ class IssueDB:
 
 		return True
 
+# The object which contains all the scheduling information for the task scheduling.
+class SchedIssue():
+	def __init__(self, issue):
+		self.hash = issue
+		self.issue = db.issue(issue)
+		self.work_units = float(self.issue['Units_of_Work']) * (1 - float(self.issue['Percent_Complete'])/100)
+		self.owner = self.issue['Owner']
+		self.owner_production = config.users_times[self.owner]
+
+		units_per_week = sum([float(i) for i in self.owner_production])
+		if units_per_week == 0:
+			units_per_week = 0.000001
+		self.estimated_work_weeks = self.work_units / units_per_week
+
+		self.critical_work_weeks = -1 # Total number of work weeks this must start before the deadline
+		self.sched_start_date = None # The earliest this can start according to the plan
+		self.sched_end_date = None # When this should be finished given correct estimates and it start at sched_start_date
+
+		self.depends_on = []
+		self.dependent_of = []
+
+	def __repr__(self):
+		return repr({
+			'issue': self.issue,
+			'owner' : self.owner,
+			'owner_production' : self.owner_production,
+			'estimated_work_weeks' : self.estimated_work_weeks,
+			'critical_work_weeks' : self.critical_work_weeks,
+			'sched_start_date' : self.sched_start_date,
+			'sched_end_date' : self.sched_end_date,
+			'depends_on' : self.depends_on,
+			'dependent_of' : self.dependent_of,
+			})
+
+# Use the entire list of issues and return a dictionary of lists, keyed off the owner, of the order
+# issues should be completed. Each of these issues will be a SchedIssue and have various scheduling
+# pieces of information.
+def schedule_all_tasks():
+	print 'Scheduling...'
+	load_db()
+
+	# We only want issues which aren't closed
+	def isnt_closed(issue):
+		if db.issue(issue)['State'] != config.issues['state'][-1]:
+			return True
+		return False
+
+	issue_list = filter(isnt_closed, db.issues())
+	issues = {i: SchedIssue(i) for i in issue_list}
+
+	# Now fill in the dependency graph, the depends_on issues first
+	for issue in issues.values():
+		def f(issue):
+			return issue in issues
+		issue.depends_on = [issues[i] for i in filter(f, issue.issue['Depends_On'].split(' '))]
+
+	# Now fill in the dependent_of issues
+	for issue in issues.values():
+		for i in issue.depends_on:
+			i.dependent_of.append(issue)
+
+	# Now compute the total number of workweeks work must begin before the deadline in order to
+	# make the deadline. We start with the set of tasks which are at the end of the line and
+	# recurse from there.
+	visited_issues = []
+	for issue in filter(lambda i: len(i.dependent_of) == 0, issues.values()):
+		issue.critical_work_weeks = issue.estimated_work_weeks
+
+		task_stack = [(child, issue.critical_work_weeks) for child in issue.depends_on]
+
+		visited_issues.append(issue)
+		while len(task_stack) > 0:
+			i, parent_val = task_stack.pop()
+			work_weeks = max(0.00001, i.estimated_work_weeks)
+			i.critical_work_weeks = max(i.critical_work_weeks, work_weeks + parent_val)
+
+			if i in visited_issues:
+				print "Dependency loop detected in issues %s. Not recursing" % i.hash
+			else:
+				visited_issues.append(issue)
+				task_stack.extend([(child, i.critical_work_weeks) for child in i.depends_on])
+
+	# Now we sort all the issues by the critical number of work weeks in descending order. This
+	# does two things. First it is a topological sort because there are no cycles (tested above)
+	# and issues always have a higher critical_work_weeks value than its dependents.
+	priority_list = sorted(issues.values(), key=lambda i: i.critical_work_weeks, reverse=True)
+	
+	# Now we separate the tasks into a list for each owner. At this time we also configure
+	# initial start and end dates for the tasks. We'll refine these in further steps. We are
+	# careful to ensure that the start and end dates occur on days the owner will be working.
+	timelines = {}
+	today = datetime.date.today()
+	one_day = datetime.timedelta(days=1)
+
+	def move_to_workday(date, work_week):
+		# Returns the actual date to use. This will be incrementally moved ahead to a work
+		# day based upon the work hours of the owner.
+		#
+		# work_week is the owner_production list
+		if work_week == ['0', '0', '0', '0', '0', '0', '0']:
+			# This person never works, so we shouldn't move anything
+			return date
+
+		while work_week[date.weekday()] == '0':
+			date = date + one_day
+
+		return date
+
+	for issue in priority_list:
+		if issue.owner not in timelines:
+			timelines[issue.owner] = []
+
+		# Compute start time
+		if timelines[issue.owner] == []:
+			# Start today because there are no tasks before this one
+			issue.sched_start_date = today
+		else:
+			# Start one day after the last task
+			last_issue = timelines[issue.owner][-1]
+			issue.sched_start_date = last_issue.sched_end_date + one_day
+		issue.sched_start_date = move_to_workday(issue.sched_start_date,
+				issue.owner_production)
+
+		timelines[issue.owner].append(issue)
+
+		# Compute the end time
+		units_remaining = issue.work_units
+		issue.sched_end_date = issue.sched_start_date
+		first = True
+		while units_remaining > 0:
+			if not first:
+				issue.sched_end_date = issue.sched_end_date + one_day
+			else:
+				first = False
+
+			if issue.owner_production == ['0', '0', '0', '0', '0', '0', '0']:
+				# The owner doesn't work, so take forever
+				work_done = 0.001
+			else:
+				work_done = float(issue.owner_production[issue.sched_end_date.weekday()])
+			units_remaining = units_remaining - work_done
+
+	for user in timelines.keys():
+		for issue in timelines[user]:
+			print 'User: %s Issue %s Start: %s End: %s' % (user, issue.hash,
+					issue.sched_start_date, issue.sched_end_date)
+
+	# Now we go through, again following the topological sort, so fix up any dates which don't
+	# match the dependency graph. This can happen if two dependent tasks are owned by different
+	# people.
+	for issue in priority_list:
+		print issue.hash
+		dependency_finish_date = [i.sched_end_date for i in issue.depends_on]
+		if dependency_finish_date == []:
+			dependency_finish_date = today
+		else:
+			dependency_finish_date = max(dependency_finish_date)
+		print dependency_finish_date
+
+		while issue.sched_start_date <= dependency_finish_date:
+			# For each day we have to shift this task, we make sure to shift both the
+			# start and finish and to keep the start and finish on workdays
+			# TODO This doesn't seem right in every case, recheck
+			issue.sched_start_date = issue.sched_start_date + one_day
+			issue.sched_start_date = move_to_workday(issue.sched_start_date,
+					issue.owner_production)
+
+			issue.sched_end_date = issue.sched_end_date + one_day
+			issue.sched_end_date = move_to_workday(issue.sched_end_date,
+					issue.owner_production)
+
+	for user in timelines.keys():
+		for issue in timelines[user]:
+			print 'User: %s Issue %s Start: %s End: %s' % (user, issue.hash,
+					issue.sched_start_date, issue.sched_end_date)
+
 # Ensure that there is an editor to use for editing files
 # Returns None and prints an error if no editor is found.
 # Otherwise returns the editor to use
@@ -2778,5 +2954,6 @@ if __name__ == '__main__':
 		print "Command failed"
 		sys.exit(1)
 	else:
+		schedule_all_tasks()
 		sys.exit(0)
 
