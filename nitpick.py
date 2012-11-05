@@ -2175,6 +2175,7 @@ def schedule_all_tasks():
 				work_done = float(issue.owner_production[issue.sched_end_date.weekday()])
 			units_remaining = units_remaining - work_done
 
+	# TODO remove
 	for user in timelines.keys():
 		for issue in timelines[user]:
 			print 'User: %s Issue %s Start: %s End: %s' % (user, issue.hash,
@@ -2204,6 +2205,7 @@ def schedule_all_tasks():
 			issue.sched_end_date = move_to_workday(issue.sched_end_date,
 					issue.owner_production)
 
+	# TODO remove
 	for user in timelines.keys():
 		for issue in timelines[user]:
 			print 'User: %s Issue %s Start: %s End: %s' % (user, issue.hash,
