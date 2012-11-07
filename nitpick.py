@@ -2196,14 +2196,19 @@ def schedule_all_tasks():
 		while issue.sched_start_date <= dependency_finish_date:
 			# For each day we have to shift this task, we make sure to shift both the
 			# start and finish and to keep the start and finish on workdays
-			# TODO This doesn't seem right in every case, recheck
-			issue.sched_start_date = issue.sched_start_date + one_day
-			issue.sched_start_date = move_to_workday(issue.sched_start_date,
-					issue.owner_production)
+			def is_workday(owner, date):
+				return float(owner[date.weekday()]) > 0
 
-			issue.sched_end_date = issue.sched_end_date + one_day
-			issue.sched_end_date = move_to_workday(issue.sched_end_date,
-					issue.owner_production)
+			if is_workday(issue.owner_production, issue.sched_start_date):
+				issue.sched_end_date = issue.sched_end_date + one_day
+				issue.sched_end_date = move_to_workday(issue.sched_end_date,
+						issue.owner_production)
+
+			issue.sched_start_date = issue.sched_start_date + one_day
+
+		# Ensure that the start is a workday, since it may have been moved onto a weekend
+		issue.sched_start_date = move_to_workday(issue.sched_start_date,
+				issue.owner_production)
 
 	# TODO remove
 	for user in timelines.keys():
