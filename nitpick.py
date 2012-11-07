@@ -2070,6 +2070,8 @@ class SchedIssue():
 # Use the entire list of issues and return a dictionary of lists, keyed off the owner, of the order
 # issues should be completed. Each of these issues will be a SchedIssue and have various scheduling
 # pieces of information.
+#
+# Returns None if there is a loop.
 def schedule_all_tasks():
 	print 'Scheduling...'
 	load_db()
@@ -2098,22 +2100,28 @@ def schedule_all_tasks():
 	# make the deadline. We start with the set of tasks which are at the end of the line and
 	# recurse from there.
 	visited_issues = []
-	for issue in filter(lambda i: len(i.dependent_of) == 0, issues.values()):
-		issue.critical_work_weeks = issue.estimated_work_weeks
+	task_stack = filter(lambda i: len(i.dependent_of) == 0, issues.values())
+	task_stack = [(i, 0) for i in task_stack]
 
-		task_stack = [(child, issue.critical_work_weeks) for child in issue.depends_on]
+	while len(task_stack) > 0:
+		task_stack.append(task_stack[-1])
+		i, parent_val = task_stack.pop()
 
-		visited_issues.append(issue)
-		while len(task_stack) > 0:
-			i, parent_val = task_stack.pop()
-			work_weeks = max(0.00001, i.estimated_work_weeks)
-			i.critical_work_weeks = max(i.critical_work_weeks, work_weeks + parent_val)
+		if len(visited_issues) > 0 and i.hash == visited_issues[-1].hash:
+			# We've already processed this, pop the stack
+			visited_issues.pop()
+			task_stack.pop()
+			continue
 
-			if i in visited_issues:
-				print "Dependency loop detected in issues %s. Not recursing" % i.hash
-			else:
-				visited_issues.append(issue)
-				task_stack.extend([(child, i.critical_work_weeks) for child in i.depends_on])
+		work_weeks = max(0.00001, i.estimated_work_weeks)
+		i.critical_work_weeks = max(i.critical_work_weeks, work_weeks + parent_val)
+
+		if i in visited_issues:
+			print "Dependency loop detected in issues %s. Not recursing" % i.hash
+			return None
+		else:
+			visited_issues.append(i)
+			task_stack.extend([(child, i.critical_work_weeks) for child in i.depends_on])
 
 	# Now we sort all the issues by the critical number of work weeks in descending order. This
 	# does two things. First it is a topological sort because there are no cycles (tested above)
