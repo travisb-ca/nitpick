@@ -2191,15 +2191,26 @@ def schedule_all_tasks():
 
 	# Now we go through, again following the topological sort, to fix up any dates which don't
 	# match the dependency graph. This can happen if two dependent tasks are owned by different
-	# people.
+	# people. Anytime we move something forward, we have to move everything behind it forward
+	# for that same person to avoid overlaps.
 	for issue in priority_list:
-		print issue.hash
 		dependency_finish_date = [i.sched_end_date for i in issue.depends_on]
+
+		# We count the previous item in the person's queue as a dependency here to ensure
+		# that we don't have any overlaps. Since we are iterating in sort order we only have
+		# to be concerned with the previous task. Even if this task gets moved ahead several
+		# other tasks they'll all be moved forward because of this dependency when the are
+		# processed.
+		queue_num = timelines[issue.owner].index(issue)
+		if queue_num > 0:
+			dependency_finish_date.append(timelines[issue.owner][queue_num - 1].sched_end_date)
+
+		print issue.hash, queue_num, dependency_finish_date
+		
 		if dependency_finish_date == []:
 			dependency_finish_date = today
 		else:
 			dependency_finish_date = max(dependency_finish_date)
-		print dependency_finish_date
 
 		while issue.sched_start_date <= dependency_finish_date:
 			# For each day we have to shift this task, we make sure to shift both the
