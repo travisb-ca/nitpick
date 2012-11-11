@@ -2189,7 +2189,7 @@ def schedule_all_tasks():
 			print 'User: %s Issue %s Start: %s End: %s' % (user, issue.hash,
 					issue.sched_start_date, issue.sched_end_date)
 
-	# Now we go through, again following the topological sort, so fix up any dates which don't
+	# Now we go through, again following the topological sort, to fix up any dates which don't
 	# match the dependency graph. This can happen if two dependent tasks are owned by different
 	# people.
 	for issue in priority_list:
