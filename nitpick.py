@@ -2184,10 +2184,12 @@ def schedule_all_tasks():
 			units_remaining = units_remaining - work_done
 
 	# TODO remove
-	for user in timelines.keys():
-		for issue in timelines[user]:
-			print 'User: %s Issue %s Start: %s End: %s' % (user, issue.hash,
-					issue.sched_start_date, issue.sched_end_date)
+	def print_schedule():
+		for user in timelines.keys():
+			for issue in timelines[user]:
+				print 'User: %s Issue %s Start: %s End: %s' % (user, issue.hash,
+						issue.sched_start_date, issue.sched_end_date)
+	print_schedule()
 
 	# Now we go through, again following the topological sort, to fix up any dates which don't
 	# match the dependency graph. This can happen if two dependent tasks are owned by different
@@ -2230,10 +2232,7 @@ def schedule_all_tasks():
 				issue.owner_production)
 
 	# TODO remove
-	for user in timelines.keys():
-		for issue in timelines[user]:
-			print 'User: %s Issue %s Start: %s End: %s' % (user, issue.hash,
-					issue.sched_start_date, issue.sched_end_date)
+	print_schedule()
 
 # Ensure that there is an editor to use for editing files
 # Returns None and prints an error if no editor is found.
