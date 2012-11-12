@@ -317,7 +317,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		i = db.issue(issue)
 		if i != None:
-			title = i['Title']
+			title = '%s: %s' % (issue[:8], i['Title'])
 		else:
 			title = ''
 
