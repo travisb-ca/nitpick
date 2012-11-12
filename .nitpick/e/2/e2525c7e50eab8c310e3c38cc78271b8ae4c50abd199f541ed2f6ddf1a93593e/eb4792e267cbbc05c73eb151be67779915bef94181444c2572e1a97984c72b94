@@ -1,0 +1,12 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-11-12 20:22:58
+Parent: ee2ac98afa64e690ec9242ae0bb3f2714f3709ece2f12de057dfcfaf582ecb3b
+User: travisb@travisbrown.ca
+--
+Overlapping tasks to show the partial completion status is perhaps not worth it.
+
+- It's quite a bit of work to do this because HTML tables don't work in a useful manner for this.
+- It will greatly increase the horizontal space needed to show the schedule. This will make things less useful.
+
+I'm going to make this a new issue to consider later, a7fcc48d23763e695d24293c64733ea2b05721a5358ae07b66697b6d7dea9fea

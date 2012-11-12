@@ -1,0 +1,22 @@
+Component: Web_UI
+Date: 2012-11-12 20:25:44
+Depends_On: e2525c7e50eab8c310e3c38cc78271b8ae4c50abd199f541ed2f6ddf1a93593e
+Duplicate_Of: 
+Fix_By: 1.1
+Owner: travisb@travisbrown.ca
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Major
+State: Open
+Title: Overlap partial tasks in schedule
+Type: Feature
+--
+It is not only possible, but likely that on a schedule there will be tasks which are partially complete. It makes sense to show the partial completion of these tasks.
+
+One way to do this is to have (vertically) some representation like:
+ |----|
+    |##----|
+
+Where #'s are the portion of work already complete and -'s are the portion of work still to be done.
