@@ -2149,6 +2149,23 @@ def schedule_all_tasks():
 
 		return date
 
+	def compute_task_end_date(issue):
+		units_remaining = issue.work_units
+		issue.sched_end_date = issue.sched_start_date
+		first = True
+		while units_remaining > 0:
+			if not first:
+				issue.sched_end_date = issue.sched_end_date + one_day
+			else:
+				first = False
+
+			if issue.owner_production == ['0', '0', '0', '0', '0', '0', '0']:
+				# The owner doesn't work, so take forever
+				work_done = 0.001
+			else:
+				work_done = float(issue.owner_production[issue.sched_end_date.weekday()])
+			units_remaining = units_remaining - work_done
+
 	for issue in priority_list:
 		if issue.owner not in timelines:
 			timelines[issue.owner] = []
@@ -2166,22 +2183,7 @@ def schedule_all_tasks():
 
 		timelines[issue.owner].append(issue)
 
-		# Compute the end time
-		units_remaining = issue.work_units
-		issue.sched_end_date = issue.sched_start_date
-		first = True
-		while units_remaining > 0:
-			if not first:
-				issue.sched_end_date = issue.sched_end_date + one_day
-			else:
-				first = False
-
-			if issue.owner_production == ['0', '0', '0', '0', '0', '0', '0']:
-				# The owner doesn't work, so take forever
-				work_done = 0.001
-			else:
-				work_done = float(issue.owner_production[issue.sched_end_date.weekday()])
-			units_remaining = units_remaining - work_done
+		compute_task_end_date(issue)
 
 	# TODO remove
 	def print_schedule():
@@ -2232,6 +2234,133 @@ def schedule_all_tasks():
 				issue.owner_production)
 
 	# TODO remove
+	print_schedule()
+
+	# Now that we have the critical path laid out we will have a number of gaps due to the
+	# dependency graph. We now try to move items backwards in time to fill these gaps. This
+	# should pull unrelated items backwards in time. Unfortunately we have to do this in time
+	# order across all the users, which makes the algorithm a bit annoying. We have to do this
+	# to maximize the possibilities of depends_on items being moved earlier before a task is
+	# moved, since we must at all times adhere to the dependency graph.
+	
+	# Find the next gap in the schedule of the given user and update user_list.
+	#
+	# Userlist is a dictionary of tuples, one per user. The tuple is (start date, index). The
+	# start date is start date of the next gap. The index is the index of the next queue item
+	# which the gap is before.
+	#
+	# If the user doesn't have anymore gaps they will be removed from the user_list.
+	def get_next_gap(user, user_list, timelines):
+		start_date = user_list[user][0]
+		index = user_list[user][1]
+		max_index = len(timelines[user])
+
+		if index == 0 and timelines[user] == []:
+			# The user_list as just been created and the user has no task assigned,
+			# remove them
+			print "User %s has no tasks" % user
+			del user_list[user]
+			return
+
+		start_date = move_to_workday(start_date, timelines[user][0].owner_production)
+		while start_date >= timelines[user][index].sched_start_date:
+			start_date = timelines[user][index].sched_end_date + one_day
+			start_date = move_to_workday(start_date, timelines[user][0].owner_production)
+			index += 1
+
+			if index >= max_index:
+				# There are no scheduled tasks beyond the last gap, so this user is
+				# done. Remove them.
+				print "Reached end of queue for user %s" % user
+				del user_list[user]
+				return
+
+			user_list[user] = (start_date, index)
+
+	user_list = {user: (today, 0) for user in timelines.keys()}
+	for user in user_list.keys():
+		get_next_gap(user, user_list, timelines)
+
+	print "starting userlist", user_list
+
+	while len(user_list.keys()) > 0:
+		# Find the user with the nearest gap start
+		user = user_list.keys()[0]
+		for u in user_list.keys():
+			if user_list[u][0] < user_list[user][0]:
+				user = u
+
+		gap_start = user_list[user][0]
+		gap_index = user_list[user][1]
+
+		# Compute length of gap
+		gap_end = gap_start
+		gap_length = 0
+		while gap_end < timelines[user][gap_index].sched_start_date:
+			gap_length += float(timelines[user][0].owner_production[gap_end.weekday()])
+			gap_end += one_day
+		gap_end -= one_day
+
+		print "gap start", gap_start, 'gap end', gap_end, 'gap length', gap_length
+		
+		# Find first task which will fit into this gap and is allowed by the dependency
+		# graph. This is suboptimal, but an optimal choice would likely require dynamic
+		# programming. It is perhaps possible to do better by finding the longest task which
+		# will fit, but that doesn't take into account that a shorter task may be on a
+		# longer path than a longer task.
+		task = None
+		new_task_start = gap_start
+		for i in range(gap_index, len(timelines[user])):
+			t = timelines[user][i]
+
+			print 'checking task %s' % t.hash[:8]
+
+			if t.work_units > gap_length:
+				print 'Rejecting due to gap length %f %f' % (t.work_units, gap_length)
+				continue
+
+			dependency_dates = [i.sched_end_date for i in t.depends_on]
+			if len(dependency_dates) > 0 and max(dependency_dates) >= gap_end:
+				print 'Rejecting due to dependency', max(dependency_dates), gap_end
+				continue
+
+			# We now know that the task will fit if it starts at the beginning of the
+			# gap and that it can start before the end of the gap, so we need to test if
+			# it can be finished inside the gap given the earliest the it can start due
+			# to the dependencies.
+			dependency_dates.append(gap_start)
+			new_task_start = max(dependency_dates)
+			d = new_task_start
+			l = 0
+			while d <= gap_end:
+				l += float(timelines[user][0].owner_production[d.weekday()])
+				d += one_day
+			if l < t.work_units:
+				# Turns out it can't be finished
+				print 'Rejecting due to mid-gap length', t.work_units, l
+				continue
+		
+			# This task fits, use it
+			task = t
+			break
+
+	
+		if task != None:
+			print 'using task %s' % task.hash[:8]
+
+			# Put the task we found into the gap and continue
+			del timelines[user][i]
+			timelines[user].insert(gap_index, task)
+
+			task.sched_start_date = move_to_workday(new_task_start,
+					task.owner_production)
+			compute_task_end_date(task)
+		else:
+			print 'No task fits this gap'
+
+		print_schedule()
+		get_next_gap(user, user_list, timelines)
+
 	print_schedule()
 
 # Ensure that there is an editor to use for editing files
