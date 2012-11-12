@@ -2073,7 +2073,8 @@ class SchedIssue():
 #
 # Returns None if there is a loop.
 def schedule_all_tasks():
-	print 'Scheduling...'
+	debug_scheduling = False
+
 	load_db()
 
 	# We only want issues which aren't closed
@@ -2117,7 +2118,8 @@ def schedule_all_tasks():
 		i.critical_work_weeks = max(i.critical_work_weeks, work_weeks + parent_val)
 
 		if i in visited_issues:
-			print "Dependency loop detected in issues %s. Not recursing" % i.hash
+			if debug_scheduling:
+				print "Dependency loop detected in issues %s. Not recursing" % i.hash
 			return None
 		else:
 			visited_issues.append(i)
@@ -2185,8 +2187,10 @@ def schedule_all_tasks():
 
 		compute_task_end_date(issue)
 
-	# TODO remove
 	def print_schedule():
+		if not debug_scheduling:
+			return
+
 		for user in timelines.keys():
 			for issue in timelines[user]:
 				print 'User: %s Issue %s Start: %s End: %s' % (user, issue.hash,
@@ -2209,7 +2213,8 @@ def schedule_all_tasks():
 		if queue_num > 0:
 			dependency_finish_date.append(timelines[issue.owner][queue_num - 1].sched_end_date)
 
-		print issue.hash, queue_num, dependency_finish_date
+		if debug_scheduling:
+			print issue.hash, queue_num, dependency_finish_date
 		
 		if dependency_finish_date == []:
 			dependency_finish_date = today
@@ -2233,7 +2238,6 @@ def schedule_all_tasks():
 		issue.sched_start_date = move_to_workday(issue.sched_start_date,
 				issue.owner_production)
 
-	# TODO remove
 	print_schedule()
 
 	# Now that we have the critical path laid out we will have a number of gaps due to the
@@ -2258,7 +2262,8 @@ def schedule_all_tasks():
 		if index == 0 and timelines[user] == []:
 			# The user_list as just been created and the user has no task assigned,
 			# remove them
-			print "User %s has no tasks" % user
+			if debug_scheduling:
+				print "User %s has no tasks" % user
 			del user_list[user]
 			return
 
@@ -2271,7 +2276,8 @@ def schedule_all_tasks():
 			if index >= max_index:
 				# There are no scheduled tasks beyond the last gap, so this user is
 				# done. Remove them.
-				print "Reached end of queue for user %s" % user
+				if debug_scheduling:
+					print "Reached end of queue for user %s" % user
 				del user_list[user]
 				return
 
@@ -2281,7 +2287,8 @@ def schedule_all_tasks():
 	for user in user_list.keys():
 		get_next_gap(user, user_list, timelines)
 
-	print "starting userlist", user_list
+	if debug_scheduling:
+		print "starting userlist", user_list
 
 	while len(user_list.keys()) > 0:
 		# Find the user with the nearest gap start
@@ -2301,7 +2308,8 @@ def schedule_all_tasks():
 			gap_end += one_day
 		gap_end -= one_day
 
-		print "gap start", gap_start, 'gap end', gap_end, 'gap length', gap_length
+		if debug_scheduling:
+			print "gap start", gap_start, 'gap end', gap_end, 'gap length', gap_length
 		
 		# Find first task which will fit into this gap and is allowed by the dependency
 		# graph. This is suboptimal, but an optimal choice would likely require dynamic
@@ -2313,15 +2321,18 @@ def schedule_all_tasks():
 		for i in range(gap_index, len(timelines[user])):
 			t = timelines[user][i]
 
-			print 'checking task %s' % t.hash[:8]
+			if debug_scheduling:
+				print 'checking task %s' % t.hash[:8]
 
 			if t.work_units > gap_length:
-				print 'Rejecting due to gap length %f %f' % (t.work_units, gap_length)
+				if debug_scheduling:
+					print 'Rejecting due to gap length %f %f' % (t.work_units, gap_length)
 				continue
 
 			dependency_dates = [i.sched_end_date for i in t.depends_on]
 			if len(dependency_dates) > 0 and max(dependency_dates) >= gap_end:
-				print 'Rejecting due to dependency', max(dependency_dates), gap_end
+				if debug_scheduling:
+					print 'Rejecting due to dependency', max(dependency_dates), gap_end
 				continue
 
 			# We now know that the task will fit if it starts at the beginning of the
@@ -2337,7 +2348,8 @@ def schedule_all_tasks():
 				d += one_day
 			if l < t.work_units:
 				# Turns out it can't be finished
-				print 'Rejecting due to mid-gap length', t.work_units, l
+				if debug_scheduling:
+					print 'Rejecting due to mid-gap length', t.work_units, l
 				continue
 		
 			# This task fits, use it
@@ -2346,7 +2358,8 @@ def schedule_all_tasks():
 
 	
 		if task != None:
-			print 'using task %s' % task.hash[:8]
+			if debug_scheduling:
+				print 'using task %s' % task.hash[:8]
 
 			# Put the task we found into the gap and continue
 			del timelines[user][i]
@@ -2356,12 +2369,16 @@ def schedule_all_tasks():
 					task.owner_production)
 			compute_task_end_date(task)
 		else:
-			print 'No task fits this gap'
+			if debug_scheduling:
+				print 'No task fits this gap'
 
 		print_schedule()
 		get_next_gap(user, user_list, timelines)
 
-	print_schedule()
+	if debug_scheduling:
+		print "Final schedule"
+		print_schedule()
+	return timelines
 
 # Ensure that there is an editor to use for editing files
 # Returns None and prints an error if no editor is found.
