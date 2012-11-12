@@ -265,6 +265,11 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 	def format_issue(self, issue):
 		leader = ''
 		follower = ''
+
+		issue2 = db.disambiguate_hash(issue)
+		if issue2 != None and issue2 != '':
+			issue = issue2
+
 		if issue in db.issues() and db.issue(issue)['State'] == config.issues['state'][-1]:
 			leader = '<strike>'
 			follower = '</strike>'
