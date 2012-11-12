@@ -1063,16 +1063,87 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				if task.sched_end_date > dates_end:
 					dates_end = task.sched_end_date
 
+		# We need to precompute the entire table in order to know how many rows any
+		# particular task should span.
+
+		# Number of columns a user needs to handle their overlapping tasks
+		num_columns = {}
+		# The precomputed rows, a list of dictionaries. Each dictionary has one entry per
+		# user who has a task or gap which starts in that row.
+		rows = {}
+
+		for user in schedule.keys():
+			needed_columns = 1
+			last_issue_end = dates_start
+
+			for task in schedule[user]:
+				print task.hash[:8], task.sched_start_date, last_issue_end
+				if task.sched_start_date > last_issue_end + one_day:
+					print 'adding gap'
+					# Add a gap
+					row_num = (last_issue_end + one_day - dates_start).days
+
+					if row_num not in rows:
+						rows[row_num] = {}
+
+					rows[row_num][user] = ('gap', 
+							(task.sched_start_date - last_issue_end).days)
+					last_issue_end = task.sched_end_date - one_day
+
+				row_num = (task.sched_start_date - dates_start).days
+
+				if row_num not in rows:
+					rows[row_num] = {}
+
+				rows[row_num][user] = (task, 
+						(task.sched_end_date + one_day - task.sched_start_date).days)
+				last_issue_end = task.sched_end_date
+
+			if last_issue_end < dates_end:
+				# One last gap to the end of the schedule
+				row_num = (last_issue_end + one_day - dates_start).days
+
+				if row_num not in rows:
+					rows[row_num] = {}
+
+				rows[row_num][user] = ('gap', 
+						(dates_end - last_issue_end).days)
+
+			num_columns[user] = needed_columns
+
+		for row in rows.keys():
+			for user in rows[row].keys():
+				task, num_rows = rows[row][user]
+				if task != 'gap':
+					task = task.hash[:8]
+				print 'Row %s User %s %s, %d' % (row, user, task, num_rows)
+
 		d = dates_start
-		do = 0
 		while d <= dates_end:
-			self.output('<tr><th class="schedule_date">%s</th>' % d)
-			if do == 0:
-				self.output('<td rowspan="3">s</td>')
-			if do >= 3:
-				self.output('<td></td>')
-			do += 1
-			self.output('<td>b</td>')
+			self.output('<tr><th>%s</th> ' % d)
+
+			row_num = (d - dates_start).days
+
+			# Since tasks can cover multiple rows, it's quite likely that some rows
+			# won't have any tasks whick start in them.
+			try:
+				row = rows[row_num]
+				print 'outputting row %d' % row_num
+
+				for user in schedule.keys():
+					if user in row:
+						task, num_rows = row[user]
+
+						if task == 'gap':
+							task_text = 'gap %s' % user
+						else:
+							task_text = self.format_issue(task.hash)
+						self.output('<td rowspan="%d">%s</td> ' % (num_rows, task_text))
+			except:
+				pass
+
+
+			self.output('</tr>\n')
 			d += one_day
 
 		self.output('</table></div>\n')
