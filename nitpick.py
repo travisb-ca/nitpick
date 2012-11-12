@@ -308,7 +308,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 			'''))
 
-	def format_issue(self, issue):
+	# Format the issue as a link with useful information. If description is True then the
+	# description will be used as the text instead of the partial hash.
+	def format_issue(self, issue, description=False):
 		leader = ''
 		follower = ''
 		if issue in db.issues() and db.issue(issue)['State'] == config.issues['state'][-1]:
@@ -321,7 +323,12 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		else:
 			title = ''
 
-		output = '%s<a title="%s" href="/issue/%s">%s</a>%s' % (leader, title, issue, issue[:8], follower)
+		if not description or i == None or i['Title'] == '':
+			desc = issue[:8]
+		else:
+			desc = i['Title']
+
+		output = '%s<a title="%s" href="/issue/%s">%s</a>%s' % (leader, title, issue, desc, follower)
 		return output
 
 	def root(self):
@@ -1149,7 +1156,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 						if task == 'gap':
 							task_text = ''
 						else:
-							task_text = self.format_issue(task.hash)
+							task_text = self.format_issue(task.hash, True)
 						self.output('<td rowspan="%d">%s</td> ' % (num_rows, task_text))
 			except:
 				pass
