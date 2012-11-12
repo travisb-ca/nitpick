@@ -1120,7 +1120,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 						rows[row_num] = {}
 
 					rows[row_num][user] = ('gap', 
-							(task.sched_start_date - last_issue_end).days)
+							(task.sched_start_date - one_day - last_issue_end).days)
 					last_issue_end = task.sched_end_date - one_day
 
 				row_num = (task.sched_start_date - dates_start).days
@@ -2453,22 +2453,36 @@ def schedule_all_tasks():
 		max_index = len(timelines[user])
 
 		if debug_scheduling:
-			print 'Starting at %s' % start_date
+			if index == -1:
+				i = 0
+			else:
+				i = index
+			print 'Starting %s at %s %s' % (user, start_date, timelines[user][i].sched_start_date)
 
-		if index == 0 and timelines[user] == []:
-			# The user_list as just been created and the user has no task assigned,
-			# remove them
-			if debug_scheduling:
-				print "User %s has no tasks" % user
-			del user_list[user]
-			return
+		if index == -1:
+			if timelines[user] == []:
+				# The user_list as just been created and the user has no task assigned,
+				# remove them
+				if debug_scheduling:
+					print "User %s has no tasks" % user
+				del user_list[user]
+				return
+			else:
+				index = 0
+				if start_date < timelines[user][index].sched_start_date:
+					if debug_scheduling:
+						print 'There is a gap at the beginning, using it'
+					user_list[user] = (start_date, index)
+					return
 
 		start_date = move_to_workday(start_date, timelines[user][0].owner_production)
 		
 		if debug_scheduling:
 			print start_date, timelines[user][index].sched_start_date
 
-		while start_date >= timelines[user][index].sched_start_date:
+		first_time = True # Ensure that we always make progress
+		while first_time or start_date >= timelines[user][index].sched_start_date:
+			first_time = False
 			start_date = timelines[user][index].sched_end_date + one_day
 			start_date = move_to_workday(start_date, timelines[user][0].owner_production)
 			index += 1
@@ -2485,7 +2499,7 @@ def schedule_all_tasks():
 		if debug_scheduling:
 			print 'Finishing at %s' % start_date
 
-	user_list = {user: (today, 0) for user in timelines.keys()}
+	user_list = {user: (today, -1) for user in timelines.keys()}
 	for user in user_list.keys():
 		get_next_gap(user, user_list, timelines)
 
