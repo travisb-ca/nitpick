@@ -315,7 +315,13 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			leader = '<strike>'
 			follower = '</strike>'
 
-		output = '%s<a href="/issue/%s">%s</a>%s' % (leader, issue, issue[:8], follower)
+		i = db.issue(issue)
+		if i != None:
+			title = i['Title']
+		else:
+			title = ''
+
+		output = '%s<a title="%s" href="/issue/%s">%s</a>%s' % (leader, title, issue, issue[:8], follower)
 		return output
 
 	def root(self):
