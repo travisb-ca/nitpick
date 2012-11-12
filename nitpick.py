@@ -3027,6 +3027,23 @@ def cmd_import(args):
 	db.save_issue_db()
 	return True
 
+def cmd_schedule(args):
+	if config.db_path == '':
+		return False
+
+	schedule = schedule_all_tasks()
+	for user in schedule.keys():
+		for issue in schedule[user]:
+			if db.issue(issue.hash)['Percent_Complete'] == '0':
+				action = 'Start'
+			else:
+				action = 'Continue'
+
+			print 'User: %-25s Issue: %s %s: %s End: %s' % (user, issue.hash[:8], action,
+					issue.sched_start_date, issue.sched_end_date)
+	
+	return True
+
 if __name__ == '__main__':
 	load_config()
 
@@ -3118,6 +3135,9 @@ if __name__ == '__main__':
 	import_cmd.add_argument('bugfile')
 	import_cmd.set_defaults(func=cmd_import)
 
+	schedule_cmd = subcmds.add_parser('sched', help='Display computed project schedle')
+	schedule_cmd.set_defaults(func=cmd_schedule)
+
 	args = parser.parse_args()
 	result = args.func(args)
 
@@ -3125,6 +3145,5 @@ if __name__ == '__main__':
 		print "Command failed"
 		sys.exit(1)
 	else:
-		schedule_all_tasks()
 		sys.exit(0)
 
