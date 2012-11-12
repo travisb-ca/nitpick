@@ -1077,9 +1077,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			last_issue_end = dates_start
 
 			for task in schedule[user]:
-				print task.hash[:8], task.sched_start_date, last_issue_end
 				if task.sched_start_date > last_issue_end + one_day:
-					print 'adding gap'
 					# Add a gap
 					row_num = (last_issue_end + one_day - dates_start).days
 
@@ -1111,13 +1109,6 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 			num_columns[user] = needed_columns
 
-		for row in rows.keys():
-			for user in rows[row].keys():
-				task, num_rows = rows[row][user]
-				if task != 'gap':
-					task = task.hash[:8]
-				print 'Row %s User %s %s, %d' % (row, user, task, num_rows)
-
 		d = dates_start
 		while d <= dates_end:
 			self.output('<tr><th>%s</th> ' % d)
@@ -1128,14 +1119,13 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			# won't have any tasks whick start in them.
 			try:
 				row = rows[row_num]
-				print 'outputting row %d' % row_num
 
 				for user in schedule.keys():
 					if user in row:
 						task, num_rows = row[user]
 
 						if task == 'gap':
-							task_text = 'gap %s' % user
+							task_text = ''
 						else:
 							task_text = self.format_issue(task.hash)
 						self.output('<td rowspan="%d">%s</td> ' % (num_rows, task_text))
