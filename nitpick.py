@@ -232,6 +232,10 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 						text-align: center;
 					}
 
+					.schedule_td {
+						overflow: hidden;
+					}
+
 					.schedule th {
 						padding-right: 0.5em;
 						padding-left: 0.5em;
@@ -1140,7 +1144,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			if d in milestones:
 				self.output('<tr class="schedule_fixby"><th>%s %s</th> ' % (milestones[d], d))
 			else:
-				self.output('<tr><th>%s</th> ' % d)
+				self.output('<tr class="schedule"><th>%s</th> ' % d)
 
 			row_num = (d - dates_start).days
 
@@ -1157,7 +1161,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 							task_text = ''
 						else:
 							task_text = self.format_issue(task.hash, True)
-						self.output('<td rowspan="%d">%s</td> ' % (num_rows, task_text))
+						self.output('<td rowspan="%d"><div class="schedule_td" style="max-height: %fem">%s</div></td> ' % 
+								(num_rows, num_rows * 1.1, task_text))
 			except:
 				pass
 
