@@ -1,0 +1,9 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-11-12 18:33:58
+Parent: 27fb2910c3ac2c8d02ce3bef09208aa7f3190648ec1de711a8ce058cb7fe3efc
+User: travisb@travisbrown.ca
+--
+After trying it, I don't believe that statically colouring the critical path is the right thing to do. It's non-trivial to mark the tasks on the critical path in such a way that a minimal set is marked and every time span is covered.
+
+abd97310fcb2 seems to cover the need of marking the critical path and does it in a more general and accurate way.
