@@ -216,6 +216,47 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 					.command_bar {
 						width: 100%%;
 					}
+
+					.schedule table {
+						border-style: solid;
+						border-width: 0.1em;
+						margin-top: 1em;
+						margin-bottom: 1em;
+						margin-left: auto;
+						margin-right: auto;
+					}
+
+					.schedule td {
+						padding-right: 0.5em;
+						padding-left: 0.5em;
+						text-align: center;
+					}
+
+					.schedule th {
+						padding-right: 0.5em;
+						padding-left: 0.5em;
+						text-align: center;
+						vertical-align: bottom;
+						font-size: 125%%;
+					}
+
+					.schedule_user {
+						width: 1em;
+						letter-spacing: 0.1em;
+					}
+
+					.schedule a:link { text-decoration: none; }
+					.schedule a:hover { text-decoration: underline; }
+
+					/* Separate col1 and col2 to alternate colours */
+					.schedule_col0 {
+						background: White;
+					}
+
+					.schedule_col1 {
+						background: LightGrey;
+					}
+
 					</style>
 				</head>
 			<body %s>
@@ -278,7 +319,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.start_doc('')
 
-		self.output('<p><a href="/new_issue">Create new issue</a></p>\n')
+		self.output('<p><a href="/new_issue">Create new issue</a> <a href="/schedule">Show Schedule</a></p>\n')
 
 		if self.request_args == {}:
 			# Use defaults since this is the first time here
@@ -988,6 +1029,56 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.wfile.write(attachment.read())
 		attachment.close()
 
+	def schedule(self):
+		db.load_issue_db()
+
+		schedule = schedule_all_tasks()
+		self.start_doc('Project Schedule')
+
+		self.output('<div class="schedule"><table cellspacing="0" rules="all">\n')
+
+		# Alternate column colours
+		colour = 1
+		self.output('<colgroup><col class="schedule_col0"/></colgroup>')
+		for user in schedule.keys():
+			self.output('<colgroup><col class="schedule_col%d"/></colgroup>' % colour)
+			colour = (colour + 1) % 2
+
+		self.output('<tr><th>Date</th> ')
+
+		# Output usernames
+		for user in schedule.keys():
+			self.output('<th class="schedule_user">%s</th> ' % ' '.join(user))
+		self.output('</tr>\n')
+
+		one_day = datetime.timedelta(days=1)
+
+		# Find the date range we'll need
+		dates_start = schedule.values()[0][0].sched_start_date
+		dates_end = dates_start
+		for peruser in schedule.values():
+			for task in peruser:
+				if task.sched_start_date < dates_start:
+					dates_start = task.sched_start_date
+				if task.sched_end_date > dates_end:
+					dates_end = task.sched_end_date
+
+		d = dates_start
+		do = 0
+		while d <= dates_end:
+			self.output('<tr><th class="schedule_date">%s</th>' % d)
+			if do == 0:
+				self.output('<td rowspan="3">s</td>')
+			if do >= 3:
+				self.output('<td></td>')
+			do += 1
+			self.output('<td>b</td>')
+			d += one_day
+
+		self.output('</table></div>\n')
+
+		self.end_doc()
+
 	def robots(self):
 		self.send_response(404)
 		self.end_headers()
@@ -1311,6 +1402,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.favicon()
 		elif '/export/' in self.path:
 			self.export()
+		elif '/schedule' == self.path:
+			self.schedule()
 		else:
 			print "Got unhandled get path %s" % self.path
 			self.root()
