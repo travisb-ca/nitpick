@@ -2410,7 +2410,7 @@ def schedule_all_tasks():
 			print issue.hash, queue_num, dependency_finish_date
 		
 		if dependency_finish_date == []:
-			dependency_finish_date = today
+			dependency_finish_date = move_to_workday(today, issue.owner_production) - one_day
 		else:
 			dependency_finish_date = max(dependency_finish_date)
 
@@ -2452,6 +2452,9 @@ def schedule_all_tasks():
 		index = user_list[user][1]
 		max_index = len(timelines[user])
 
+		if debug_scheduling:
+			print 'Starting at %s' % start_date
+
 		if index == 0 and timelines[user] == []:
 			# The user_list as just been created and the user has no task assigned,
 			# remove them
@@ -2461,6 +2464,10 @@ def schedule_all_tasks():
 			return
 
 		start_date = move_to_workday(start_date, timelines[user][0].owner_production)
+		
+		if debug_scheduling:
+			print start_date, timelines[user][index].sched_start_date
+
 		while start_date >= timelines[user][index].sched_start_date:
 			start_date = timelines[user][index].sched_end_date + one_day
 			start_date = move_to_workday(start_date, timelines[user][0].owner_production)
@@ -2475,6 +2482,8 @@ def schedule_all_tasks():
 				return
 
 			user_list[user] = (start_date, index)
+		if debug_scheduling:
+			print 'Finishing at %s' % start_date
 
 	user_list = {user: (today, 0) for user in timelines.keys()}
 	for user in user_list.keys():
@@ -2489,6 +2498,9 @@ def schedule_all_tasks():
 		for u in user_list.keys():
 			if user_list[u][0] < user_list[user][0]:
 				user = u
+
+		if debug_scheduling:
+			print 'Traverting user %s' % user
 
 		gap_start = user_list[user][0]
 		gap_index = user_list[user][1]
