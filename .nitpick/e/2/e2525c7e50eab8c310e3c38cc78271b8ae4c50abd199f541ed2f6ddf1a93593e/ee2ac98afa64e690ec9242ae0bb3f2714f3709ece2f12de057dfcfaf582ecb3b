@@ -1,0 +1,11 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-11-12 17:44:10
+Parent: issue
+User: travisb@travisbrown.ca
+--
+Here is the current list of things left to do on this feature:
+
+1. Take the difference in fix_by dates when computing the schedule
+2. Show overlapping items when one is to be continued
+3. Colour code the issues by their fix_by
