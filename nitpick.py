@@ -245,8 +245,13 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 					}
 
 					.schedule_user {
+						width: 0.5em;
+					}
+
+					.schedule_user th {
 						width: 1em;
 						letter-spacing: 0.1em;
+						text-align: center;
 					}
 
 					.schedule a:link { text-decoration: none; }
@@ -1069,7 +1074,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		# Output usernames
 		for user in schedule.keys():
-			self.output('<th class="schedule_user">%s</th> ' % ' '.join(user))
+			self.output('<th class="schedule_user"><div class="schedule_user">%s</div></th> ' % ' '.join(user))
 		self.output('</tr>\n')
 
 		one_day = datetime.timedelta(days=1)
