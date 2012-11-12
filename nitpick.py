@@ -257,6 +257,10 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 						background: LightGrey;
 					}
 
+					.schedule_fixby {
+						background: Red;
+					}
+
 					</style>
 				</head>
 			<body %s>
@@ -1063,6 +1067,15 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				if task.sched_end_date > dates_end:
 					dates_end = task.sched_end_date
 
+		# Create a reverse index keyed on date for the milestones. This is so we can
+		# highlight and label the milestones.
+		milestones = {}
+		for fix_by in config.fix_by_dates.keys():
+			times = config.fix_by_dates[fix_by].split('-')
+			if times != ['']:
+				times = map(int, times)
+				milestones[datetime.date(times[0], times[1], times[2])] = fix_by
+
 		# We need to precompute the entire table in order to know how many rows any
 		# particular task should span.
 
@@ -1111,7 +1124,10 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		d = dates_start
 		while d <= dates_end:
-			self.output('<tr><th>%s</th> ' % d)
+			if d in milestones:
+				self.output('<tr class="schedule_fixby"><th>%s %s</th> ' % (milestones[d], d))
+			else:
+				self.output('<tr><th>%s</th> ' % d)
 
 			row_num = (d - dates_start).days
 
