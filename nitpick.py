@@ -397,7 +397,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.start_doc('')
 
-		self.output('<p><a href="/new_issue">Create new issue</a> <a href="/schedule">Show Schedule</a></p>\n')
+		self.output('<p><a href="/new_issue">Create new issue</a>\n')
+		if config.use_gantt:
+			self.output(' <a href="/schedule">Show Schedule</a></p>\n')
 
 		if self.request_args == {}:
 			# Use defaults since this is the first time here
