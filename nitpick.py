@@ -45,7 +45,7 @@ URL_REGEX = '([a-z]+://[a-zA-Z0-9-]+\.[a-zA-Z0-9.]+[a-zA-Z0-9/\-.%&?=+_,]*)'
 ISSUE_REGEX = '([a-f0-9]{8,64})'
 POSIX_CLI_BROWSERS = ['w3m', 'elinks', 'links', 'lynx']
 POSIX_GUI_BROWSERS = [ ('chrome', 'google-chrome'), ('firefox-bin', 'firefox') ]
-NUM_FIXBY_COLOURS = 2
+NUM_FIXBY_COLOURS = 13
 
 # Contains the defaults used to initalize a database
 class config:
@@ -272,11 +272,55 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 					}
 
 					.schedule_fixby0 {
-						background: Red;
+						background: Aqua;
 					}
 
 					.schedule_fixby1 {
-						background: Blue;
+						background: BurlyWood;
+					}
+
+					.schedule_fixby2 {
+						background: Charteuse;
+					}
+
+					.schedule_fixby3 {
+						background: Coral
+					}
+
+					.schedule_fixby4 {
+						background: DarkKhaki;
+					}
+
+					.schedule_fixby5 {
+						background: DarkSeaGreen;
+					}
+
+					.schedule_fixby6 {
+						background: DarkTurquoise;
+					}
+
+					.schedule_fixby7 {
+						background: GhostWhite;
+					}
+
+					.schedule_fixby8 {
+						background: Gold;
+					}
+
+					.schedule_fixby9 {
+						background: GreenYellow;
+					}
+
+					.schedule_fixby10 {
+						background: Lavender;
+					}
+
+					.schedule_fixby11 {
+						background: LightBlue;
+					}
+
+					.schedule_fixby12 {
+						background: LightPink;
 					}
 					</style>
 				</head>
