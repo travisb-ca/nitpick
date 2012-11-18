@@ -45,6 +45,7 @@ URL_REGEX = '([a-z]+://[a-zA-Z0-9-]+\.[a-zA-Z0-9.]+[a-zA-Z0-9/\-.%&?=+_,]*)'
 ISSUE_REGEX = '([a-f0-9]{8,64})'
 POSIX_CLI_BROWSERS = ['w3m', 'elinks', 'links', 'lynx']
 POSIX_GUI_BROWSERS = [ ('chrome', 'google-chrome'), ('firefox-bin', 'firefox') ]
+NUM_FIXBY_COLOURS = 2
 
 # Contains the defaults used to initalize a database
 class config:
@@ -266,10 +267,17 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 						background: LightGrey;
 					}
 
-					.schedule_fixby {
+					.schedule_gap {
+						background: Aquamarine;
+					}
+
+					.schedule_fixby0 {
 						background: Red;
 					}
 
+					.schedule_fixby1 {
+						background: Blue;
+					}
 					</style>
 				</head>
 			<body %s>
@@ -1144,10 +1152,23 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 			num_columns[user] = needed_columns
 
+		# The fix_by colours are assigned as they are used in an attempt to make the colour order consistent.
+		last_fixby_num = {'key' : -1} # Make sure we start at the first one
+		fixby_colour = {}
+
+		# Returns a string which is the correct class to use to get the proper fix_by colour
+		def choose_fixby_colour(fix_by):
+			if fix_by not in fixby_colour:
+				fixby_colour[fix_by] = (last_fixby_num['key'] + 1) % NUM_FIXBY_COLOURS
+				last_fixby_num['key'] = (last_fixby_num['key'] + 1) % NUM_FIXBY_COLOURS
+			colour = 'schedule_fixby%d' % fixby_colour[fix_by]
+			return colour
+
 		d = dates_start
 		while d <= dates_end:
 			if d in milestones:
-				self.output('<tr class="schedule_fixby"><th>%s %s</th> ' % (milestones[d], d))
+				colour = choose_fixby_colour(milestones[d])
+				self.output('<tr class="%s"><th>%s %s</th> ' % (colour, milestones[d], d))
 			else:
 				self.output('<tr class="schedule"><th>%s</th> ' % d)
 
@@ -1164,10 +1185,13 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 						if task == 'gap':
 							task_text = ''
+							colour = 'schedule_gap'
 						else:
 							task_text = self.format_issue(task.hash, True)
-						self.output('<td rowspan="%d"><div class="schedule_td" style="max-height: %fem">%s</div></td> ' % 
-								(num_rows, num_rows * 1.1, task_text))
+							colour = choose_fixby_colour(task.issue['Fix_By'])
+
+						self.output('<td rowspan="%d" class="%s"><div class="schedule_td" style="max-height: %fem">%s</div></td> ' % 
+								(num_rows, colour, num_rows * 1.1, task_text))
 			except:
 				pass
 
