@@ -3437,8 +3437,9 @@ if __name__ == '__main__':
 	import_cmd.add_argument('bugfile')
 	import_cmd.set_defaults(func=cmd_import)
 
-	schedule_cmd = subcmds.add_parser('sched', help='Display computed project schedule')
-	schedule_cmd.set_defaults(func=cmd_schedule)
+	if config.use_gantt:
+		schedule_cmd = subcmds.add_parser('sched', help='Display computed project schedule')
+		schedule_cmd.set_defaults(func=cmd_schedule)
 
 	args = parser.parse_args()
 	result = args.func(args)
