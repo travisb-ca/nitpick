@@ -2358,12 +2358,25 @@ def schedule_all_tasks():
 		for i in issue.depends_on:
 			i.dependent_of.append(issue)
 
+	# Compute the number of days each milestone must be completed before the latest milestone.
+	# This will help order the tasks by making the root of their dependency tree (working
+	# backwards in time) pegged to come so many days before the last milestone should happen.
+	# This won't perform miracles however, if the schedule is impossible it still won't happen.
+	fix_by_dates = filter(lambda d: d != '', config.fix_by_dates.values())
+	last_fixby_date = max([datetime.datetime.strptime(d, '%Y-%m-%d') for d in fix_by_dates])
+	fixby_critical_weeks = {}
+	for fix_by in config.fix_by_dates.keys():
+		if config.fix_by_dates[fix_by] == '':
+			continue
+		fix_by_date = datetime.datetime.strptime(config.fix_by_dates[fix_by], '%Y-%m-%d')
+		fixby_critical_weeks[fix_by] = (last_fixby_date - fix_by_date).days / 7
+	
 	# Now compute the total number of workweeks work must begin before the deadline in order to
 	# make the deadline. We start with the set of tasks which are at the end of the line and
 	# recurse from there.
 	visited_issues = []
 	task_stack = filter(lambda i: len(i.dependent_of) == 0, issues.values())
-	task_stack = [(i, 0) for i in task_stack]
+	task_stack = [(i, fixby_critical_weeks[i.issue['Fix_By']]) for i in task_stack]
 
 	while len(task_stack) > 0:
 		task_stack.append(task_stack[-1])
