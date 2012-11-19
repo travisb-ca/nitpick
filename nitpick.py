@@ -105,6 +105,10 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 						margin: 0.5em;
 					}
 
+					.issue_comment {
+						margin-bottom: 1em;
+					}
+
 					.issue_comment_content {
 						padding: 0.5 0.5 0.5em;
 						border-style: solid;
@@ -200,6 +204,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 					.new_issue_text_wrapper {
 						width: 100%%;
 						float: left;
+						margin-bottom: 1em;
 					}
 
 					.new_issue_metadata_column {
@@ -218,10 +223,11 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 					</style>
 				</head>
 			<body %s>
+			<div style="width: 100%%;float: left;">
 			""" % (title, focus_script)
 
 	def html_postamble(self):
-		return """<br/>Tracked by <a href="http://travisbrown.ca/projects/nitpick/docs/nitpick.html">Nitpick</a></body></html>"""
+		return """</div><br/>Tracked by <a href="http://travisbrown.ca/projects/nitpick/docs/nitpick.html">Nitpick</a></body></html>"""
 
 	def output(self, string):
 		self.wfile.write(string)
