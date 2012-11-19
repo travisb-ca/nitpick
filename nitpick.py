@@ -61,7 +61,7 @@ class config:
 	users = ['Unassigned']
 	vcs = None
 	project_name = 'Nitpick Project'
-	use_gantt = False
+	use_schedule = False
 	db_path = ''
 	username = ''
 	endweb = False
@@ -398,7 +398,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.start_doc('')
 
 		self.output('<p><a href="/new_issue">Create new issue</a>\n')
-		if config.use_gantt:
+		if config.use_schedule:
 			self.output(' <a href="/schedule">Show Schedule</a></p>\n')
 
 		if self.request_args == {}:
@@ -819,14 +819,14 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<textarea rows="1" cols="70" name="duplicate_of">%s</textarea></p>\n' % issue['Duplicate_Of'])
 
 		hide = ''
-		if not config.use_gantt:
+		if not config.use_schedule:
 			hide = 'hidden="yes"'
 
-		if config.use_gantt:
+		if config.use_schedule:
 			self.output('<p>Units_of_Work: ')
 		self.output('<input type="number" name="units_of_work" value="%s" min="0" %s/></p>\n' % (issue['Units_of_Work'], hide))
 
-		if config.use_gantt:
+		if config.use_schedule:
 			self.output('<p>Percent_Complete: ')
 		self.output('<input type="number" name="percent_complete" value="%s" min="0" max="100" %s/></p>\n' % (issue['Percent_Complete'], hide))
 
@@ -1060,14 +1060,14 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('<p>Duplicate_Of: <input type="text" name="duplicate_of" value=""/></p>\n')
 
 		hide = ''
-		if not config.use_gantt:
+		if not config.use_schedule:
 			hide = 'hidden="yes"'
 
-		if config.use_gantt:
+		if config.use_schedule:
 			self.output('<p>Units_of_Work: ')
 		self.output('<input type="number" name="units_of_work" value="1000" min="0" %s/></p>\n' % hide)
 
-		if config.use_gantt:
+		if config.use_schedule:
 			self.output('<p>Percent_Complete: ')
 		self.output('<input type="number" name="percent_complete" value="0" min="0" max="100" %s/></p>\n' % hide)
 
@@ -1831,11 +1831,11 @@ def _load_config(repo_path):
 		if 'project_name' in conf.keys():
 			config.project_name = conf['project_name']
 
-	if config.use_gantt == False and 'gantt' in conf.keys():
-		if conf['gantt'] == 'True':
-			config.use_gantt = True
+	if config.use_schedule == False and 'schedule' in conf.keys():
+		if conf['schedule'] == 'True':
+			config.use_schedule = True
 		else:
-			config.use_gantt = False
+			config.use_schedule = False
 
 	config.users = []
 	config.users_times = {}
@@ -2702,7 +2702,7 @@ def cmd_init(args):
 	def_config = {
 			'vcs'          : args.vcs,
 			'project_name' : 'Nitpick Project',
-			'gantt'        : False,
+			'schedule'     : False,
 		}
 
 	for key in default_config.keys():
@@ -3437,7 +3437,7 @@ if __name__ == '__main__':
 	import_cmd.add_argument('bugfile')
 	import_cmd.set_defaults(func=cmd_import)
 
-	if config.use_gantt:
+	if config.use_schedule:
 		schedule_cmd = subcmds.add_parser('sched', help='Display computed project schedule')
 		schedule_cmd.set_defaults(func=cmd_schedule)
 
