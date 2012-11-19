@@ -44,6 +44,10 @@
 				<li><a href="#between_branches">Between Branches</a></li>
 				<li><a href="#across_projects">Across Projects</a></li>
 			</ul>
+			<li><a href="#scheduling">Scheduler</a></li> <ul>
+				<li><a href="#configuring_scheduling">Configuring</a></li>
+				<li><a href="#scheduling_introduction">Introduction</a></li>
+			</ul>
 		</ul>
 	</ul>
 
@@ -536,13 +540,9 @@
 		</p>
 
 		<p>
-		Additionally, if you are using the TODO Gantt chart feature, then you will find it
+		Additionally, if you are using the scheduling feature, then you will find it
 		useful configure the number of units of work a developer does per day of the week.
-		The way you do this is to append a string like ' (8,8,8,8,8,0,0)' to the line of the
-		particular user. This particular configuration states that whichever user produces
-		eight units Monday, Tuesday, Wednesday, Thursday and Friday and then doesn't work
-		Saturdays or Sundays. If no work unit production values are configured then a
-		default of zero units for every day of the week is used.
+		For more information see <a href="#configuring_scheduling">here</a>.
 		</p>
 	
 	<a name="configuring_issues"></a><a href="#configuring_issues"><h3>Issues</h3></a>
@@ -569,9 +569,9 @@
 		</p>
 
 		<p>
-		As mentioned in TODO the section on the Gantt feature, fix_by item can have an
-		optional deadline. This is in the format of '{yyyy-mm-dd}' after then fix_by name.
-		ie. '1.0{2012-11-03}'.
+		If you are using the scheduling feature please see
+		<a href="#configuring_scheduling">here</a> for additional project configuration
+		related to that feature.
 		</p>
 
 	<a name="foreign_projects"></a><a href="#foreign_projects"><h2>Foreign Projects</h2></a>
@@ -638,6 +638,128 @@
 		issues. It is recommended all projects have the same configuration. If this is not
 		then case then it is up to the user to ensure that a valid component, state or other
 		issue metadata is chosen for the particular project.
+		</p>
+
+	<a name="scheduling"></a><a href="#scheduling"><h2>Scheduler</h2></a>
+		<p>
+		Nitpick has optional support to use the standard issue information along with some
+		new information to produce an approximate schedule. This schedule provides a view
+		into the timeline of the project with respect to issue balancing and the like.
+		</p>
+
+	<a name="configuring_scheduling"></a><a href="#configuring_scheduling"><h3>Configuring</h3></a>
+		<p>
+		The scheduling feature of Nitpick is an optional feature which is disabled by
+		default. To enable it you must change the value of <tt>schedule</tt> in the
+		.nitpick/config/config file from <tt>False</tt> to <tt>True</tt>.
+		</p>
+
+		<p>
+		Once you have enabled scheduling support in Nitpick you need to provide some
+		information. The first of this is optional per developer indications of how much
+		work they do on each day of a week on average.  The way you do this is to append a
+		string like ' (8,8,8,8,8,0,0)' to the line of the particular user. This particular
+		configuration states that whichever user produces eight units Monday, Tuesday,
+		Wednesday, Thursday and Friday and then doesn't work Saturdays or Sundays. If no
+		work unit production values are configured then a default of zero units for every
+		day of the week is used. A full example of a line could be
+		"<tt>travisb (8,8,8,8,8,0,0)</tt>".
+		</p>
+		
+		<p>
+		The units of work are unitless. Two suggested ways to use this feature are to either
+		consider these units to be hours of work or complexity units from something like 
+		<a href="http://www.codinghorror.com/blog/2007/10/lets-play-planning-poker.html">Planning Poker</a>.
+		It is important that, whether you consider these units to be hours or complexity
+		units or something else, you must keep this interpretation consistent across the
+		developer configuration and the task estimates.
+		</p>
+		
+		<p>
+		It is not necessary that every user in the configuration have a production
+		configuration. Any user which doesn't have such a configuration will have a default
+		configuration which will be used. This configuration will result in any task
+		assigned to them taking several years.
+		</p>
+
+		<p>
+		The Fix_By milestones of the project can also have a date associated with them.
+		This is in the format of '{yyyy-mm-dd}' after then fix_by name,  ie. '1.0{2012-11-03}'.
+		This date is optional, but having it will help the algorithm to schedule tasks for
+		an earlier milestone as early as necessary.
+		</p>
+
+	<a name="scheduling_introduction"></a><a href="#scheduling_introduction"><h3>Scheduling Introduction</h3></a>
+		<p>
+		Accurate scheduling of a software project requires quite complete information on the
+		various tasks, their estimates, completion status and dependencies. Many project
+		scheduling systems require a project manager to glean these bits of information and
+		manually enter them into a separate system. However, most of this information is
+		already available in a bug tracker. Nitpick takes advantage of this fact to provide
+		a simple scheduling tool. Once you have enabled and configured the scheduling
+		feature as above you can reach the schedule through the <tt>Show Schedule</tt> link
+		from the issue list.
+		</p>
+		<div class="screenshot"><img class="screenshot" src="images/schedule_link.png"/></div>
+
+		<p>
+		Upon clicking that link you will be shown the computed schedule. This schedule has
+		several features. The first is that every task is coloured according to its
+		milestone. If the milestone due date appears in the list of dates on the side then
+		it will be coloured to match all its associated tasks. Gaps in the schedule are
+		colours a teal colour, as can be seen by the right bottom-most task. Every column is
+		a user with assigned tasks and every issue title is a link to issue itself.
+		</p>
+		<div class="screenshot"><img class="screenshot" src="images/schedule_schedule.png"/></div>
+
+		<p>
+		The schedule is always computed starting from today. Nitpick won't lie to you about
+		you being able to make your milestone deadlines. This can be seen in the schedule
+		above, even though the Next_Release milestone is has a deadline of November 21st,
+		2012 the tasks associated with that milestone carry on until December 4th. This may
+		be due to incomplete information, such as any partial completion status having
+		not been entered, or the assignment of tasks may not be optimal. Of course, you
+		could just have too many things to do and not enough people to do them.
+		</p>
+
+		<p>
+		The Nitpick scheduling algorithm provides a good schedule, but not an optimal
+		schedule and it doesn't reassign issues to improve the schedule. Issue reassignment
+		must be done manually. If you have many large tasks then frequently updating the
+		completion status is necessary to get accuate schedules.
+		</p>
+		<div class="screenshot"><img class="screenshot" src="images/schedule_issue_info.png"/></div>
+
+		<p>
+		Updating the completion status is as simple as entering the estimated completion
+		into the <tt>Percent_Complete</tt> field. This is a value between 0 and 100. If you
+		don't keep this data up to date then an issue will be considered unstarted until the
+		task is closed. It is not necessary to change the completion status to 100, closing
+		the issue is equivalent.
+		</p>
+
+		<p>
+		One advantage of using the bug tracker data to produce a schedule is that you have
+		all the issues and most of the dependencies already in the database. Nitpick takes
+		all this into account when producing the schedule, so it is important to have work
+		estimates for all bugs and any dependencies which are known. If you look at the
+		schedule and notice a missing dependency you should add it as appropriate and then
+		look at the recomputed schedule.
+		</p>
+
+		<p>
+		One final word on the limitations of scheduling within Nitpick. The algorithm
+		doesn't allow fixed date dependencies, such as you would find if a third party had
+		to deliver some library fix before work can continue. It also doesn't take currently
+		take priorities into account when scheduling. It assumes that every task in the
+		system must be scheduled and it attempts to schedule all tasks as early as possible
+		without unnecessarily extending the schedule. As stated above this algorithm is
+		approximate and shouldn't be taken as gospel. Additionally, the algorithm works best
+		when the developers work on approximately the same days of the week, though it will
+		take into account when it doesn't work out that way. The algorithm is also optimized
+		for multi-day length tasks and rounds all work up to the nearest day. Thus the
+		schedule will be the most accurate when the majority of tasks require at least one
+		day of work.
 		</p>
 </body>
 </html>
