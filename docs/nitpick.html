@@ -626,7 +626,13 @@
 		If using Subversion externals to create the link you must watch out for infinite
 		recursion when creating a link back to the current branch, such as if you wanted to
 		create a Foreign project to the trunk in the trunk so all branches would
-		automatically get the trunk as a Foreign project. The easiest way to avoid this is to setup the svn:external property on the root of your trunk/branch like so <tt>^/trunk/.nitpick .nitpick/foreign/Trunk</tt>. This example would create a Foreign Project to the trunk issue repository. When working on the trunk you won't see a Foreign Project field because all the issues are in the local repository. However, when you go to branch the trunk, the Foreign Project (trunk) will diverge and you will see the different project options.
+		automatically get the trunk as a Foreign project. The easiest way to avoid this is
+		to setup the svn:external property on the root of your trunk/branch like so
+		<tt>^/trunk/.nitpick .nitpick/foreign/Trunk</tt>. This example would create a
+		Foreign Project to the trunk issue repository. When working on the trunk you won't
+		see a Foreign Project field because all the issues are in the local repository.
+		However, when you go to branch the trunk, the Foreign Project (trunk) will diverge
+		and you will see the different project options.
 		</p>
 
 	<a name="across_projects"></a><a href="#across_projects"><h3>Across Projects</h3></a>
