@@ -3183,6 +3183,10 @@ def format_issue_for_export(hash):
 			else:
 				bug[unsafe_hash]['metadata'][nitpick_to_bug[key]] = []
 		else:
+			if key not in nitpick_to_bug:
+				# Not every key gets exported. The scheduling data for example
+				continue
+
 			bug[unsafe_hash]['metadata'][nitpick_to_bug[key]] = issue[key]
 
 	comment_stack = db.produce_comment_tree(hash)
@@ -3277,21 +3281,23 @@ def cmd_import(args):
 			# Create a new issue
 			new_issue = True
 			issue = {
-				'Title'         : 'Issue title',
-				'Severity'      : config.issues['severity'][0],
-				'Priority'      : config.issues['priority'][0],
-				'State'         : config.issues['state'][0],
-				'Type'          : config.issues['type'][0],
-				'Resolution'    : config.issues['resolution'][0],
-				'Component'     : config.issues['components'][0],
-				'Fix_By'        : config.issues['fix_by'][0],
-				'Seen_In_Build' : '',
-				'Date'          : time.strftime(DATEFORMAT, time.gmtime()),
-				'Owner'         : config.users[0],
-				'Reported_By'   : config.username,
-				'Depends_On'    : '',
-				'Duplicate_Of'  : '',
-				'content'       : 'Enter description here'
+				'Title'            : 'Issue title',
+				'Severity'         : config.issues['severity'][0],
+				'Priority'         : config.issues['priority'][0],
+				'State'            : config.issues['state'][0],
+				'Type'             : config.issues['type'][0],
+				'Resolution'       : config.issues['resolution'][0],
+				'Component'        : config.issues['components'][0],
+				'Fix_By'           : config.issues['fix_by'][0],
+				'Seen_In_Build'    : '',
+				'Date'             : time.strftime(DATEFORMAT, time.gmtime()),
+				'Owner'            : config.users[0],
+				'Reported_By'      : config.username,
+				'Depends_On'       : '',
+				'Duplicate_Of'     : '',
+				'Units_of_Work'    : '1000',
+				'Percent_Complete' : '0',
+				'content'          : 'Enter description here'
 				}
 
 		# First process metadata (if it exists) to ensure that the issue exists before handling the comments
