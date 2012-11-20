@@ -6,10 +6,10 @@ Fix_By: 1.1
 Owner: travisb@travisbrown.ca
 Priority: 5
 Reported_By: travisb@travisbrown.ca
-Resolution: None
+Resolution: Fixed
 Seen_In_Build: 
 Severity: Minor
-State: Open
+State: Closed
 Title: Add Project Management Support
 Type: Feature
 --
