@@ -12,5 +12,7 @@ Severity: Critical
 State: Closed
 Title: HTML in comments is intepretted
 Type: Bug
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 If you use HTML in a comment then the browser will interpret it and mess everything up.

@@ -12,5 +12,7 @@ Severity: Blocker
 State: Closed
 Title: SVN support doesn't commit to svn:external foreign projects
 Type: Bug
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 When you comment on a foreign project or create an issue in that foreign project and it isn't a clone the commit controls will not commit those changes.

@@ -12,5 +12,7 @@ Severity: Minor
 State: Closed
 Title: Attachment Support
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 It is often quite useful to have attachments along with an issue, for traces or core dumps or things like that. Add this feature.

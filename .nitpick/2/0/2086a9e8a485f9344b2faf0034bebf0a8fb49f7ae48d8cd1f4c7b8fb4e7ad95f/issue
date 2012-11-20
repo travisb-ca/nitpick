@@ -12,6 +12,8 @@ Severity: Major
 State: Open
 Title: VCS Hooks to email changes out.
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 Most issue trackers have some way to do email notification of changes. This would be good for Nitpick to do. Because of the distributed nature this should be done as part of some VCS hook. That way when the changes are pushed to a central location they can be multicast to interested parties.
 

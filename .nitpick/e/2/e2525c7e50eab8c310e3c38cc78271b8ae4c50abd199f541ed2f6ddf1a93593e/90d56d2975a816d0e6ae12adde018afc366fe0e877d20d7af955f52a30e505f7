@@ -1,0 +1,9 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-11-05 00:33:09
+Parent: b807253608080afa1907aee29751015462475d6679856cfe670ec251670eedac
+User: travisb@travisbrown.ca
+--
+Unfortunately adding that information makes the entire setup NP-Complete.
+
+If I can work out an efficient algorithm for the simple case of only inside the dependency tree, then two modes could be provided. A most where none of the tasks have non-zero earliest possible start times (meaning they can't start immediately assuming all the dependencies where magically complete) and then a mode where there are these external earliest possible start times for some tasks.

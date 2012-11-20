@@ -1,0 +1,11 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-11-03 18:09:44
+Parent: 44075e674d70d14855719836de9db2d90f30bad61f97c18e360df2b3db82c0e2
+User: travisb@travisbrown.ca
+--
+I don't think we should necessarily do a traditional Gantt chart. A traditional Gantt chart has the vertical axis be tasks and the horizontal axis be time. This is reasonable if any particular task requires multiple people or other resources to accomplish, but it makes it difficult to see where juggling people or equipment would shorten the schedule.
+
+Since Nitpick won't support automatic resource balancing manual balancing must be made easy. On most software projects there is only one scarce resource, developer time, so it should be possible to do a different chart.
+
+My current thought is to have developers as the primary vertical axis and time as the horizontal axis. Then you show issues as blocks within that graph. Since it is assumed that only one task may be performed at a time (as that's more efficient of developer time) this should work well. Dependencies between tasks will be shown with links. It may be necessary to have a secondary vertical axis (by having a developer take multiple lines) to help differentiate between issues the same developer does which have a dependency.

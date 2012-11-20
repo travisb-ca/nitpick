@@ -12,5 +12,7 @@ Severity: Minor
 State: Closed
 Title: Default filter selection should be selected
 Type: Bug
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 When the default state/resolution/etc. selection is used the selection boxes have nothing selected. This should instead default to the default selection being selected.

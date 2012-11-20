@@ -45,6 +45,7 @@ URL_REGEX = '([a-z]+://[a-zA-Z0-9-]+\.[a-zA-Z0-9.]+[a-zA-Z0-9/\-.%&?=+_,#]*)'
 ISSUE_REGEX = '([a-f0-9]{8,64})'
 POSIX_CLI_BROWSERS = ['w3m', 'elinks', 'links', 'lynx']
 POSIX_GUI_BROWSERS = [ ('chrome', 'google-chrome'), ('firefox-bin', 'firefox') ]
+NUM_FIXBY_COLOURS = 13
 
 # Contains the defaults used to initalize a database
 class config:
@@ -60,6 +61,7 @@ class config:
 	users = ['Unassigned']
 	vcs = None
 	project_name = 'Nitpick Project'
+	use_schedule = False
 	db_path = ''
 	username = ''
 	endweb = False
@@ -220,6 +222,111 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 					.command_bar {
 						width: 100%%;
 					}
+
+					.schedule table {
+						border-style: solid;
+						border-width: 0.1em;
+						margin-top: 1em;
+						margin-bottom: 1em;
+						margin-left: auto;
+						margin-right: auto;
+					}
+
+					.schedule td {
+						padding-right: 0.5em;
+						padding-left: 0.5em;
+						text-align: center;
+					}
+
+					.schedule_td {
+						overflow: hidden;
+					}
+
+					.schedule th {
+						padding-right: 0.5em;
+						padding-left: 0.5em;
+						text-align: center;
+						vertical-align: bottom;
+						font-size: 125%%;
+					}
+
+					.schedule_user {
+						width: 0.5em;
+					}
+
+					.schedule_user th {
+						width: 1em;
+						letter-spacing: 0.1em;
+						text-align: center;
+					}
+
+					.schedule a:link { text-decoration: none; }
+					.schedule a:hover { text-decoration: underline; }
+
+					/* Separate col1 and col2 to alternate colours */
+					.schedule_col0 {
+						background: White;
+					}
+
+					.schedule_col1 {
+						background: LightGrey;
+					}
+
+					.schedule_gap {
+						background: Aquamarine;
+					}
+
+					.schedule_fixby0 {
+						background: Aqua;
+					}
+
+					.schedule_fixby1 {
+						background: BurlyWood;
+					}
+
+					.schedule_fixby2 {
+						background: Charteuse;
+					}
+
+					.schedule_fixby3 {
+						background: Coral
+					}
+
+					.schedule_fixby4 {
+						background: DarkKhaki;
+					}
+
+					.schedule_fixby5 {
+						background: DarkSeaGreen;
+					}
+
+					.schedule_fixby6 {
+						background: DarkTurquoise;
+					}
+
+					.schedule_fixby7 {
+						background: GhostWhite;
+					}
+
+					.schedule_fixby8 {
+						background: Gold;
+					}
+
+					.schedule_fixby9 {
+						background: GreenYellow;
+					}
+
+					.schedule_fixby10 {
+						background: Lavender;
+					}
+
+					.schedule_fixby11 {
+						background: LightBlue;
+					}
+
+					.schedule_fixby12 {
+						background: LightPink;
+					}
 					</style>
 				</head>
 			<body %s>
@@ -268,7 +375,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 			'''))
 
-	def format_issue(self, issue):
+	# Format the issue as a link with useful information. If description is True then the
+	# description will be used as the text instead of the partial hash.
+	def format_issue(self, issue, description=False):
 		leader = ''
 		follower = ''
 
@@ -280,7 +389,18 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			leader = '<strike>'
 			follower = '</strike>'
 
-		output = '%s<a href="/issue/%s">%s</a>%s' % (leader, issue, issue[:8], follower)
+		i = db.issue(issue)
+		if i != None:
+			title = '%s: %s' % (issue[:8], i['Title'])
+		else:
+			title = ''
+
+		if not description or i == None or i['Title'] == '':
+			desc = issue[:8]
+		else:
+			desc = i['Title']
+
+		output = '%s<a title="%s" href="/issue/%s">%s</a>%s' % (leader, title, issue, desc, follower)
 		return output
 
 	def root(self):
@@ -288,7 +408,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.start_doc('')
 
-		self.output('<p><a href="/new_issue">Create new issue</a></p>\n')
+		self.output('<p><a href="/new_issue">Create new issue</a>\n')
+		if config.use_schedule:
+			self.output(' <a href="/schedule">Show Schedule</a></p>\n')
 
 		if self.request_args == {}:
 			# Use defaults since this is the first time here
@@ -706,6 +828,19 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.output('<p>Duplicate_Of: %s</p>\n' % shorten_and_link_issues(duplicate_issues))
 		self.output('<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<textarea rows="1" cols="70" name="duplicate_of">%s</textarea></p>\n' % issue['Duplicate_Of'])
+
+		hide = ''
+		if not config.use_schedule:
+			hide = 'hidden="yes"'
+
+		if config.use_schedule:
+			self.output('<p>Units_of_Work: ')
+		self.output('<input type="number" name="units_of_work" value="%s" min="0" %s/></p>\n' % (issue['Units_of_Work'], hide))
+
+		if config.use_schedule:
+			self.output('<p>Percent_Complete: ')
+		self.output('<input type="number" name="percent_complete" value="%s" min="0" max="100" %s/></p>\n' % (issue['Percent_Complete'], hide))
+
 		self.output('</div>\n')
 
 		self.output('<input type="submit" value="Update" />\n')
@@ -934,6 +1069,19 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.output('<p>Depends_On: <input type="text" name="depends_on" value=""/></p>\n')
 		self.output('<p>Duplicate_Of: <input type="text" name="duplicate_of" value=""/></p>\n')
+
+		hide = ''
+		if not config.use_schedule:
+			hide = 'hidden="yes"'
+
+		if config.use_schedule:
+			self.output('<p>Units_of_Work: ')
+		self.output('<input type="number" name="units_of_work" value="1000" min="0" %s/></p>\n' % hide)
+
+		if config.use_schedule:
+			self.output('<p>Percent_Complete: ')
+		self.output('<input type="number" name="percent_complete" value="0" min="0" max="100" %s/></p>\n' % hide)
+
 		self.output('</div>\n')
 
 		self.output('<div class="new_issue_text_wrapper"><p><textarea name="content" rows="20" cols="80">Enter description here</textarea></p>\n')
@@ -971,6 +1119,146 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		attachment = open(attachment_path, 'r')
 		self.wfile.write(attachment.read())
 		attachment.close()
+
+	def schedule(self):
+		db.load_issue_db()
+
+		schedule = schedule_all_tasks()
+		self.start_doc('Project Schedule')
+
+		self.output('<div class="schedule"><table cellspacing="0" rules="all">\n')
+
+		# Alternate column colours
+		colour = 1
+		self.output('<colgroup><col class="schedule_col0"/></colgroup>')
+		for user in schedule.keys():
+			self.output('<colgroup><col class="schedule_col%d"/></colgroup>' % colour)
+			colour = (colour + 1) % 2
+
+		self.output('<tr><th>Date</th> ')
+
+		# Output usernames
+		for user in schedule.keys():
+			self.output('<th class="schedule_user"><div class="schedule_user">%s</div></th> ' % ' '.join(user))
+		self.output('</tr>\n')
+
+		one_day = datetime.timedelta(days=1)
+
+		# Find the date range we'll need
+		dates_start = schedule.values()[0][0].sched_start_date
+		dates_end = dates_start
+		for peruser in schedule.values():
+			for task in peruser:
+				if task.sched_start_date < dates_start:
+					dates_start = task.sched_start_date
+				if task.sched_end_date > dates_end:
+					dates_end = task.sched_end_date
+
+		# Create a reverse index keyed on date for the milestones. This is so we can
+		# highlight and label the milestones.
+		milestones = {}
+		for fix_by in config.fix_by_dates.keys():
+			times = config.fix_by_dates[fix_by].split('-')
+			if times != ['']:
+				times = map(int, times)
+				milestones[datetime.date(times[0], times[1], times[2])] = fix_by
+
+		# We need to precompute the entire table in order to know how many rows any
+		# particular task should span.
+
+		# Number of columns a user needs to handle their overlapping tasks
+		num_columns = {}
+		# The precomputed rows, a list of dictionaries. Each dictionary has one entry per
+		# user who has a task or gap which starts in that row.
+		rows = {}
+
+		for user in schedule.keys():
+			needed_columns = 1
+			last_issue_end = dates_start
+
+			for task in schedule[user]:
+				if task.sched_start_date > last_issue_end + one_day:
+					# Add a gap
+					row_num = (last_issue_end + one_day - dates_start).days
+
+					if row_num not in rows:
+						rows[row_num] = {}
+
+					rows[row_num][user] = ('gap', 
+							(task.sched_start_date - one_day - last_issue_end).days)
+					last_issue_end = task.sched_end_date - one_day
+
+				row_num = (task.sched_start_date - dates_start).days
+
+				if row_num not in rows:
+					rows[row_num] = {}
+
+				rows[row_num][user] = (task, 
+						(task.sched_end_date + one_day - task.sched_start_date).days)
+				last_issue_end = task.sched_end_date
+
+			if last_issue_end < dates_end:
+				# One last gap to the end of the schedule
+				row_num = (last_issue_end + one_day - dates_start).days
+
+				if row_num not in rows:
+					rows[row_num] = {}
+
+				rows[row_num][user] = ('gap', 
+						(dates_end - last_issue_end).days)
+
+			num_columns[user] = needed_columns
+
+		# The fix_by colours are assigned as they are used in an attempt to make the colour order consistent.
+		last_fixby_num = {'key' : -1} # Make sure we start at the first one
+		fixby_colour = {}
+
+		# Returns a string which is the correct class to use to get the proper fix_by colour
+		def choose_fixby_colour(fix_by):
+			if fix_by not in fixby_colour:
+				fixby_colour[fix_by] = (last_fixby_num['key'] + 1) % NUM_FIXBY_COLOURS
+				last_fixby_num['key'] = (last_fixby_num['key'] + 1) % NUM_FIXBY_COLOURS
+			colour = 'schedule_fixby%d' % fixby_colour[fix_by]
+			return colour
+
+		d = dates_start
+		while d <= dates_end:
+			if d in milestones:
+				colour = choose_fixby_colour(milestones[d])
+				self.output('<tr class="%s"><th>%s %s</th> ' % (colour, milestones[d], d))
+			else:
+				self.output('<tr class="schedule"><th>%s</th> ' % d)
+
+			row_num = (d - dates_start).days
+
+			# Since tasks can cover multiple rows, it's quite likely that some rows
+			# won't have any tasks whick start in them.
+			try:
+				row = rows[row_num]
+
+				for user in schedule.keys():
+					if user in row:
+						task, num_rows = row[user]
+
+						if task == 'gap':
+							task_text = ''
+							colour = 'schedule_gap'
+						else:
+							task_text = self.format_issue(task.hash, True)
+							colour = choose_fixby_colour(task.issue['Fix_By'])
+
+						self.output('<td rowspan="%d" class="%s"><div class="schedule_td" style="max-height: %fem">%s</div></td> ' % 
+								(num_rows, colour, num_rows * 1.1, task_text))
+			except:
+				pass
+
+
+			self.output('</tr>\n')
+			d += one_day
+
+		self.output('</table></div>\n')
+
+		self.end_doc()
 
 	def robots(self):
 		self.send_response(404)
@@ -1053,6 +1341,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		   'resolution' not in self.request_args.keys() or \
 		   'depends_on' not in self.request_args.keys() or \
 		   'duplicate_of' not in self.request_args.keys() or \
+		   'units_of_work' not in self.request_args.keys() or \
+		   'percent_complete' not in self.request_args.keys() or \
 		   'fix_by' not in self.request_args.keys():
 			   self.start_doc('Error')
 			   self.output('Invalid arguments')
@@ -1070,6 +1360,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			db.issue(issue)['Resolution'] == self.request_args['resolution'] and \
 			db.issue(issue)['Depends_On'] == self.request_args['depends_on'] and \
 			db.issue(issue)['Duplicate_Of'] == self.request_args['duplicate_of'] and \
+			db.issue(issue)['Units_of_Work'] == self.request_args['units_of_work'] and \
+			db.issue(issue)['Percent_Complete'] == self.request_args['percent_complete'] and \
 			db.issue(issue)['Fix_By'] == self.request_args['fix_by']:
 				self.start_doc('No change')
 				self.output('<p>No change sent, no change made</p>')
@@ -1093,6 +1385,22 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			db.change_issue(issue, 'Resolution', self.request_args['resolution'])
 		if db.issue(issue)['Fix_By'] != self.request_args['fix_by']:
 			db.change_issue(issue, 'Fix_By', self.request_args['fix_by'])
+		if db.issue(issue)['Units_of_Work'] != self.request_args['units_of_work']:
+			if float(self.request_args['units_of_work']) < 0:
+				self.start_doc('Invalid value')
+				self.output('<p>Invalid value for Units_of_Work %s. Must be greater or equal to zero</p>' % self.request_args['units_of_work'])
+				self.output('<a href="/issue/%s">Back to issue %s</a>\n' % (issue, issue[:8]))
+				self.end_doc()
+				return
+			db.change_issue(issue, 'Units_of_Work', self.request_args['units_of_work'])
+		if db.issue(issue)['Percent_Complete'] != self.request_args['percent_complete']:
+			if float(self.request_args['percent_complete']) < 0 or float(self.request_args['percent_complete']) > 100:
+				self.start_doc('Invalid value')
+				self.output('<p>Invalid value for Percent_Complete %s. Must be between 0 and 100</p>' % self.request_args['percent_complete'])
+				self.output('<a href="/issue/%s">Back to issue %s</a>\n' % (issue, issue[:8]))
+				self.end_doc()
+				return
+			db.change_issue(issue, 'Percent_Complete', self.request_args['percent_complete'])
 
 		# Returns a string of issues if valid, or None if invalid
 		def check_issue_list_string(issues):
@@ -1154,6 +1462,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		   'reported_by' not in self.request_args.keys() or \
 		   'depends_on' not in self.request_args.keys() or \
 		   'duplicate_of' not in self.request_args.keys() or \
+		   'units_of_work' not in self.request_args.keys() or \
+		   'percent_complete' not in self.request_args.keys() or \
 		   (db.has_foreign() and ('repo' not in self.request_args.keys() or \
 		   	self.request_args['repo'] not in db.repos())) or \
 		   'content' not in self.request_args.keys():
@@ -1161,6 +1471,18 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			   self.output('Invalid arguments')
 			   self.end_doc()
 			   return
+
+		if float(self.request_args['units_of_work']) < 0:
+			self.start_doc('Invalid value')
+			self.output('<p>Invalid value for Units_of_Work %s. Must be greater or equal to zero</p>' % self.request_args['units_of_work'])
+			self.end_doc()
+			return
+
+		if float(self.request_args['percent_complete']) < 0 or float(self.request_args['percent_complete']) > 100:
+			self.start_doc('Invalid value')
+			self.output('<p>Invalid value for Percent_Complete %s. Must be between 0 and 100</p>' % self.request_args['percent_complete'])
+			self.end_doc()
+			return
 
 		issue = {
 				'Title' : self.request_args['title'],
@@ -1177,6 +1499,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				'Reported_By' : self.request_args['reported_by'],
 				'Depends_On' : self.request_args['depends_on'],
 				'Duplicate_Of' : self.request_args['duplicate_of'],
+				'Units_of_Work' : self.request_args['units_of_work'],
+				'Percent_Complete' : self.request_args['percent_complete'],
 				'content' : self.request_args['content']
 			}
 
@@ -1259,6 +1583,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.favicon()
 		elif '/export/' in self.path:
 			self.export()
+		elif '/schedule' == self.path:
+			self.schedule()
 		else:
 			print "Got unhandled get path %s" % self.path
 			self.root()
@@ -1475,6 +1801,8 @@ def format_file(path, data):
 	file.close()
 
 def _load_config(repo_path):
+	config.fix_by_dates = {}
+
 	conf = parse_file(repo_path + 'config/config')
 	for key in ['components', 'fix_by', 'priority', 'severity', 'state', 'resolution', 'type']:
 		if config.issues[key] == []:
@@ -1486,11 +1814,26 @@ def _load_config(repo_path):
 			conf_items = string.split(conf[key], sep = ' ')
 			conf_items.reverse()
 			for item in conf_items:
-				if item not in config.issues[key]:
-					if first_run:
-						config.issues[key].insert(0, item)
+				if key != 'fix_by':
+					item_val = item
+					item_date = ''
+				else:
+					due_date = re.search('(.*)\{([0-9]{4,}-(01|02|03|04|05|06|07|08|09|10|11|12)-([012][1-9]|10|20|30|31))\}', item)
+					if due_date == None:
+						item_val = item
+						item_date = ''
 					else:
-						config.issues[key].insert(-1, item)
+						item_val = due_date.group(1)
+						item_date = due_date.group(2)
+
+				if item_val not in config.issues[key]:
+					if first_run:
+						config.issues[key].insert(0, item_val)
+					else:
+						config.issues[key].insert(-1, item_val)
+					if key == 'fix_by':
+						config.fix_by_dates[item_val] = item_date
+
 	if config.vcs == None:
 		for key in ['vcs']:
 			if key in conf.keys() and conf[key] in BACKENDS:
@@ -1499,10 +1842,32 @@ def _load_config(repo_path):
 		if 'project_name' in conf.keys():
 			config.project_name = conf['project_name']
 
+	if config.use_schedule == False and 'schedule' in conf.keys():
+		if conf['schedule'] == 'True':
+			config.use_schedule = True
+		else:
+			config.use_schedule = False
+
 	config.users = []
+	config.users_times = {}
 	for line in fileinput.input(repo_path + 'config/users'):
-		if line != '\n' and line not in config.users:
-			config.users.append(string.strip(line))
+		if line == '\n':
+			continue
+
+		work_units = re.search('(.*) \(([0-9.]+,[0-9.]+,[0-9.]+,[0-9.]+,[0-9.]+,[0-9.]+,[0-9.]+)\)', line)
+
+		if work_units == None:
+			name = line
+			work_units = '0,0,0,0,0,0,0'
+		else:
+			name = work_units.group(1)
+			work_units = work_units.group(2)
+
+		name = string.strip(name)
+
+		if name not in config.users:
+			config.users.append(name)
+			config.users_times[name] = work_units.split(',')
 
 
 # Load the configuration out of the database.
@@ -1942,6 +2307,392 @@ class IssueDB:
 
 		return True
 
+# The object which contains all the scheduling information for the task scheduling.
+class SchedIssue():
+	def __init__(self, issue):
+		self.hash = issue
+		self.issue = db.issue(issue)
+		self.work_units = float(self.issue['Units_of_Work']) * (1 - float(self.issue['Percent_Complete'])/100)
+		self.owner = self.issue['Owner']
+		self.owner_production = config.users_times[self.owner]
+
+		units_per_week = sum([float(i) for i in self.owner_production])
+		if units_per_week == 0:
+			units_per_week = 0.000001
+		self.estimated_work_weeks = self.work_units / units_per_week
+
+		self.critical_work_weeks = -1 # Total number of work weeks this must start before the deadline
+		self.sched_start_date = None # The earliest this can start according to the plan
+		self.sched_end_date = None # When this should be finished given correct estimates and it start at sched_start_date
+
+		self.depends_on = []
+		self.dependent_of = []
+
+	def __repr__(self):
+		return repr({
+			'issue': self.issue,
+			'owner' : self.owner,
+			'owner_production' : self.owner_production,
+			'estimated_work_weeks' : self.estimated_work_weeks,
+			'critical_work_weeks' : self.critical_work_weeks,
+			'sched_start_date' : self.sched_start_date,
+			'sched_end_date' : self.sched_end_date,
+			'depends_on' : self.depends_on,
+			'dependent_of' : self.dependent_of,
+			})
+
+# Use the entire list of issues and return a dictionary of lists, keyed off the owner, of the order
+# issues should be completed. Each of these issues will be a SchedIssue and have various scheduling
+# pieces of information.
+#
+# Returns None if there is a loop.
+def schedule_all_tasks():
+	debug_scheduling = False
+
+	load_db()
+
+	# We only want issues which aren't closed
+	def isnt_closed(issue):
+		if db.issue(issue)['State'] != config.issues['state'][-1]:
+			return True
+		return False
+
+	issue_list = filter(isnt_closed, db.issues())
+	issues = {i: SchedIssue(i) for i in issue_list}
+
+	# Now fill in the dependency graph, the depends_on issues first
+	for issue in issues.values():
+		def f(issue):
+			return issue in issues
+		issue.depends_on = [issues[i] for i in filter(f, issue.issue['Depends_On'].split(' '))]
+
+	# Now fill in the dependent_of issues
+	for issue in issues.values():
+		for i in issue.depends_on:
+			i.dependent_of.append(issue)
+
+	# Compute the number of days each milestone must be completed before the latest milestone.
+	# This will help order the tasks by making the root of their dependency tree (working
+	# backwards in time) pegged to come so many days before the last milestone should happen.
+	# This won't perform miracles however, if the schedule is impossible it still won't happen.
+	fix_by_dates = filter(lambda d: d != '', config.fix_by_dates.values())
+	last_fixby_date = max([datetime.datetime.strptime(d, '%Y-%m-%d') for d in fix_by_dates])
+	fixby_critical_weeks = {}
+	for fix_by in config.fix_by_dates.keys():
+		if config.fix_by_dates[fix_by] == '':
+			continue
+		fix_by_date = datetime.datetime.strptime(config.fix_by_dates[fix_by], '%Y-%m-%d')
+		fixby_critical_weeks[fix_by] = (last_fixby_date - fix_by_date).days / 7
+	
+	# Now compute the total number of workweeks work must begin before the deadline in order to
+	# make the deadline. We start with the set of tasks which are at the end of the line and
+	# recurse from there.
+	visited_issues = []
+	task_stack = filter(lambda i: len(i.dependent_of) == 0, issues.values())
+	task_stack = [(i, fixby_critical_weeks[i.issue['Fix_By']]) for i in task_stack]
+
+	while len(task_stack) > 0:
+		task_stack.append(task_stack[-1])
+		i, parent_val = task_stack.pop()
+
+		if len(visited_issues) > 0 and i.hash == visited_issues[-1].hash:
+			# We've already processed this, pop the stack
+			visited_issues.pop()
+			task_stack.pop()
+			continue
+
+		work_weeks = max(0.00001, i.estimated_work_weeks)
+		i.critical_work_weeks = max(i.critical_work_weeks, work_weeks + parent_val)
+
+		if i in visited_issues:
+			if debug_scheduling:
+				print "Dependency loop detected in issues %s. Not recursing" % i.hash
+			return None
+		else:
+			visited_issues.append(i)
+			task_stack.extend([(child, i.critical_work_weeks) for child in i.depends_on])
+
+	# Now we sort all the issues by the critical number of work weeks in descending order. This
+	# does two things. First it is a topological sort because there are no cycles (tested above)
+	# and issues always have a higher critical_work_weeks value than its dependents.
+	priority_list = sorted(issues.values(), key=lambda i: i.critical_work_weeks, reverse=True)
+	
+	# Now we separate the tasks into a list for each owner. At this time we also configure
+	# initial start and end dates for the tasks. We'll refine these in further steps. We are
+	# careful to ensure that the start and end dates occur on days the owner will be working.
+	timelines = {}
+	today = datetime.date.today()
+	one_day = datetime.timedelta(days=1)
+
+	def move_to_workday(date, work_week):
+		# Returns the actual date to use. This will be incrementally moved ahead to a work
+		# day based upon the work hours of the owner.
+		#
+		# work_week is the owner_production list
+		if work_week == ['0', '0', '0', '0', '0', '0', '0']:
+			# This person never works, so we shouldn't move anything
+			return date
+
+		while work_week[date.weekday()] == '0':
+			date = date + one_day
+
+		return date
+
+	def compute_task_end_date(issue):
+		units_remaining = issue.work_units
+		issue.sched_end_date = issue.sched_start_date
+		first = True
+		while units_remaining > 0:
+			if not first:
+				issue.sched_end_date = issue.sched_end_date + one_day
+			else:
+				first = False
+
+			if issue.owner_production == ['0', '0', '0', '0', '0', '0', '0']:
+				# The owner doesn't work, so take forever
+				work_done = 0.001
+			else:
+				work_done = float(issue.owner_production[issue.sched_end_date.weekday()])
+			units_remaining = units_remaining - work_done
+
+	for issue in priority_list:
+		if issue.owner not in timelines:
+			timelines[issue.owner] = []
+
+		# Compute start time
+		if timelines[issue.owner] == []:
+			# Start today because there are no tasks before this one
+			issue.sched_start_date = today
+		else:
+			# Start one day after the last task
+			last_issue = timelines[issue.owner][-1]
+			issue.sched_start_date = last_issue.sched_end_date + one_day
+		issue.sched_start_date = move_to_workday(issue.sched_start_date,
+				issue.owner_production)
+
+		timelines[issue.owner].append(issue)
+
+		compute_task_end_date(issue)
+
+	def print_schedule():
+		if not debug_scheduling:
+			return
+
+		for user in timelines.keys():
+			for issue in timelines[user]:
+				print 'User: %s Issue %s Start: %s End: %s' % (user, issue.hash,
+						issue.sched_start_date, issue.sched_end_date)
+	print_schedule()
+
+	# Now we go through, again following the topological sort, to fix up any dates which don't
+	# match the dependency graph. This can happen if two dependent tasks are owned by different
+	# people. Anytime we move something forward, we have to move everything behind it forward
+	# for that same person to avoid overlaps.
+	for issue in priority_list:
+		dependency_finish_date = [i.sched_end_date for i in issue.depends_on]
+
+		# We count the previous item in the person's queue as a dependency here to ensure
+		# that we don't have any overlaps. Since we are iterating in sort order we only have
+		# to be concerned with the previous task. Even if this task gets moved ahead several
+		# other tasks they'll all be moved forward because of this dependency when the are
+		# processed.
+		queue_num = timelines[issue.owner].index(issue)
+		if queue_num > 0:
+			dependency_finish_date.append(timelines[issue.owner][queue_num - 1].sched_end_date)
+
+		if debug_scheduling:
+			print issue.hash, queue_num, dependency_finish_date
+		
+		if dependency_finish_date == []:
+			dependency_finish_date = move_to_workday(today, issue.owner_production) - one_day
+		else:
+			dependency_finish_date = max(dependency_finish_date)
+
+		while issue.sched_start_date <= dependency_finish_date:
+			# For each day we have to shift this task, we make sure to shift both the
+			# start and finish and to keep the start and finish on workdays
+			def is_workday(owner, date):
+				return float(owner[date.weekday()]) > 0
+
+			if is_workday(issue.owner_production, issue.sched_start_date):
+				issue.sched_end_date = issue.sched_end_date + one_day
+				issue.sched_end_date = move_to_workday(issue.sched_end_date,
+						issue.owner_production)
+
+			issue.sched_start_date = issue.sched_start_date + one_day
+
+		# Ensure that the start is a workday, since it may have been moved onto a weekend
+		issue.sched_start_date = move_to_workday(issue.sched_start_date,
+				issue.owner_production)
+
+	print_schedule()
+
+	# Now that we have the critical path laid out we will have a number of gaps due to the
+	# dependency graph. We now try to move items backwards in time to fill these gaps. This
+	# should pull unrelated items backwards in time. Unfortunately we have to do this in time
+	# order across all the users, which makes the algorithm a bit annoying. We have to do this
+	# to maximize the possibilities of depends_on items being moved earlier before a task is
+	# moved, since we must at all times adhere to the dependency graph.
+	
+	# Find the next gap in the schedule of the given user and update user_list.
+	#
+	# Userlist is a dictionary of tuples, one per user. The tuple is (start date, index). The
+	# start date is start date of the next gap. The index is the index of the next queue item
+	# which the gap is before.
+	#
+	# If the user doesn't have anymore gaps they will be removed from the user_list.
+	def get_next_gap(user, user_list, timelines):
+		start_date = user_list[user][0]
+		index = user_list[user][1]
+		max_index = len(timelines[user])
+
+		if debug_scheduling:
+			if index == -1:
+				i = 0
+			else:
+				i = index
+			print 'Starting %s at %s %s' % (user, start_date, timelines[user][i].sched_start_date)
+
+		if index == -1:
+			if timelines[user] == []:
+				# The user_list as just been created and the user has no task assigned,
+				# remove them
+				if debug_scheduling:
+					print "User %s has no tasks" % user
+				del user_list[user]
+				return
+			else:
+				index = 0
+				if start_date < timelines[user][index].sched_start_date:
+					if debug_scheduling:
+						print 'There is a gap at the beginning, using it'
+					user_list[user] = (start_date, index)
+					return
+
+		start_date = move_to_workday(start_date, timelines[user][0].owner_production)
+		
+		if debug_scheduling:
+			print start_date, timelines[user][index].sched_start_date
+
+		first_time = True # Ensure that we always make progress
+		while first_time or start_date >= timelines[user][index].sched_start_date:
+			first_time = False
+			start_date = timelines[user][index].sched_end_date + one_day
+			start_date = move_to_workday(start_date, timelines[user][0].owner_production)
+			index += 1
+
+			if index >= max_index:
+				# There are no scheduled tasks beyond the last gap, so this user is
+				# done. Remove them.
+				if debug_scheduling:
+					print "Reached end of queue for user %s" % user
+				del user_list[user]
+				return
+
+			user_list[user] = (start_date, index)
+		if debug_scheduling:
+			print 'Finishing at %s' % start_date
+
+	user_list = {user: (today, -1) for user in timelines.keys()}
+	for user in user_list.keys():
+		get_next_gap(user, user_list, timelines)
+
+	if debug_scheduling:
+		print "starting userlist", user_list
+
+	while len(user_list.keys()) > 0:
+		# Find the user with the nearest gap start
+		user = user_list.keys()[0]
+		for u in user_list.keys():
+			if user_list[u][0] < user_list[user][0]:
+				user = u
+
+		if debug_scheduling:
+			print 'Traverting user %s' % user
+
+		gap_start = user_list[user][0]
+		gap_index = user_list[user][1]
+
+		# Compute length of gap
+		gap_end = gap_start
+		gap_length = 0
+		while gap_end < timelines[user][gap_index].sched_start_date:
+			gap_length += float(timelines[user][0].owner_production[gap_end.weekday()])
+			gap_end += one_day
+		gap_end -= one_day
+
+		if debug_scheduling:
+			print "gap start", gap_start, 'gap end', gap_end, 'gap length', gap_length
+		
+		# Find first task which will fit into this gap and is allowed by the dependency
+		# graph. This is suboptimal, but an optimal choice would likely require dynamic
+		# programming. It is perhaps possible to do better by finding the longest task which
+		# will fit, but that doesn't take into account that a shorter task may be on a
+		# longer path than a longer task.
+		task = None
+		new_task_start = gap_start
+		for i in range(gap_index, len(timelines[user])):
+			t = timelines[user][i]
+
+			if debug_scheduling:
+				print 'checking task %s' % t.hash[:8]
+
+			if t.work_units > gap_length:
+				if debug_scheduling:
+					print 'Rejecting due to gap length %f %f' % (t.work_units, gap_length)
+				continue
+
+			dependency_dates = [i.sched_end_date for i in t.depends_on]
+			if len(dependency_dates) > 0 and max(dependency_dates) >= gap_end:
+				if debug_scheduling:
+					print 'Rejecting due to dependency', max(dependency_dates), gap_end
+				continue
+
+			# We now know that the task will fit if it starts at the beginning of the
+			# gap and that it can start before the end of the gap, so we need to test if
+			# it can be finished inside the gap given the earliest the it can start due
+			# to the dependencies.
+			dependency_dates.append(gap_start)
+			new_task_start = max(dependency_dates)
+			d = new_task_start
+			l = 0
+			while d <= gap_end:
+				l += float(timelines[user][0].owner_production[d.weekday()])
+				d += one_day
+			if l < t.work_units:
+				# Turns out it can't be finished
+				if debug_scheduling:
+					print 'Rejecting due to mid-gap length', t.work_units, l
+				continue
+		
+			# This task fits, use it
+			task = t
+			break
+
+	
+		if task != None:
+			if debug_scheduling:
+				print 'using task %s' % task.hash[:8]
+
+			# Put the task we found into the gap and continue
+			del timelines[user][i]
+			timelines[user].insert(gap_index, task)
+
+			task.sched_start_date = move_to_workday(new_task_start,
+					task.owner_production)
+			compute_task_end_date(task)
+		else:
+			if debug_scheduling:
+				print 'No task fits this gap'
+
+		print_schedule()
+		get_next_gap(user, user_list, timelines)
+
+	if debug_scheduling:
+		print "Final schedule"
+		print_schedule()
+	return timelines
+
 # Ensure that there is an editor to use for editing files
 # Returns None and prints an error if no editor is found.
 # Otherwise returns the editor to use
@@ -1959,7 +2710,12 @@ def cmd_init(args):
 	backend = BACKENDS[args.vcs]
 	config.db_path = args.dir + '/'
 
-	def_config = {'vcs' : args.vcs, 'project_name' : 'Nitpick Project'}
+	def_config = {
+			'vcs'          : args.vcs,
+			'project_name' : 'Nitpick Project',
+			'schedule'     : False,
+		}
+
 	for key in default_config.keys():
 		def_config[key] = ' '.join(default_config[key])
 
@@ -2016,6 +2772,8 @@ def cmd_new(args):
 			'Reported_By'   : config.username,
 			'Depends_On'    : '',
 			'Duplicate_Of'  : '',
+			'Units_of_Work' : '1000', # A large default value to force people to estimate if they use that feature
+			'Completion'    : '0',
 			'content'       : 'Enter description here'
 		}
 	format_file(config.db_path + 'new.tmp', issue)
@@ -2582,6 +3340,23 @@ def cmd_import(args):
 	db.save_issue_db()
 	return True
 
+def cmd_schedule(args):
+	if config.db_path == '':
+		return False
+
+	schedule = schedule_all_tasks()
+	for user in schedule.keys():
+		for issue in schedule[user]:
+			if db.issue(issue.hash)['Percent_Complete'] == '0':
+				action = 'Start'
+			else:
+				action = 'Continue'
+
+			print 'User: %-25s Issue: %s %s: %s End: %s' % (user, issue.hash[:8], action,
+					issue.sched_start_date, issue.sched_end_date)
+	
+	return True
+
 if __name__ == '__main__':
 	load_config()
 
@@ -2672,6 +3447,10 @@ if __name__ == '__main__':
 	import_cmd = subcmds.add_parser('import', help='Import all bugs in bug file')
 	import_cmd.add_argument('bugfile')
 	import_cmd.set_defaults(func=cmd_import)
+
+	if config.use_schedule:
+		schedule_cmd = subcmds.add_parser('sched', help='Display computed project schedule')
+		schedule_cmd.set_defaults(func=cmd_schedule)
 
 	args = parser.parse_args()
 	result = args.func(args)

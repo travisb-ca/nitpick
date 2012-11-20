@@ -12,5 +12,7 @@ Severity: Major
 State: Closed
 Title: Add Mecurial Support
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 As with the "Adding Git Issue" (27960128a7c0fb917e570546d8423b679334139e72214dd7a77d65f48d8e50e7), Mecurial is a popular DVCS so support should be added for it.

@@ -12,6 +12,8 @@ Severity: Major
 State: Open
 Title: Modifiable Readonly Foreign Repositories
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 An additional useful feature for foreign repositories may be to allow adding comments and changing states of readonly subservient databases. Say if a project had an issue database and some distro also does and the maintainer uses the distro database as a subservient database.
 

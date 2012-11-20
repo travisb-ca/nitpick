@@ -12,6 +12,8 @@ Severity: Minor
 State: Closed
 Title: Supply a favicon
 Type: Bug
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 Some webbrowsers insist on trying to find a favicon.ico file. Since nitpick doesn't yet have one it causes an annoying exception when it is requested.
 
@@ -19,6 +21,8 @@ Starting server on localhost:18080
 Got unhandled get path /favicon.ico
 Depends_On:
 Duplicate_Of:
+Units_of_Work: 1000
+Percent_Complete: 0
 ----------------------------------------
 Exception happened during processing of request from ('127.0.0.1', 51483)
 Traceback (most recent call last):
@@ -37,6 +41,8 @@ Traceback (most recent call last):
 error: [Errno 32] Broken pipe
 Depends_On:
 Duplicate_Of:
+Units_of_Work: 1000
+Percent_Complete: 0
 ----------------------------------------
 Got unhandled get path /favicon.ico
 

@@ -12,5 +12,7 @@ Severity: Blocker
 State: Closed
 Title: Issues which have disappeared won't be deleted from cache
 Type: Bug
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 I had to disable removing issues which have disappeared from the repository from the cache in order to support merging issue lists from various foreign project clones. Re-implement this support.

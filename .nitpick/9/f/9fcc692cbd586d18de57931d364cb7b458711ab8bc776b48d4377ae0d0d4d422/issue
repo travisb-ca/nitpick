@@ -12,5 +12,7 @@ Severity: Major
 State: Closed
 Title: Start Webbrowsers on Linux
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 Figure out how to put forth a good effort to open a tab/start a webbrowser when running on Linux and starting the web UI.

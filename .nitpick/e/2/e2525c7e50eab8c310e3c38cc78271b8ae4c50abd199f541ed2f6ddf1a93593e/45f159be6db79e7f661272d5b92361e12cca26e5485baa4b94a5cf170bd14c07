@@ -1,0 +1,7 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-11-05 02:16:57
+Parent: 2ba8658e3f54aa9fe0e25f15f65bf73ffe892e3a10062a98561fa19feb4d577f
+User: travisb@travisbrown.ca
+--
+Furthermore, if the scheduling worked backwards from the deadline and showed the current date in some special way, then it would be easy to see how far various things are behind without complicating the scheduling algorithm with having to iterate juggling until the start fits where the current date is. Doing this jiggling has issues when it comes to weekend and the like, since some people may not be on a particular project seven days a week for an even number of work units a day.

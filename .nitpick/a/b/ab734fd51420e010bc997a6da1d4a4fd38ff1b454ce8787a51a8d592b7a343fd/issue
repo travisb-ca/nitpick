@@ -12,6 +12,8 @@ Severity: Minor
 State: Open
 Title: Detect MIME type of attachmets
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 Currently the MIME type of an attachment when downloading it is fixed to be application/octet-stream. This isn't ideal since there are many attachment types which the browser can more intelligently handle.
 

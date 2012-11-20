@@ -12,5 +12,7 @@ Severity: Minor
 State: Diagnosed
 Title: Issue page failed to refresh under links
 Type: Bug
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 I went to comment on an issue using links. The comment went in fine, but when I went to the issue page it hadn't been reloaded. Thus I hadn't been offered the chance to commit/revert and didn't see the new comment.

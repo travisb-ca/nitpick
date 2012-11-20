@@ -12,5 +12,7 @@ Severity: Major
 State: Closed
 Title: Add Issue Dependancies
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 I originally thought that I could get away without having issue dependency fields for issues. However, something at work has convinced me that I do need them, so add them.

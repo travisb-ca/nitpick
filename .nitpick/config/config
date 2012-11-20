@@ -3,6 +3,7 @@ resolution: None Fixed Duplicate WontFix Invalid WorksForMe
 priority: 1 2 3 4 5
 state: New Confirmed Open Diagnosed Closed
 vcs: svn
+schedule: False
 fix_by: 1.1 Next_Release Eventually 1.0
 components: Documentation Web_UI VCS Core
 type: Bug Feature Regression

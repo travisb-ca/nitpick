@@ -12,6 +12,8 @@ Severity: Major
 State: Closed
 Title: Issue Filtering and Sorting Support
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 The great advantage of the Web UI is that it's an easy way to interact with significant amounts of data.
 

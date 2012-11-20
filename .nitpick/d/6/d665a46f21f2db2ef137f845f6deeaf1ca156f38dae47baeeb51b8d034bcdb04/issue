@@ -12,5 +12,7 @@ Severity: Critical
 State: Closed
 Title: Create Documentation/Tutorial
 Type: Bug
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 I don't have any real documentation for Nitpick yet. I really should write some if I ever hope to have users other than myself.

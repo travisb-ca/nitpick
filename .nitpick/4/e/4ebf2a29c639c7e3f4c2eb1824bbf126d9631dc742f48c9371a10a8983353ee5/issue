@@ -12,6 +12,8 @@ Severity: Major
 State: Closed
 Title: Parallel Databases
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 Currently Nitpick only supports one single database. This works fine as long as the intent is to use the bug tracker only on a single branch view at a time.
 

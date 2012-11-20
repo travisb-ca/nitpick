@@ -12,5 +12,7 @@ Severity: Major
 State: Closed
 Title: Creating a new repository uses configuration of higher level repo
 Type: Bug
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 When you create a new Nitpick repository where there is already an existing Nitpick repository at a higher level in the directory structure the new repository will have the configuration of the higher level repository instead of the default configuration.

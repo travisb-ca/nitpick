@@ -12,5 +12,7 @@ Severity: Minor
 State: Closed
 Title: Strike out closed issues
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 With all the inter-issue linking going on inside comments and dependent issues and duplicate issue it would be quite nice if those links were struck through when the issue in question is closed.

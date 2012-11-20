@@ -12,5 +12,7 @@ Severity: Critical
 State: Closed
 Title: The Web Interface is ugly
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 The Web UI is pretty ugly and has barely usable formatting. Put some time and try to make it look better and be easier to read.

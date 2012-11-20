@@ -12,6 +12,8 @@ Severity: Minor
 State: Closed
 Title: Close Browser Tab Automatically after exit
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 It'd be nice if after you shut down the Nitpick process that the returned webpage from the exit form would also close the browser tab/window.
 
