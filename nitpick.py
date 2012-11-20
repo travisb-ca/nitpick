@@ -107,7 +107,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 						margin: 0.5em;
 					}
 
-					.issue_comment {
+					.issue_comments {
 						margin-bottom: 1em;
 					}
 
@@ -864,6 +864,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('</form>\n')
 		self.output('</div>\n') # End the content
 
+		self.output('<div class="issue_comments">\n')
 		self.output('<div class="issue_comment_children">\n')
 
 		comment_stack = db.produce_comment_tree(issue_hash)
@@ -917,6 +918,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('</div></div>\n' * depth)
 
 		self.output('</div></div>\n') # End the issue description children div and comment div
+		self.output('</div>\n') # End the issue_comments
 
 		self.end_doc()
 
