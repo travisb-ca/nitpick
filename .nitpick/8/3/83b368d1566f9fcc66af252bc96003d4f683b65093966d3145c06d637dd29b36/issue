@@ -12,5 +12,7 @@ Severity: Trivial
 State: Closed
 Title: Highlight comment field by default when commenting
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 When entering a comment the only really useful field is the comment field. It's annoying to have to move focus to that field every time manually and I've seen it done automatically.

@@ -12,6 +12,8 @@ Severity: Major
 State: Closed
 Title: Don't show clone foreign repos as a new issue option
 Type: Bug
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 When you have foreign repositories setup and you go to create an issue you are presented with a list of repositories to use. If you have a clone foreign repository (such as a foreign project to the trunk of the current project when you are on a branch) you will be presented with both 'local' and 'trunk', even though you can't actually create a bug in 'trunk'.
 

@@ -12,6 +12,8 @@ Severity: Minor
 State: Open
 Title: Offline Attachments
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 It would be useful, when a repository has a number of large attachments and the system supports it, to allow offline attachments. These are attachments where the file itself isn't immediately available. One example would be if the file was deleted in HEAD of a SVN repo. The file can still be retrieved from the history, but isn't in the current version.
 

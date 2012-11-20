@@ -12,6 +12,8 @@ Severity: Major
 State: Open
 Title: Overlap partial tasks in schedule
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 It is not only possible, but likely that on a schedule there will be tasks which are partially complete. It makes sense to show the partial completion of these tasks.
 

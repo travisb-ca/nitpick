@@ -12,5 +12,7 @@ Severity: Major
 State: Closed
 Title: Display Comments Threaded in the Web Interface
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 The command line interface correctly nests comments when displaying them. The Web interface displays them in the correct order, but doesn't indent them at all. It really needs to or the advantage of keeping them in a tree is lost.

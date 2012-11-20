@@ -12,5 +12,7 @@ Severity: Major
 State: Closed
 Title: Don't show projects with an identical clone
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 When using Foreign Projects across branches it will be useful to have links setup to the trunk Nitpick repository at all times to ease branching. When this is the case the Foreign project should be identical or nearly so to the local repository. If there are no issues from other repositories then the Project column should not be shown by default.

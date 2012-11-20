@@ -12,5 +12,7 @@ Severity: Major
 State: Open
 Title: Failed VCS commit not shown to user
 Type: Bug
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 If the VCS fails to commit, say if there was an out-of-date version, Nitpick doesn't currently tell the user about this fact. This will lead the user to believe that their changes have been committed successfully when they haven't.

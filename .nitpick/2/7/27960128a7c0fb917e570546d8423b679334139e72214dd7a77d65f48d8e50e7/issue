@@ -12,6 +12,8 @@ Severity: Major
 State: Closed
 Title: Add Git Support
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 Some people may find it weird that the only VCSes Nitpick, a distributed bug tracker, supports is a centralized VCS and the plain filesystem.
 

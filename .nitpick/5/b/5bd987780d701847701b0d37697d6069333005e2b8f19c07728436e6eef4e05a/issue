@@ -12,5 +12,7 @@ Severity: Major
 State: Closed
 Title: Issue list is inconsistent
 Type: Bug
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 The order of the issues in the issue list is not stable from one refresh to another. This is likely because we are using the order in the hash table as the secondary sort and it isn't stable. This should be fixed, perhaps by using the date as a secondary sort mechanism to look better.

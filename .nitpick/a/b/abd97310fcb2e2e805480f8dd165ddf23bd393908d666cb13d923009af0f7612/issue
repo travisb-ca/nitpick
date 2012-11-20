@@ -12,6 +12,8 @@ Severity: Major
 State: Open
 Title: Gantt hover dependency graph highlight
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 The graph I display for the project schedule isn't really a Gantt chart, but is instead a work queue ordering. This makes it difficult to see what the dependencies are.
 

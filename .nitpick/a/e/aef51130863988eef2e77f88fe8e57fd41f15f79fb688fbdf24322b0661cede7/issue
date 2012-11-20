@@ -12,5 +12,7 @@ Severity: Minor
 State: Open
 Title: Windows Support
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 It doesn't seem like it should be incredibly difficult to port Nitpick to work on systems which aren't Unix-like. Windows is the obvious target here.

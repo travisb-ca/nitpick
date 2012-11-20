@@ -12,5 +12,7 @@ Severity: Minor
 State: Open
 Title: Fixed Gantt table headers
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 The project schedule can be a large table, but the table headers are pretty important. It'd be good to have the headers be sticky when scrolling around the table.

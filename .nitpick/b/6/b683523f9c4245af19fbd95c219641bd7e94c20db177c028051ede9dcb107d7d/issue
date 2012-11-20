@@ -12,6 +12,8 @@ Severity: Major
 State: Closed
 Title: Synchronize with external bug trackers
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 Looking at the discussion at there two links http://kitenet.net/pipermail/dist-bugs/ and http://dist-bugs.branchable.com/ it seems that synchronizing with and existing bug trackers could be useful.
 

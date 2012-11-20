@@ -12,5 +12,7 @@ Severity: Major
 State: Open
 Title: Document Usecases
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 Distributed bug tracking isn't common so the possible usecases aren't widely known. Document the use cases I make use of and have verified to be useful. This should be done after I've added synchronization with other bug trackers since that will be an important use case.

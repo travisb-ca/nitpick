@@ -12,5 +12,7 @@ Severity: Minor
 State: Closed
 Title: Create Static copy of Nitpick bug database
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 It should be relatively simple, until issue f3ecce1e5cbe3583607d42fd2d474d7483834be70fcb3912c046bc5b5bba6d26 is fixed, to have a static copy of the Nitpick issue web UI put on the web for people to see what it looks like. It won't be dynamic, but most of the information is static anyways.

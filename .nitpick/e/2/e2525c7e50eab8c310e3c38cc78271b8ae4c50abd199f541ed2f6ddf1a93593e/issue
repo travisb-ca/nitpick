@@ -12,6 +12,8 @@ Severity: Minor
 State: Closed
 Title: Add Project Management Support
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 A bug tracker contains much of the data necessary to make a decent piece of project management software. The key requirements are:
  o Issue dependencies

@@ -12,6 +12,8 @@ Severity: Major
 State: Open
 Title: Straighten out timezones
 Type: Bug
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 The timestamp format handling is a bit fast and loose. Currently all timestamps are stored in a GMT time format without timezone information. Additionally the bug interchange import code doesn't parse all the various necessary formats.
 

@@ -12,6 +12,8 @@ Severity: Major
 State: Open
 Title: Public Web UI
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 Having a local bug tracker which follows the developer and all is nice, but not sufficient. It must be possible to easily provide a public, modifiable copy of the tracker for use by QA people, or users.
 

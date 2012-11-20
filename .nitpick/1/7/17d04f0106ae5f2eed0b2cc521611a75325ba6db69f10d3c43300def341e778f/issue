@@ -12,5 +12,7 @@ Severity: Minor
 State: Open
 Title: Add an Emacs Major mode
 Type: Feature
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 On the github issue tracker there has been a request to add an emacs major mode for Nitpick. Supposedly similiar to ditz-mode.

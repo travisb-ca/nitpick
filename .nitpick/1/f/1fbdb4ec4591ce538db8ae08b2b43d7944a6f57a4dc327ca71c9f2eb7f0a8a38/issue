@@ -12,5 +12,7 @@ Severity: Critical
 State: Closed
 Title: Cannot reply to comments which are in local repo and foreign repo
 Type: Bug
+Units_of_Work: 1000
+Percent_Complete: 0
 --
 If there is a comment to an issue which is in both the local repository and in a foreign repository then you are unable to reply to that comment. Instead an ambiguous comment hash error is returned.
