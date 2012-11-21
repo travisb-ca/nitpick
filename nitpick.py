@@ -1176,7 +1176,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		for user in schedule.keys():
 			needed_columns = 1
-			last_issue_end = dates_start
+			last_issue_end = dates_start - one_day
 
 			for task in schedule[user]:
 				if task.sched_start_date > last_issue_end + one_day:
