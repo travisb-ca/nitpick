@@ -34,6 +34,12 @@
 			<li><a href="#dependent_issues">Dependent Issues</a></li>
 			<li><a href="#sorting_and_filtering">Sorting and Filtering</a></li>
 		</ul>
+		<li><a href="#use_cases">Use Cases</a></li><ul>
+			<li><a href="#use_case_bugtracker">Basic Bug Tracker</a></li>
+			<li><a href="#use_case_branching_bugtracker">Bug Tracker Across Branches</a></li>
+			<li><a href="#use_case_overview">Meta Bug Tracker</a></li>
+			<li><a href="#use_case_scheduling">Bug Tracker with Scheduling</a></li>
+		</ul>
 		<li><a href="#advanced_usage">Advanced Usage</a></li> <ul>
 			<li><a href="#configuring_nitpick">Configuring Nitpick</a></li> <ul>
 				<li><a href="#configuring_users">Users</a></li>
@@ -490,6 +496,161 @@
 		Clicking the header multiple times will cycle through the sorting choices. Saving a
 		filter and sort pattern is as easy as getting the settings correct and then creating
 		a bookmark using your browser.
+		</p>
+
+	<a name="use_cases"></a><a href="#use_cases"><h1>Use Cases</h1></a>
+		<p>
+		Distributed bug tracking is not yet a commonly used technique and as such all the
+		use cases may not be immediately obvious. This section intends to lay out some of
+		the ways distributed bug tracking in general and Nitpick in particular can be used.
+		Hopefully these generic use cases will help you use distributed bug tracking in the
+		most advantageous manner possible for your particular needs.
+		</p>
+
+	<a name="use_cases_bugtracker"></a><a href="#use_cases_bugtracker"><h2>Basic Bug Tracker</h2></a>
+		<p>
+		Of course the most basic way to use distributed bug tracking is as a basic bug
+		tracker. In this scenario you simply configure the bug tracker as part of your
+		project source control system.
+		</p>
+
+		<p>
+		This simple use case brings several advantages over traditional centalized bug
+		tracking. These include:
+		<ul>
+			<li>Always knowing which bugs have been fixed in the source you have</li>
+			<li>The ability to work disconnected from the network</li>
+			<li>Since there is no network or shared server to contend with the bug
+			    tracker can be much faster and avoid downtime</li>
+		</ul>
+		</p>
+
+		<p>
+		While it is useful to have the bug database sit beside the source at the project
+		level, see the next section, it is possible to have the equivalent semantics of a
+		centralized bug database with the advantages of a distributed system. To do so you
+		would simply create the bug database at a higher level in the VCS, or in a separate
+		repository specifically for bugs.
+		</p>
+
+	<a name="use_cases_brancking_bugtracker"></a><a href="#use_cases_branching_bugtracker"><h2>Bug Tracker Across Branches</h2></a>
+		<p>
+		Where distributed bug tracking really shines is when it comes time to branch. One of
+		the most frustrating difficulties with branching is determining which changes are in
+		which branch. If you have a long lived feature branch traditional bug trackers make
+		it difficult to determine which bugs have been fixed in the branch by merging in
+		changes from the mainline. This is caused by the fact that it is cumbersome to
+		maintain the information on which branch work has been done in and which branches
+		have picked up said fix.
+		</p>
+
+		<p>
+		In some forms of distributed bug tracking, including the style Nitpick encourages,
+		the bug database sits alongside your code and when you branch your code you also
+		branch the bug database. This makes it easy to keep track of which branches have
+		which bugs fixed, since when the fix is merged into a branch it is easy to also
+		merge the bug database updates. In fact, it is recommended to ensure that the fix
+		and bug update are done in the same VCS commit.
+		</p>
+
+		<p>
+		Configuring this setup is easy. All you have to do is create the Nitpick repository
+		in the root of your project checkout. Then the normal branching and merging
+		operations of your VCS will take care of the heavy lifting. The Nitpick repository
+		format has been specifically designed to be easy to automatically merge in most
+		cases and when automatic merging isn't possible to have an obvious and easy to read
+		diff.
+		</p>
+
+		<p>
+		If your VCS supports adding a view from one branch into another, such as using SVN
+		externals, then there is even more you can do. One disadvantage of having the bug
+		database branch with the code is that a bug may be reported on the trunk when it
+		also effects a branch. If a developer then works on that branch they wouldn't be
+		aware of new bugs added to the trunk, or new bug information. The latter case
+		could happen if you have a bugfix branch for a particular bug and some reporter who
+		doesn't know about this bugfix branch, perhaps because it's a local branch. In such
+		a case it is useful to have the branch see the updates to the bug database in the
+		trunk without having to continually bring in changes from the trunk.
+		</p>
+
+		<p>
+		If your VCS has sufficient support or you are willing to lay your development
+		environment out in a consistent manner, say by mandating that
+		<tt>~/workspace/mainline</tt> always contains a recent checkout of the main branch,
+		then you can use the <a href="#foreign_projects">Foreign Projects</a> feature of
+		Nitpick to have Nitpick combine both the bug database of the branch and the bug
+		database of the trunk. Thus you'll get the best of both worlds, a bug tracker which
+		carries the bug state along with any code which fixes a bug and the ability to
+		comment on a bug in either the branch or the trunk and have it visible to the
+		interested parties.
+		</p>
+
+	<a name="use_cases_overview"></a><a href="#use_case_overviews"><h2>Meta Bug Tracker</h2></a>
+		<p>
+		The <a href="#foreign_projects">Foreign Projects</a> feature used above allows
+		combining multiple versions of the same bug database into one view. We can take this
+		further and have a bug database with the primary purpose of combining several bug
+		databases in order to have a single unified view.
+		</p>
+
+		<p>
+		Such a setup can be useful in a situation where you have multiple logically distinct
+		codebases, perhaps several libraries and a few applications. Each of these projects
+		should follow their own branching and release schedules and likely live within their
+		own repositories. In order to have all the advantages of distributed bug tracking
+		for each project you need a bug database with the code of that project. However,
+		this would make it difficult to get a view of all the bugs for a team or company as
+		an example. This is where the meta bug tracker comes in handy.
+		</p>
+
+		<p>
+		With each project having their own bug database you create one additional bug
+		database which uses all those individual databases as Foreign Projects. Then you not
+		only have one central place where you can view and modify the bugs across many
+		projects, but you maintain all the advantages of per project databases. It is even
+		possible to have many such meta databases, each with a different set of projects
+		they follow. Thus a team manager may have a personal meta database which combines
+		the bugs from all projects, but a frontend developer may have one with only the
+		projects they have the expertise to modify.
+		</p>
+
+		<p>
+		Nitpick has sophisticated support for this arrangement, but there is one aspect of
+		configuration to keep in mind. Though Nitpick will present a combined list of bug
+		states, priorities and milestones it gets confusing quite quickly if every project
+		has a different list of bug states with overlapping meaning. It is therefore
+		recommended that, as much as possible, all the foreign project bug databases have
+		the same sets of allowable metadata states. That is, every project has the same set
+		of possible bug states or possible priorities.
+		</p>
+
+	<a name="use_cases_scheduling"></a><a href="#use_cases_scheduling"><h2>Bug Tracker with Scheduling</h2></a>
+		<p>
+		This final use case is not directly related to distributed bug tracking at all, but
+		instead takes advantage of one particular aspect of distributed bug tracking in
+		combination with the Nitpick <a href="#scheduling">scheduler</a>. Briefly, because
+		distributed bug tracking makes it easy to modify many bugs privately and then
+		commit (publish) those changes all at once it is easy for a manager to examine the
+		effects of different bug or task assignments on the predicted schedule.
+		</p>
+
+		<p>
+		Consider a project with several dozen bugs over many components with ten developers
+		of differing skill levels and specialties. For any particular bug there could be
+		several developers capable of working on that task, but not every developer. It is
+		therefore difficult to automate the way tasks are handed out. Instead a human can
+		look at the schedule, as predicted given the current state and dependencies of all
+		the tasks in the bug tracker, and use their own judgement to shuffle task
+		assignments around based on developer preference and ability. Once this person has
+		finished working on the assignments they can commit all ther changes at once, or
+		throw all their changes out if they are unsatisfactory.
+		</p>
+
+		<p>
+		In much the same way that version control improves the ability of a developer to
+		write code, version control improves the ability of managers to come up with a good
+		schedule.
 		</p>
 
 	<a name="advanced_usage"></a><a href="#advanced_usage"><h1>Advanced Usage</h1></a>
