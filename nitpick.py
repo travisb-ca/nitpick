@@ -2382,7 +2382,8 @@ def schedule_all_tasks():
 	fixby_critical_weeks = {}
 	for fix_by in config.fix_by_dates.keys():
 		if config.fix_by_dates[fix_by] == '':
-			continue
+                    fixby_critical_weeks[fix_by] = 0
+                    continue
 		fix_by_date = datetime.datetime.strptime(config.fix_by_dates[fix_by], '%Y-%m-%d')
 		fixby_critical_weeks[fix_by] = (last_fixby_date - fix_by_date).days / 7
 	
