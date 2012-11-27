@@ -1128,6 +1128,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		schedule = schedule_all_tasks()
 		self.start_doc('Project Schedule')
 
+		self.output('<p><a href="/">Back to issue list</a></p>\n')
+
 		self.output('<div class="schedule"><table cellspacing="0" rules="all">\n')
 
 		# Alternate column colours
