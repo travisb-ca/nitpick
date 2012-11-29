@@ -1,0 +1,20 @@
+Component: Web_UI
+Date: 2012-11-29 19:31:23
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.1
+Owner: travisb@travisbrown.ca
+Percent_Complete: 0
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Major
+State: Confirmed
+Title: URL and issue links conflict
+Type: Bug
+Units_of_Work: 1000
+--
+If you have an URL in a comment which contains what looks like an issue ID you get a screwed up link when viewed.
+
+ie. http://example.com/data/00189561
