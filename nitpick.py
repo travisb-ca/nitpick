@@ -42,7 +42,7 @@ DATEFORMAT = '%Y-%m-%d %H:%M:%S'
 FILLWIDTH = 69
 ISSUE_CACHE_FORMAT = 2
 URL_REGEX = '([a-z]+://[a-zA-Z0-9-]+\.[a-zA-Z0-9.]+[a-zA-Z0-9/\-.%&?=+_,#]*)'
-ISSUE_REGEX = '([a-f0-9]{8,64})'
+ISSUE_REGEX = '(?<= )([a-f0-9]{8,64})'
 POSIX_CLI_BROWSERS = ['w3m', 'elinks', 'links', 'lynx']
 POSIX_GUI_BROWSERS = [ ('chrome', 'google-chrome'), ('firefox-bin', 'firefox') ]
 NUM_FIXBY_COLOURS = 13
