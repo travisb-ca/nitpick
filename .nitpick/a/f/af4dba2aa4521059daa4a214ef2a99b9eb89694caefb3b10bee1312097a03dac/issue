@@ -1,0 +1,20 @@
+Component: Web_UI
+Date: 2012-12-07 18:15:13
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.1
+Owner: travisb@travisbrown.ca
+Percent_Complete: 0
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Minor
+State: Confirmed
+Title: Web page title should have issue title
+Type: Feature
+Units_of_Work: 1000
+--
+In a webbrowser the title now contains "Nitpick - Issue <issue hash>", that isn't helpful when you have multiple tabs open or are partway down the page.
+
+More useful would be "<issue title> - Nitpick issue <8 chars of issue hash>"
