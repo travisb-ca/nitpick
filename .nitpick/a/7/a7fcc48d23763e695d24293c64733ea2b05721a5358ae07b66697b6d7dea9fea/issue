@@ -4,16 +4,16 @@ Depends_On: e2525c7e50eab8c310e3c38cc78271b8ae4c50abd199f541ed2f6ddf1a93593e
 Duplicate_Of: 
 Fix_By: 1.1
 Owner: travisb@travisbrown.ca
+Percent_Complete: 0
 Priority: 1
 Reported_By: travisb@travisbrown.ca
-Resolution: None
+Resolution: WontFix
 Seen_In_Build: 
 Severity: Major
-State: Open
+State: Closed
 Title: Overlap partial tasks in schedule
 Type: Feature
 Units_of_Work: 1000
-Percent_Complete: 0
 --
 It is not only possible, but likely that on a schedule there will be tasks which are partially complete. It makes sense to show the partial completion of these tasks.
 
