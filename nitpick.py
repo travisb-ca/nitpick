@@ -345,9 +345,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.end_headers()
 		
 		if title != '':
-			title = ' - ' + title
+			title = title + ' - '
 
-		self.output(self.html_preamble('Nitpick' + title, onload_focus))
+		self.output(self.html_preamble(title + 'Nitpick', onload_focus))
 
 		self.output('<div class="command_bar">\n')
 		self.output('<span class="command_button"><form action="/shutdown" method="post">')
@@ -773,9 +773,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		
 		db.load_issue_db()
 
-		self.start_doc('Issue %s' % issue_hash)
-
 		issue = parse_file(db.issue(issue_hash)['path'] + '/issue')
+
+		self.start_doc('%s [%s]' % (issue['Title'], issue_hash[:8]))
 
 		self.output('<p><a href="/">Back to issue list</a> ')
 		self.output('<a href="/export/%s.bug">Export</a></p>\n' % issue_hash)
