@@ -2647,7 +2647,7 @@ def schedule_all_tasks():
 					print 'Rejecting due to gap length %f %f' % (t.work_units, gap_length)
 				continue
 
-			dependency_dates = [i.sched_end_date for i in t.depends_on]
+			dependency_dates = [j.sched_end_date for j in t.depends_on]
 			if len(dependency_dates) > 0 and max(dependency_dates) >= gap_end:
 				if debug_scheduling:
 					print 'Rejecting due to dependency', max(dependency_dates), gap_end
@@ -2672,6 +2672,7 @@ def schedule_all_tasks():
 		
 			# This task fits, use it
 			task = t
+                        task_index = i
 			break
 
 	
@@ -2680,7 +2681,7 @@ def schedule_all_tasks():
 				print 'using task %s' % task.hash[:8]
 
 			# Put the task we found into the gap and continue
-			del timelines[user][i]
+			del timelines[user][task_index]
 			timelines[user].insert(gap_index, task)
 
 			task.sched_start_date = move_to_workday(new_task_start,
