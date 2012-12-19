@@ -285,7 +285,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 					}
 
 					.schedule_fixby2 {
-						background: Charteuse;
+						background: Chartreuse;
 					}
 
 					.schedule_fixby3 {
