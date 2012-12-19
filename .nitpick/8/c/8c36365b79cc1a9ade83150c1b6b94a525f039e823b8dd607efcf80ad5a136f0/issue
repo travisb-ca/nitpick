@@ -1,4 +1,4 @@
-Component: Web_UI
+Component: Core
 Date: 2012-12-17 23:18:35
 Depends_On: 
 Duplicate_Of: 
@@ -7,10 +7,10 @@ Owner: travisb@travisbrown.ca
 Percent_Complete: 0
 Priority: 1
 Reported_By: travisb@travisbrown.ca
-Resolution: None
+Resolution: Fixed
 Seen_In_Build: 
 Severity: Minor
-State: Confirmed
+State: Closed
 Title: Schedule should not have gaps on weekends
 Type: Bug
 Units_of_Work: 1000

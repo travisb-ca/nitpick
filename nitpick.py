@@ -2694,6 +2694,16 @@ def schedule_all_tasks():
 		print_schedule()
 		get_next_gap(user, user_list, timelines)
 
+	# Extend any task which ends just before a break in work (such as a
+	# weekend) through the weekend.  This is to not leave scheduling gaps
+	# in the display when a task happens to end the day before a weekend
+	# and there isn't really any such gap.
+	for user in timelines.keys():
+		for task in timelines[user]:
+			task.sched_end_date += one_day
+			task.sched_end_date = move_to_workday(task.sched_end_date, task.owner_production)
+			task.sched_end_date -= one_day
+
 	if debug_scheduling:
 		print "Final schedule"
 		print_schedule()

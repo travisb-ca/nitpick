@@ -1,0 +1,9 @@
+Attachment: 
+Attachment-filename: 
+Date: 2012-12-19 07:27:54
+Parent: issue
+User: travisb@travisbrown.ca
+--
+This isn't entirely straight forward. The easy case to deal with is when an issue is placed and then never moved. More complicated is extending the end date of tasks which are moved to after initial date computation.
+
+Perhaps it would be easiest to add this fixup as a new last stage.
