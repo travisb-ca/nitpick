@@ -53,7 +53,7 @@ class config:
 			'components' : ['Documentation'],
 			'fix_by' : ['Next_Release'],
 			'priority' : ['1', '2', '3', '4', '5'],
-			'state' : ['New', 'Confirmed', 'Open', 'Diagnosed', 'Fixed', 'Closed'],
+			'state' : ['New', 'Open', 'Diagnosed', 'Fixed', 'Closed'],
 			'severity' : ['Blocker', 'Critical', 'Major', 'Minor', 'Trivial'],
 			'resolution': ['None', 'Fixed', 'Duplicate', 'WontFix', 'Invalid', 'WorksForMe'],
 			'type' : ['Bug', 'Feature', 'Regression'],
