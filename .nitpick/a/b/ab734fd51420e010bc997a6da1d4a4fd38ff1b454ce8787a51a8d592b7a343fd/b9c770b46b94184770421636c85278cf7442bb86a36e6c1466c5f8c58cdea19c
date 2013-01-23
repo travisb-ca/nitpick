@@ -1,0 +1,8 @@
+Attachment: 
+Attachment-filename: 
+Attachment-type: application/octet-stream
+Date: 2013-01-23 06:52:25
+Parent: issue
+User: travisb@travisbrown.ca
+--
+Take the MIME type from the browser when it gives us the file. Also default to using the filename from the browser as well to avoid always having to set the filename. Maintain the ability to rename the filename on upload since that's often a useful feature.
