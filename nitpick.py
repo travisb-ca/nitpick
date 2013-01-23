@@ -46,7 +46,7 @@ ISSUE_REGEX = '(?<= )([a-f0-9]{8,64})'
 POSIX_CLI_BROWSERS = ['w3m', 'elinks', 'links', 'lynx']
 POSIX_GUI_BROWSERS = [ ('chrome', 'google-chrome'), ('firefox-bin', 'firefox') ]
 NUM_FIXBY_COLOURS = 13
-USE_UPLOADED_NAME = 'force_filename.bin'
+USE_UPLOADED_NAME = 'filename.bin'
 
 # Contains the defaults used to initalize a database
 class config:
