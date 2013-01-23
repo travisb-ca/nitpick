@@ -1,0 +1,17 @@
+Attachment: 
+Attachment-filename: 
+Date: 2013-01-23 05:26:55
+Parent: issue
+User: travisb@travisbrown.ca
+--
+I think this feature would be better done using foreign projects and the VCS.
+
+It might work as follows:
+
+1. Copy/move the old issues to some offline storage
+2. Delete these issues from the HEAD of the VCS
+3. Document how to configure the foreign project to point to this offline storage.
+
+The only real use case I can see for removing attachments is when the issue is closed and the attachments are consuming significant space. Since the issue is closed it will be referred to rarely and could be deleted.
+
+Alternatively only the comment referring to the attachment could be moved into the foreign project. Then the issue itself and most comments will be there for documentation and linking purposes.

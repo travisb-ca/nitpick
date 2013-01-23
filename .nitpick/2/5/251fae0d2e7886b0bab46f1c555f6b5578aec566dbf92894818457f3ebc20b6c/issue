@@ -4,16 +4,16 @@ Depends_On: 4ebf2a29c639c7e3f4c2eb1824bbf126d9631dc742f48c9371a10a8983353ee5
 Duplicate_Of: 
 Fix_By: Eventually
 Owner: travisb@travisbrown.ca
+Percent_Complete: 0
 Priority: 1
 Reported_By: travisb@travisbrown.ca
-Resolution: None
+Resolution: WontFix
 Seen_In_Build: 
 Severity: Major
-State: Open
+State: Closed
 Title: Modifiable Readonly Foreign Repositories
 Type: Feature
 Units_of_Work: 1000
-Percent_Complete: 0
 --
 An additional useful feature for foreign repositories may be to allow adding comments and changing states of readonly subservient databases. Say if a project had an issue database and some distro also does and the maintainer uses the distro database as a subservient database.
 

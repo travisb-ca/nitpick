@@ -1,0 +1,7 @@
+Attachment: 
+Attachment-filename: 
+Date: 2013-01-23 05:22:24
+Parent: issue
+User: travisb@travisbrown.ca
+--
+With bug synchronization b683523f9c4245af19fbd95c219641bd7e94c20db177c028051ede9dcb107d7d I don't think that this feature is really valuable. Anybody could automatically import any bugs they want. If the other bug tracker is using Nitpick then they can either do that or rsync the bug database into a local repository.

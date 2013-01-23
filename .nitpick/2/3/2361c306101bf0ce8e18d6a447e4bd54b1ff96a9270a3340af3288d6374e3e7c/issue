@@ -4,16 +4,16 @@ Depends_On: 9dec8aa96a3e075e1052309ef7d91db36968023952a0b9919db87b942fa5dcd2
 Duplicate_Of: 
 Fix_By: Eventually
 Owner: travisb@travisbrown.ca
+Percent_Complete: 0
 Priority: 1
 Reported_By: travisb@travisbrown.ca
-Resolution: None
+Resolution: WontFix
 Seen_In_Build: 
 Severity: Minor
-State: Open
+State: Closed
 Title: Offline Attachments
 Type: Feature
 Units_of_Work: 1000
-Percent_Complete: 0
 --
 It would be useful, when a repository has a number of large attachments and the system supports it, to allow offline attachments. These are attachments where the file itself isn't immediately available. One example would be if the file was deleted in HEAD of a SVN repo. The file can still be retrieved from the history, but isn't in the current version.
 
