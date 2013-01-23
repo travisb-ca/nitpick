@@ -46,6 +46,7 @@ ISSUE_REGEX = '(?<= )([a-f0-9]{8,64})'
 POSIX_CLI_BROWSERS = ['w3m', 'elinks', 'links', 'lynx']
 POSIX_GUI_BROWSERS = [ ('chrome', 'google-chrome'), ('firefox-bin', 'firefox') ]
 NUM_FIXBY_COLOURS = 13
+USE_UPLOADED_NAME = 'force_filename.bin'
 
 # Contains the defaults used to initalize a database
 class config:
@@ -885,12 +886,12 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.output('<div class="issue_comment">\n')
 			self.output('<div class="issue_comment_content">\n')
 			for field in ['hash', 'Date', 'User', 'Attachment']:
-				if field in ['content', 'children', 'Parent', 'Attachment-filename']:
+				if field in ['content', 'children', 'Parent', 'Attachment-filename', 'Attachment-type']:
 					continue
 				if field == 'Attachment':
 					if comment['Attachment'] != '': # Has a real attachment
-						self.output('%s: <a href="/attachment/%s/%s/%s">%s</a><br/>\n' %
-								(field, issue_hash, comment['Attachment'],comment['Attachment-filename'], comment['Attachment-filename']))
+						self.output('%s: <a href="/attachment/%s/%s/%s/%s">%s</a><br/>\n' %
+								(field, issue_hash, comment['hash'], comment['Attachment'],comment['Attachment-filename'], comment['Attachment-filename']))
 					continue
 
 				self.output('%s: %s<br/>\n' % (field, cgi.escape(comment[field])))
@@ -981,7 +982,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('</select></p>\n')
 
 		self.output('<p>Attachment: <input type="file" name="attachment"/> ')
-		self.output('<input type="text" name="attachment_name" value="filename.bin" size="40"/></p>\n')
+		self.output('<input type="text" name="attachment_name" value="%s" size="40"/></p>\n' % USE_UPLOADED_NAME)
 
 		self.output('<p><textarea name="content" rows="20" cols="80">Enter comment here</textarea></p>\n')
 
@@ -1098,8 +1099,11 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		db.load_issue_db()
 
 		args = self.path.split('/')
+		issue_hash = args[2]
+		comment_hash = args[3]
+		file_hash = args[4]
 
-		issue = db.disambiguate_hash(args[2])
+		issue = db.disambiguate_hash(issue_hash)
 
 		if issue == None or issue == '':
 			self.start_doc('Error')
@@ -1107,7 +1111,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.end_doc()
 			return
 
-		attachment_path = db.issue(issue)['path'] + '/' + args[3] + '.data'
+		attachment_path = db.issue(issue)['path'] + '/' + file_hash + '.data'
 		if not os.path.exists(attachment_path):
 			self.start_doc('Error')
 			self.output('Invalid arguments')
@@ -1115,7 +1119,12 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			return
 
 		self.send_response(200)
-		self.send_header('Content-Type', 'application/octet-stream')
+
+		comment = db.get_comment(issue, comment_hash)
+		if comment == None or 'Attachment-type' not in comment:
+			self.send_header('Content-Type', 'application/octet-stream')
+		else:
+			self.send_header('Content-Type', comment['Attachment-type'])
 		self.end_headers()
 
 		attachment = open(attachment_path, 'r')
@@ -1313,14 +1322,25 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				'User' : self.request_args['username'],
 				'Attachment' : '',
 				'Attachment-filename' : '',
+				'Attachment-type' : 'application/octet-stream',
 				'content' : self.request_args['content']
 			}
+
+		if 'attachment_type' in self.request_args.keys():
+			comment['Attachment-type'] = self.request_args['attachment_type']
 
 		attachment_hash = db.add_attachment(self.request_args['issue'],
 						    self.request_args['attachment'])
 		if attachment_hash != None:
 			comment['Attachment'] = attachment_hash
 			comment['Attachment-filename'] = self.request_args['attachment_name']
+
+		if comment['Attachment-filename'] == USE_UPLOADED_NAME and \
+				'upload_filename' in self.request_args.keys():
+			comment['Attachment-filename'] = self.request_args['upload_filename']
+
+		comment['Attachment-filename'] = comment['Attachment-filename'].replace('/', '_')
+		comment['Attachment-filename'] = comment['Attachment-filename'].replace('\\', '_')
 
 		comment_filename = db.add_comment(self.request_args['issue'], comment)
 
@@ -1609,11 +1629,15 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 					self.request_args[key] = value
 		else:
 			# /add_comment receives form data as multi-part/form because it may have an attachment
-			content_type_options = cgi.parse_header(self.headers['Content-Type'])[1]
-			args = cgi.parse_multipart(self.rfile, content_type_options)
-			
+			env = { 'REQUEST_METHOD' : 'POST' }
+			args = cgi.FieldStorage(self.rfile, headers=self.headers, environ=env)
+
 			for name in args.keys():
-				self.request_args[name] = args[name][0]
+				self.request_args[name] = args[name].value
+
+				if name == 'attachment':
+					self.request_args['attachment_type'] = args[name].type
+					self.request_args['upload_filename'] = args[name].filename
 
 		if '/add_comment' == self.path:
 			self.add_comment_post()
@@ -2110,6 +2134,18 @@ class IssueDB:
 
 				comments.append(file)
 		return comments
+
+	def get_comment(self, issue, comment_hash):
+		issue_obj = self.issue(issue)
+
+		for repo_path in self.repo_paths[issue_obj['repo_uuid']]:
+			issue_path = repo_path + issue[0] + '/' + issue[1] + '/' + issue + '/'
+			if os.path.exists(issue_path + comment_hash):
+				comment = parse_file(issue_path + comment_hash)
+				comment['hash'] = comment_hash
+
+				return comment
+		return None
 
 	# Load the entire comment tree for the given issue hash and return it as a tree.
 	#

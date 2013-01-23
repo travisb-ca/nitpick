@@ -67,6 +67,7 @@ Issue:
 Comment:
 	- Attachment
 	- Attachment-filename
+	- Attachment-type
 	- Date
 	- Parent
 	- User
