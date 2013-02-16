@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 # 
-# Copyright (C) 2012  Travis Brown (travisb@travisbrown.ca)
+# Copyright (C) 2012, 2013  Travis Brown (travisb@travisbrown.ca)
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
