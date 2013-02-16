@@ -1,0 +1,8 @@
+Attachment: 
+Attachment-filename: 
+Attachment-type: application/octet-stream
+Date: 2013-02-16 06:33:15
+Parent: issue
+User: travisb@travisbrown.ca
+--
+The static dump has worked quite well so far. So well, in fact, that the only issue I've come across is the inability to sort and filter. A fully sufficient readonly interface could be created with some javascript magic to make the filtering and field selection work correctly.
