@@ -1,0 +1,8 @@
+Attachment: 
+Attachment-filename: 
+Attachment-type: application/octet-stream
+Date: 2013-02-16 21:41:51
+Parent: d94044f7daeb909ef570c136bf007f042c101fa75403bd40d5ac4244daceb2a9
+User: travisb@travisbrown.ca
+--
+My first tactic was to take a static dump of all the possible index states and then modify the sort and filter button to run javascript to load the proper page. It turns out the combinatorial explosion means that just the page with the links to the indices is hundred of megabytes in size.
