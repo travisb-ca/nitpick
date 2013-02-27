@@ -67,6 +67,7 @@ class config:
 	username = ''
 	endweb = False
 	uncommitted_changes = False
+	readonly = False
 
 default_users = """
 Unassigned
@@ -335,7 +336,15 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			""" % (title, focus_script)
 
 	def html_postamble(self):
-		return """</div><br/>Tracked by <a href="http://travisbrown.ca/projects/nitpick/docs/nitpick.html">Nitpick</a></body></html>"""
+		if config.readonly:
+			js = '<script src="/js.js"></script>'
+		else:
+			js = ''
+
+		return """</div><br/>
+			Tracked by <a href="http://travisbrown.ca/projects/nitpick/docs/nitpick.html">Nitpick</a>
+			%s
+			</body></html>""" % js
 
 	def output(self, string):
 		self.wfile.write(string)
@@ -501,7 +510,10 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		reverse_sort = extract_show_field_arg('reverse_sort', reverse_sort)
 
-		self.output('<form action="/" method="get">\n')
+		if config.readonly:
+			self.output('<form>\n')
+		else:
+			self.output('<form action="/" method="get">\n')
 		self.output('<input type="hidden" name="sort_field" value="%s"/>\n' % sort_field)
 		self.output('<input type="hidden" name="reverse_sort" value="%s"/>\n' % reverse_sort)
 
@@ -558,9 +570,12 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		output_filter_options('Owner', 'filter_owner', possible_owners, filter_owner)
 		self.output('</div>\n')
 
-		self.output('<input type="submit" value="Sort and Filter"/></form>')
+		if config.readonly:
+			self.output('<input type="button" onclick="Sort_and_Filter()" value="Sort and Filter"/></form>')
+		else:
+			self.output('<input type="submit" value="Sort and Filter"/></form>')
 
-		self.output('<div class="issue_list"><table class="issue_list" cellspacing="0"> <tr class="issue_list"> ')
+		self.output('<div class="issue_list"><table class="issue_list" cellspacing="0" name="issue_list"> <tr class="issue_list"> ')
 		
 		page_args = {
 				'show_repo'          : show_repo,
@@ -588,7 +603,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			}
 
 		def output_row_header(bool, label, request_args):
-			if bool:
+			if bool or config.readonly:
 				myargs = copy.copy(request_args)
 
 				sort_token = '&nbsp;&nbsp;'
@@ -646,7 +661,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				return False
 
 		def output_field(issue, bool, field_data):
-			if bool:
+			if bool or config.readonly:
 				self.output('<td class="issue_list"><a href="/issue/%s">%s</a></td> ' % (issue, cgi.escape(field_data)))
 
 
@@ -726,24 +741,25 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			if issue == 'format':
 				continue
 
-			if db.has_foreign() and skip_filter(issue, 'repo', filter_repo):
-				continue
-			if skip_filter(issue, 'Component',  filter_components):
-				continue
-			if skip_filter(issue, 'Fix_By',     filter_fix_by):
-				continue
-			if skip_filter(issue, 'Severity',   filter_severity):
-				continue
-			if skip_filter(issue, 'Priority',   filter_priority):
-				continue
-			if skip_filter(issue, 'State',      filter_state):
-				continue
-			if skip_filter(issue, 'Resolution', filter_resolution):
-				continue
-			if skip_filter(issue, 'Type',       filter_type):
-				continue
-			if skip_filter(issue, 'Owner',      filter_owner):
-				continue
+			if not config.readonly:
+				if db.has_foreign() and skip_filter(issue, 'repo', filter_repo):
+					continue
+				if skip_filter(issue, 'Component',  filter_components):
+					continue
+				if skip_filter(issue, 'Fix_By',     filter_fix_by):
+					continue
+				if skip_filter(issue, 'Severity',   filter_severity):
+					continue
+				if skip_filter(issue, 'Priority',   filter_priority):
+					continue
+				if skip_filter(issue, 'State',      filter_state):
+					continue
+				if skip_filter(issue, 'Resolution', filter_resolution):
+					continue
+				if skip_filter(issue, 'Type',       filter_type):
+					continue
+				if skip_filter(issue, 'Owner',      filter_owner):
+					continue
 
 			self.output('<tr class="issue_list_tr%d">' % row_colour)
 			row_colour = (row_colour + 1) % 2
@@ -1295,6 +1311,75 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.wfile.write(format_issue_for_export(issue))
 
+	def js(self):
+		self.output("""
+		function get_field(fieldname) {
+			return document.getElementsByName(fieldname)[0];
+		}
+
+		/*
+		 * Return a list of strings of the options which are selected in the multiselect.
+		 */
+		function selected_options(select) {
+			var selected = new Array();
+			var i = 0;
+
+			for (i = 0; i < select.length; i++) {
+				if (select[i].selected) {
+					selected.push(select[i].value);
+				}
+			}
+
+			return selected;
+		}
+
+		function Sort_and_Filter() {
+			var rows = document.getElementsByName("issue_list")[0].rows;
+
+			var column_filter = new Array(
+				selected_options(get_field("filter_repo")),
+				0, /* ID */
+				selected_options(get_field("filter_type")),
+				0, /* Date */
+				selected_options(get_field("filter_severity")),
+				selected_options(get_field("filter_priority")),
+				selected_options(get_field("filter_components")),
+				selected_options(get_field("filter_fix_by")),
+				0, /* Seen_In_Build */
+				selected_options(get_field("filter_state")),
+				selected_options(get_field("filter_resolution")),
+				selected_options(get_field("filter_owner")),
+				0 /* Title */
+				);
+
+			/* Make sure to skip row zero which is the header */
+			for (var i = 1; i < rows.length; i++) {
+				var row = rows[i];
+				var hide = false;
+
+				for (var column = 0; column < column_filter.length; column++) {
+					if (typeof(column_filter[column]) == "number")
+						continue; /* We don't filter on this column */
+
+					var val = row.cells[column];
+					var content = val.textContent;
+					if (column_filter[column].indexOf(content) == -1) {
+						hide = true;
+						break; /* We've hidden so we are done */
+					}
+				}
+
+				if (hide)
+					row.style.display = 'none';
+				else
+					row.style.display = '';
+
+			}
+		}
+
+		Sort_and_Filter();
+		""")
+
 	def add_comment_post(self):
 		db.load_issue_db()
 
@@ -1609,6 +1694,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.export()
 		elif '/schedule' == self.path:
 			self.schedule()
+		elif '/js.js' == self.path:
+			self.js()
 		else:
 			print "Got unhandled get path %s" % self.path
 			self.root()
@@ -3115,6 +3202,9 @@ def cmd_web(args):
 
 	server = BaseHTTPServer.HTTPServer(('localhost', args.port), nitpick_web)
 
+	if args.readonly:
+		config.readonly = True
+
 	print 'Starting server on localhost:%d' % args.port
 
 	def get_process_list():
@@ -3499,6 +3589,7 @@ if __name__ == '__main__':
 	web_cmd.add_argument('--port', type=int, default=18080, help='Start the web server on the given port. Default 18080')
 	web_cmd.add_argument('--browser', help='Command to use to open web interface in browser')
         web_cmd.add_argument('--noopen', action='store_true', help='Do not open a browser')
+	web_cmd.add_argument('--readonly', action='store_true', help='Present a readonly view suitable for a public dump')
 	web_cmd.set_defaults(func=cmd_web)
 
 	export_cmd = subcmds.add_parser('export', help='Export given bug')
