@@ -1,0 +1,8 @@
+Attachment: 
+Attachment-filename: 
+Attachment-type: application/octet-stream
+Date: 2013-02-27 22:12:56
+Parent: d94044f7daeb909ef570c136bf007f042c101fa75403bd40d5ac4244daceb2a9
+User: travisb@travisbrown.ca
+--
+I've added some javascript which allows the user to sort and filter the issue index. This seems to be sufficient for many public UI usecases.
