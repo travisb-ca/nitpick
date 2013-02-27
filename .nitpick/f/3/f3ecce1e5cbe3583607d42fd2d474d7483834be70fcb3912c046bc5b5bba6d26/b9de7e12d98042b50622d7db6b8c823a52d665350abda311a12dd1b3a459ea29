@@ -1,0 +1,8 @@
+Attachment: 
+Attachment-filename: 
+Attachment-type: application/octet-stream
+Date: 2013-02-27 22:42:19
+Parent: issue
+User: travisb@travisbrown.ca
+--
+The only remaining serious issue for the public UI is that the sorting links don't actually dump correctly. This may have to do with their long length, over 300 characters with the default options.
