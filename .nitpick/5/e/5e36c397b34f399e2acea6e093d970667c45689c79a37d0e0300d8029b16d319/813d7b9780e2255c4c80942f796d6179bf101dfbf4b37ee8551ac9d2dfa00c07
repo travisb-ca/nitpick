@@ -1,0 +1,8 @@
+Attachment: 
+Attachment-filename: 
+Attachment-type: application/octet-stream
+Date: 2013-02-27 07:06:57
+Parent: issue
+User: travisb@travisbrown.ca
+--
+I tried to reproduce this the obvious way, with two foreign repositories and it failed. Rather, I couldn't reproduce and adding the comment worked flawlessly.
