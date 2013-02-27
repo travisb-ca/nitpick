@@ -45,6 +45,7 @@
 				<li><a href="#configuring_users">Users</a></li>
 				<li><a href="#configuring_issues">Issues</a></li>
 			</ul>
+			<li><a href="#public_view">Public Webview</a></li>
 			<li><a href="#foreign_projects">Foreign Projects</a></li> <ul>
 				<li><a href="#configuring_foreign">Configuring</a></li>
 				<li><a href="#between_branches">Between Branches</a></li>
@@ -735,6 +736,24 @@
 		If you are using the scheduling feature please see
 		<a href="#configuring_scheduling">here</a> for additional project configuration
 		related to that feature.
+		</p>
+
+	<a name="public_view"></a><a href="#public_view"><h2>Public Webview</h2></a>
+		<p>
+		Nitpick is designed to store the issues within the same repository as the source
+		code. This may leave you wondering how you can let others who don't normally use
+		your source code have access to your issue repository. While Nitpick doesn't
+		currently have a read-write public web interface, it does have a readonly web
+		interface which still lets users view all the issues. They can even sort and filter
+		on the issue list to help them find the issues they are concerned about.
+		</p>
+
+		<p>
+		This is done by passing the <tt>--readonly</tt> option to Nitpick when starting the
+		web UI. This modifies the UI to be in readonly mode and is suitable for any website
+		mirroring tool, such as wget, to mirror into a readonly copy you can upload for
+		public consumption. Note, however, that the readonly mode only allows issue list
+		filtering and column filtering if used in a browser which supports javascript.
 		</p>
 
 	<a name="foreign_projects"></a><a href="#foreign_projects"><h2>Foreign Projects</h2></a>
