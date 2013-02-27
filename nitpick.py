@@ -84,6 +84,241 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 	def log_request(code = -1, size = -1):
 		pass
 
+	def css(self):
+		self.output("""
+			.issue_metadata {
+				padding: 0.5 0.5 0.5em;
+				margin: 1em;
+				border-style: solid;
+				border-width: 0.1em;
+			}
+
+			.issue_metadata p {
+				margin: 0.5em;
+			}
+
+			.issue_comments {
+				margin-bottom: 1em;
+			}
+
+			.issue_comment_content {
+				padding: 0.5 0.5 0.5em;
+				border-style: solid;
+				border-width: 0.1em;
+			}
+
+			.issue_comment_content p {
+				margin: 0.5em;
+				white-space: pre-wrap;
+				font-family: Monospace;
+			}
+
+			.issue_comment_children {
+				padding-left: 3em;
+			}
+
+			.field_select_box {
+				padding: 0.5 0.5 0.5em;
+				margin: 1em;
+				border-style: solid;
+				border-width: 0.1em;
+			}
+
+			.field_select_item {
+				display: inline-block;
+			}
+
+			.filter_select_box {
+				padding: 0.5 0.5 0.5em;
+				margin: 1em;
+				border-style: solid;
+				border-width: 0.1em;
+			}
+
+			.filter_select_item {
+				margin: 0.5em;
+				display: inline-block;
+			}
+
+			.issue_list table {
+				border-style: solid;
+				border-width: 0.1em;
+				margin-top: 1em;
+				margin-bottom: 1em;
+				margin-left: auto;
+				margin-right: auto;
+				width: 90%%;
+			}
+
+			.issue_list td {
+				padding-right: 0.5em;
+				padding-left: 0.5em;
+				text-align: center;
+			}
+
+			.issue_list th {
+				padding-right: 0.5em;
+				padding-left: 0.5em;
+				text-align: center;
+				font-size: 125%%;
+			}
+
+			.issue_list a:link { text-decoration: none; }
+			.issue_list a:hover { text-decoration: underline; }
+
+			/* Separate tr1 and tr2 to alternate colours */
+			.issue_list_tr0 {
+				background: White;
+			}
+
+			.issue_list_tr1 {
+				background: LightGrey;
+			}
+
+			.add_comment p {
+				margin: 0.5em;
+			}
+
+			.add_comment textarea {
+				font-family: Monospace;
+			}
+
+			/* .new_issue_metadata {} */
+
+			.new_issue {
+				margin: 0.5em 0.5em 0.5em 0.5em;
+			}
+
+			.new_issue textarea {
+				font-family: Monospace;
+			}
+
+			.new_issue_text_wrapper {
+				width: 100%%;
+				float: left;
+				margin-bottom: 1em;
+			}
+
+			.new_issue_metadata_column {
+				float: left;
+				padding-right: 2em;
+				margin: 0em;
+			}
+
+			.command_button {
+				float: left;
+			}
+
+			.command_bar {
+				width: 100%%;
+			}
+
+			.schedule table {
+				border-style: solid;
+				border-width: 0.1em;
+				margin-top: 1em;
+				margin-bottom: 1em;
+				margin-left: auto;
+				margin-right: auto;
+			}
+
+			.schedule td {
+				padding-right: 0.5em;
+				padding-left: 0.5em;
+				text-align: center;
+			}
+
+			.schedule_td {
+				overflow: hidden;
+			}
+
+			.schedule th {
+				padding-right: 0.5em;
+				padding-left: 0.5em;
+				text-align: center;
+				vertical-align: bottom;
+				font-size: 125%%;
+			}
+
+			.schedule_user {
+				width: 0.5em;
+			}
+
+			.schedule_user th {
+				width: 1em;
+				letter-spacing: 0.1em;
+				text-align: center;
+			}
+
+			.schedule a:link { text-decoration: none; }
+			.schedule a:hover { text-decoration: underline; }
+
+			/* Separate col1 and col2 to alternate colours */
+			.schedule_col0 {
+				background: White;
+			}
+
+			.schedule_col1 {
+				background: LightGrey;
+			}
+
+			.schedule_gap {
+				background: Aquamarine;
+			}
+
+			.schedule_fixby0 {
+				background: Aqua;
+			}
+
+			.schedule_fixby1 {
+				background: BurlyWood;
+			}
+
+			.schedule_fixby2 {
+				background: Chartreuse;
+			}
+
+			.schedule_fixby3 {
+				background: Coral
+			}
+
+			.schedule_fixby4 {
+				background: DarkKhaki;
+			}
+
+			.schedule_fixby5 {
+				background: DarkSeaGreen;
+			}
+
+			.schedule_fixby6 {
+				background: DarkTurquoise;
+			}
+
+			.schedule_fixby7 {
+				background: GhostWhite;
+			}
+
+			.schedule_fixby8 {
+				background: Gold;
+			}
+
+			.schedule_fixby9 {
+				background: GreenYellow;
+			}
+
+			.schedule_fixby10 {
+				background: Lavender;
+			}
+
+			.schedule_fixby11 {
+				background: LightBlue;
+			}
+
+			.schedule_fixby12 {
+				background: LightPink;
+			}
+		""")
+
 	def html_preamble(self, title, onload_focus):
 		if onload_focus is not None:
 			focus_script = 'OnLoad="document.%s.focus();"' % onload_focus
@@ -95,241 +330,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 				<head>
 					<link rel="icon" href="http://localhost:18080/favicon.ico" />
+					<link rel="stylesheet" href="/css.css" type="text/css" title="Default Style" media="screen" />
 					<title>%s</title>
-
-					<style type="text/css">
-					.issue_metadata {
-						padding: 0.5 0.5 0.5em;
-						margin: 1em;
-						border-style: solid;
-						border-width: 0.1em;
-					}
-
-					.issue_metadata p {
-						margin: 0.5em;
-					}
-
-					.issue_comments {
-						margin-bottom: 1em;
-					}
-
-					.issue_comment_content {
-						padding: 0.5 0.5 0.5em;
-						border-style: solid;
-						border-width: 0.1em;
-					}
-
-					.issue_comment_content p {
-						margin: 0.5em;
-						white-space: pre-wrap;
-						font-family: Monospace;
-					}
-
-					.issue_comment_children {
-						padding-left: 3em;
-					}
-
-					.field_select_box {
-						padding: 0.5 0.5 0.5em;
-						margin: 1em;
-						border-style: solid;
-						border-width: 0.1em;
-					}
-
-					.field_select_item {
-						display: inline-block;
-					}
-
-					.filter_select_box {
-						padding: 0.5 0.5 0.5em;
-						margin: 1em;
-						border-style: solid;
-						border-width: 0.1em;
-					}
-
-					.filter_select_item {
-						margin: 0.5em;
-						display: inline-block;
-					}
-
-					.issue_list table {
-						border-style: solid;
-						border-width: 0.1em;
-						margin-top: 1em;
-						margin-bottom: 1em;
-						margin-left: auto;
-						margin-right: auto;
-						width: 90%%;
-					}
-
-					.issue_list td {
-						padding-right: 0.5em;
-						padding-left: 0.5em;
-						text-align: center;
-					}
-
-					.issue_list th {
-						padding-right: 0.5em;
-						padding-left: 0.5em;
-						text-align: center;
-						font-size: 125%%;
-					}
-
-					.issue_list a:link { text-decoration: none; }
-					.issue_list a:hover { text-decoration: underline; }
-
-					/* Separate tr1 and tr2 to alternate colours */
-					.issue_list_tr0 {
-						background: White;
-					}
-
-					.issue_list_tr1 {
-						background: LightGrey;
-					}
-
-					.add_comment p {
-						margin: 0.5em;
-					}
-
-					.add_comment textarea {
-						font-family: Monospace;
-					}
-
-					/* .new_issue_metadata {} */
-
-					.new_issue {
-						margin: 0.5em 0.5em 0.5em 0.5em;
-					}
-
-					.new_issue textarea {
-						font-family: Monospace;
-					}
-
-					.new_issue_text_wrapper {
-						width: 100%%;
-						float: left;
-						margin-bottom: 1em;
-					}
-
-					.new_issue_metadata_column {
-						float: left;
-						padding-right: 2em;
-						margin: 0em;
-					}
-
-					.command_button {
-						float: left;
-					}
-
-					.command_bar {
-						width: 100%%;
-					}
-
-					.schedule table {
-						border-style: solid;
-						border-width: 0.1em;
-						margin-top: 1em;
-						margin-bottom: 1em;
-						margin-left: auto;
-						margin-right: auto;
-					}
-
-					.schedule td {
-						padding-right: 0.5em;
-						padding-left: 0.5em;
-						text-align: center;
-					}
-
-					.schedule_td {
-						overflow: hidden;
-					}
-
-					.schedule th {
-						padding-right: 0.5em;
-						padding-left: 0.5em;
-						text-align: center;
-						vertical-align: bottom;
-						font-size: 125%%;
-					}
-
-					.schedule_user {
-						width: 0.5em;
-					}
-
-					.schedule_user th {
-						width: 1em;
-						letter-spacing: 0.1em;
-						text-align: center;
-					}
-
-					.schedule a:link { text-decoration: none; }
-					.schedule a:hover { text-decoration: underline; }
-
-					/* Separate col1 and col2 to alternate colours */
-					.schedule_col0 {
-						background: White;
-					}
-
-					.schedule_col1 {
-						background: LightGrey;
-					}
-
-					.schedule_gap {
-						background: Aquamarine;
-					}
-
-					.schedule_fixby0 {
-						background: Aqua;
-					}
-
-					.schedule_fixby1 {
-						background: BurlyWood;
-					}
-
-					.schedule_fixby2 {
-						background: Chartreuse;
-					}
-
-					.schedule_fixby3 {
-						background: Coral
-					}
-
-					.schedule_fixby4 {
-						background: DarkKhaki;
-					}
-
-					.schedule_fixby5 {
-						background: DarkSeaGreen;
-					}
-
-					.schedule_fixby6 {
-						background: DarkTurquoise;
-					}
-
-					.schedule_fixby7 {
-						background: GhostWhite;
-					}
-
-					.schedule_fixby8 {
-						background: Gold;
-					}
-
-					.schedule_fixby9 {
-						background: GreenYellow;
-					}
-
-					.schedule_fixby10 {
-						background: Lavender;
-					}
-
-					.schedule_fixby11 {
-						background: LightBlue;
-					}
-
-					.schedule_fixby12 {
-						background: LightPink;
-					}
-					</style>
 				</head>
 			<body %s>
 			<div style="width: 100%%;float: left;">
@@ -1742,6 +1744,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.schedule()
 		elif '/js.js' == self.path:
 			self.js()
+		elif '/css.css' == self.path:
+			self.css()
 		else:
 			print "Got unhandled get path %s" % self.path
 			self.root()
