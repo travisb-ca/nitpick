@@ -1405,6 +1405,16 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 						row.cells[column].style.display = 'none';
 				}
 			}
+
+			/* Fixup the row colouring */
+			var colour = 0;
+			for (var i = 0; i < rows.length; i++) {
+				var row = rows[i];
+				if (row.style.display != 'none') {
+					row.className = "issue_list_tr" + colour;
+					colour = (colour + 1) % 2;
+				}
+			}
 		}
 
 		Sort_and_Filter();
