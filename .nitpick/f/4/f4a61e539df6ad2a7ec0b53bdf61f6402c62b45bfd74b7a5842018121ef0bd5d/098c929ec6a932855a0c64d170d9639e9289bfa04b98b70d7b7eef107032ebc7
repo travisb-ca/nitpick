@@ -1,0 +1,8 @@
+Attachment: 
+Attachment-filename: 
+Attachment-type: application/octet-stream
+Date: 2013-02-27 07:28:35
+Parent: issue
+User: travisb@travisbrown.ca
+--
+The second most obvious way is to carry the issue list option around. This can be done fairly easily for the issue pages. The question is how to accomplish this for the new comment or other push pages since they'll use query options for other things.
