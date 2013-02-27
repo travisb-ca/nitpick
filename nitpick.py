@@ -1336,7 +1336,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		function Sort_and_Filter() {
 			var rows = document.getElementsByName("issue_list")[0].rows;
 
-			var column_filter = new Array(
+			var row_filter = new Array(
 				selected_options(get_field("filter_repo")),
 				0, /* ID */
 				selected_options(get_field("filter_type")),
@@ -1352,18 +1352,34 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				0 /* Title */
 				);
 
-			/* Make sure to skip row zero which is the header */
+			var column_filter = new Array(
+				"show_repo",
+				"show_ID",
+				"show_type",
+				"show_date",
+				"show_severity",
+				"show_priority",
+				"show_component",
+				"show_fix_by",
+				"show_seen_in_build",
+				"show_state",
+				"show_resolution",
+				"show_owner",
+				"show_title"
+				);
+
+			/* Skip the data rows based upon filtering */
 			for (var i = 1; i < rows.length; i++) {
 				var row = rows[i];
 				var hide = false;
 
-				for (var column = 0; column < column_filter.length; column++) {
-					if (typeof(column_filter[column]) == "number")
+				for (var column = 0; column < row_filter.length; column++) {
+					if (typeof(row_filter[column]) == "number")
 						continue; /* We don't filter on this column */
 
 					var val = row.cells[column];
 					var content = val.textContent;
-					if (column_filter[column].indexOf(content) == -1) {
+					if (row_filter[column].indexOf(content) == -1) {
 						hide = true;
 						break; /* We've hidden so we are done */
 					}
@@ -1374,6 +1390,20 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				else
 					row.style.display = '';
 
+			}
+
+			/* Hide columns based upon settings */
+			for (var column = 0; column < column_filter.length; column++) {
+				var show = get_field(column_filter[column]).checked;
+
+				for (var i = 0; i < rows.length; i++) {
+					var row = rows[i];
+
+					if (show)
+						row.cells[column].style.display = '';
+					else
+						row.cells[column].style.display = 'none';
+				}
 			}
 		}
 
