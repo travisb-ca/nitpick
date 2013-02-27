@@ -1,0 +1,8 @@
+Attachment: 
+Attachment-filename: 
+Attachment-type: application/octet-stream
+Date: 2013-02-27 07:11:12
+Parent: 813d7b9780e2255c4c80942f796d6179bf101dfbf4b37ee8551ac9d2dfa00c07
+User: travisb@travisbrown.ca
+--
+This actually works, but the bug only happens when responding to a comment, not to the original issue.
