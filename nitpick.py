@@ -359,15 +359,16 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.output(self.html_preamble(title + 'Nitpick', onload_focus))
 
-		self.output('<div class="command_bar">\n')
-		self.output('<span class="command_button"><form action="/shutdown" method="post">')
-		self.output('<input type="submit" value="Exit Web Interface"/></form></span>\n')
-		if config.uncommitted_changes and config.vcs.real:
-			self.output('<span class="command_button"><form action="/commit" method="post">')
-			self.output('<input type="submit" value="Commit Changes"/></form></span>\n')
-			self.output('<span class="command_button"><form action="/revert" method="post">')
-			self.output('<input type="submit" value="Revert Changes"/></form></span>\n')
-		self.output('</div>\n')
+		if not config.readonly:
+			self.output('<div class="command_bar">\n')
+			self.output('<span class="command_button"><form action="/shutdown" method="post">')
+			self.output('<input type="submit" value="Exit Web Interface"/></form></span>\n')
+			if config.uncommitted_changes and config.vcs.real:
+				self.output('<span class="command_button"><form action="/commit" method="post">')
+				self.output('<input type="submit" value="Commit Changes"/></form></span>\n')
+				self.output('<span class="command_button"><form action="/revert" method="post">')
+				self.output('<input type="submit" value="Revert Changes"/></form></span>\n')
+			self.output('</div>\n')
 
 		self.output('<br/>\n')
 
@@ -418,7 +419,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.start_doc('')
 
-		self.output('<p><a href="/new_issue">Create new issue</a>\n')
+		if not config.readonly:
+			self.output('<p><a href="/new_issue">Create new issue</a>\n')
+
 		if config.use_schedule:
 			self.output(' <a href="/schedule">Show Schedule</a></p>\n')
 
@@ -860,7 +863,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.output('</div>\n')
 
-		self.output('<input type="submit" value="Update" />\n')
+		if not config.readonly:
+			self.output('<input type="submit" value="Update" />\n')
 
 		self.output('</form>\n')
 
@@ -877,7 +881,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.output('<form action="/add_comment" method="get">\n')
 		self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue_hash)
-		self.output('<input type="submit" value="Add Comment" /><br/>')
+		if not config.readonly:
+			self.output('<input type="submit" value="Add Comment" /><br/>')
 		self.output('</form>\n')
 		self.output('</div>\n') # End the content
 
@@ -920,7 +925,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.output('<form action="/add_comment" method="get">\n')
 			self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue_hash)
 			self.output('<input type="hidden" name="comment" value="%s"/>\n' % comment['hash'])
-			self.output('<input type="submit" value="Reply" /><br/>')
+			if not config.readonly:
+				self.output('<input type="submit" value="Reply" /><br/>')
 			self.output('</form>\n')
 			self.output('</div>\n') # end content
 			self.output('<div class="issue_comment_children">\n')
