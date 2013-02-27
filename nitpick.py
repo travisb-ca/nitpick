@@ -2308,17 +2308,20 @@ class IssueDB:
 		if partial_comment:
 			for repo_path in self.repo_paths[issue_obj['repo_uuid']]:
 				issue_path = repo_path + issue[0] + '/' + issue[1] + '/' + issue + '/'
-				for file in os.listdir(issue_path):
-					if not os.path.isfile(issue_path + file):
-						continue
-					if '.' in file or file == 'issue': # Only support comments, not attachments or the root issue
-						continue
+				try:
+					for file in os.listdir(issue_path):
+						if not os.path.isfile(issue_path + file):
+							continue
+						if '.' in file or file == 'issue': # Only support comments, not attachments or the root issue
+							continue
 
-					if partial_comment in file:
-						if parent != 'issue' and parent != file:
-							return (issue, '')
-						else:
-							parent = file
+						if partial_comment in file:
+							if parent != 'issue' and parent != file:
+								return (issue, '')
+							else:
+								parent = file
+				except:
+					pass
 			if parent == 'issue':
 				return (issue, None)
 		
