@@ -1,0 +1,26 @@
+Component: Core
+Date: 2013-02-27 18:33:46
+Depends_On: 
+Duplicate_Of: 
+Fix_By: Eventually
+Owner: travisb@travisbrown.ca
+Percent_Complete: 0
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Minor
+State: Open
+Title: Archive old issues and comments
+Type: Feature
+Units_of_Work: 1000
+--
+As a bug database grows it there will eventually be a massive number of small files. This is fine to a point. However, a long running repository will have thousands of old issues which aren't used much. It would be good to have some option to take all the closed issues and combine them into a single archive file to make loading them faster and to waste less disk space and to reduce the number of files.
+
+One thing to consider would be how to make it easy to continue to use normal tools. If every issue isn't a plain file then a lot of the flexibility I have to mess with issues and comments goes away for those closed comments.
+
+There should be two parts of this:
+1. Archiving whole issues
+2. Consolidating comments from issues with lots of comments which aren't closed
+
+I expect that archives would be readonly.
