@@ -2,7 +2,7 @@ Component: Web_UI
 Date: 2012-06-20 00:17:23
 Depends_On: 
 Duplicate_Of: 
-Fix_By: Eventually
+Fix_By: 1.1
 Owner: travisb@travisbrown.ca
 Percent_Complete: 0
 Priority: 1

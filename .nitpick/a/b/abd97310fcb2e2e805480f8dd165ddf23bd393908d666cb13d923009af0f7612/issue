@@ -2,8 +2,9 @@ Component: Web_UI
 Date: 2012-11-12 17:48:19
 Depends_On: e2525c7e50eab8c310e3c38cc78271b8ae4c50abd199f541ed2f6ddf1a93593e
 Duplicate_Of: 
-Fix_By: 1.1
+Fix_By: Eventually
 Owner: travisb@travisbrown.ca
+Percent_Complete: 0
 Priority: 1
 Reported_By: travisb@travisbrown.ca
 Resolution: None
@@ -13,7 +14,6 @@ State: Open
 Title: Gantt hover dependency graph highlight
 Type: Feature
 Units_of_Work: 1000
-Percent_Complete: 0
 --
 The graph I display for the project schedule isn't really a Gantt chart, but is instead a work queue ordering. This makes it difficult to see what the dependencies are.
 

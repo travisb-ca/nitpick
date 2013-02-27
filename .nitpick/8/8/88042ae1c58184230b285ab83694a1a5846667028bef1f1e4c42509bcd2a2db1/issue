@@ -2,8 +2,9 @@ Component: Web_UI
 Date: 2012-11-12 17:52:08
 Depends_On: e2525c7e50eab8c310e3c38cc78271b8ae4c50abd199f541ed2f6ddf1a93593e
 Duplicate_Of: 
-Fix_By: 1.1
+Fix_By: Eventually
 Owner: travisb@travisbrown.ca
+Percent_Complete: 0
 Priority: 1
 Reported_By: travisb@travisbrown.ca
 Resolution: None
@@ -13,6 +14,5 @@ State: Open
 Title: Fixed Gantt table headers
 Type: Feature
 Units_of_Work: 1000
-Percent_Complete: 0
 --
 The project schedule can be a large table, but the table headers are pretty important. It'd be good to have the headers be sticky when scrolling around the table.
