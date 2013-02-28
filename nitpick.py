@@ -806,7 +806,10 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.start_doc('%s [%s]' % (issue['Title'], issue_hash[:8]))
 
-		self.output('<p><a href="/">Back to issue list</a> ')
+		if config.readonly:
+			self.output('<p><a href="/?usejs=1">Back to issue list</a> ')
+		else:
+			self.output('<p><a href="/">Back to issue list</a> ')
 		self.output('<a href="/export/%s.bug">Export</a></p>\n' % issue_hash)
 
 		self.output('<form action="/update_issue" method="post">\n')
