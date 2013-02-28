@@ -1409,6 +1409,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 					var field = get_field(row_filter[i]);
 					var select_options = field.options;
 
+					for (var j = 0; j < select_options.length; j++)
+						select_options[j].selected = false;
+
 					for (var option = 0; option < options.length; option++) {
 						var option_text = options[option];
 
