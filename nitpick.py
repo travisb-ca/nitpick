@@ -427,7 +427,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		if config.use_schedule:
 			self.output(' <a href="/schedule">Show Schedule</a></p>\n')
 
-		if self.request_args == {}:
+		if self.request_args == {} or config.readonly:
 			# Use defaults since this is the first time here
 			show_repo          = db.has_nonclones()
 			show_ID            = True
@@ -609,7 +609,10 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		def output_row_header(bool, label, request_args):
 			if bool or config.readonly:
-				myargs = copy.copy(request_args)
+				if config.readonly:
+					myargs = {}
+				else:
+					myargs = copy.copy(request_args)
 
 				sort_token = '&nbsp;&nbsp;'
 
