@@ -85,6 +85,10 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		pass
 
 	def css(self):
+		self.send_response(200)
+		self.send_header('Content-type', 'text/css')
+		self.end_headers()
+
 		self.output("""
 			.issue_metadata {
 				padding: 0.5 0.5 0.5em;
@@ -1323,6 +1327,10 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.wfile.write(format_issue_for_export(issue))
 
 	def js(self):
+		self.send_response(200)
+		self.send_header('Content-type', 'application/javascript')
+		self.end_headers()
+
 		self.output("""
 		function get_field(fieldname) {
 			return document.getElementsByName(fieldname)[0];
