@@ -1355,35 +1355,35 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			return selected;
 		}
 
+		var row_filter = new Array(
+			"filter_repo",
+			"filter_type",
+			"filter_severity",
+			"filter_priority",
+			"filter_components",
+			"filter_fix_by",
+			"filter_state",
+			"filter_resolution",
+			"filter_owner"
+			);
+
+		var column_filter = new Array(
+			"show_repo",
+			"show_ID",
+			"show_type",
+			"show_date",
+			"show_severity",
+			"show_priority",
+			"show_component",
+			"show_fix_by",
+			"show_seen_in_build",
+			"show_state",
+			"show_resolution",
+			"show_owner",
+			"show_title"
+			);
+
 		function load_filters() {
-			var row_filter = new Array(
-				"filter_repo",
-				"filter_type",
-				"filter_severity",
-				"filter_priority",
-				"filter_components",
-				"filter_fix_by",
-				"filter_state",
-				"filter_resolution",
-				"filter_owner"
-				);
-
-			var column_filter = new Array(
-				"show_repo",
-				"show_ID",
-				"show_type",
-				"show_date",
-				"show_severity",
-				"show_priority",
-				"show_component",
-				"show_fix_by",
-				"show_seen_in_build",
-				"show_state",
-				"show_resolution",
-				"show_owner",
-				"show_title"
-				);
-
 			var have_settings = false;
 
 			/*
@@ -1437,34 +1437,6 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		}
 
 		function save_filters() {
-			var row_filter = new Array(
-				"filter_repo",
-				"filter_type",
-				"filter_severity",
-				"filter_priority",
-				"filter_components",
-				"filter_fix_by",
-				"filter_state",
-				"filter_resolution",
-				"filter_owner"
-				);
-
-			var column_filter = new Array(
-				"show_repo",
-				"show_ID",
-				"show_type",
-				"show_date",
-				"show_severity",
-				"show_priority",
-				"show_component",
-				"show_fix_by",
-				"show_seen_in_build",
-				"show_state",
-				"show_resolution",
-				"show_owner",
-				"show_title"
-				);
-
 			for (var i = 0; i < row_filter.length; i++) {
 				sessionStorage.setItem(row_filter[i], selected_options(get_field(row_filter[i])).join("\\n"));
 			}
