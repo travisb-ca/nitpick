@@ -431,7 +431,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		if config.use_schedule:
 			self.output(' <a href="/schedule">Show Schedule</a></p>\n')
 
-		if self.request_args == {} or config.readonly:
+		if self.request_args == {}:
 			# Use defaults since this is the first time here
 			show_repo          = db.has_nonclones()
 			show_ID            = True
@@ -1352,7 +1352,129 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			return selected;
 		}
 
+		function load_filters() {
+			var row_filter = new Array(
+				"filter_repo",
+				"filter_type",
+				"filter_severity",
+				"filter_priority",
+				"filter_components",
+				"filter_fix_by",
+				"filter_state",
+				"filter_resolution",
+				"filter_owner"
+				);
+
+			var column_filter = new Array(
+				"show_repo",
+				"show_ID",
+				"show_type",
+				"show_date",
+				"show_severity",
+				"show_priority",
+				"show_component",
+				"show_fix_by",
+				"show_seen_in_build",
+				"show_state",
+				"show_resolution",
+				"show_owner",
+				"show_title"
+				);
+
+			var have_settings = false;
+
+			/*
+			 * Did we get any settings with the html? We don't check the row_filters here because every HTML
+			 * files has default settings for these.
+			 */
+			for (var i = 0; i < column_filter.length; i++) {
+				if (get_field(column_filter[i]).checked) {
+					have_settings = true;
+					break;
+				}
+			}
+
+			if (!have_settings) {
+				/* We didn't get any settings, so load them from the session store */
+				for (var i = 0; i < row_filter.length; i++) {
+					var options = sessionStorage.getItem(row_filter[i]);
+					if (options == undefined)
+						continue; /* No values to set */
+					else
+						options = options.split("\\n");
+
+					var field = get_field(row_filter[i]);
+					var select_options = field.options;
+
+					for (var option = 0; option < options.length; option++) {
+						var option_text = options[option];
+
+						for (var j = 0; j < select_options.length; j++) {
+							if (select_options[j].text == option_text)
+								select_options[j].selected = true;
+						}
+					}
+				}
+
+				for (var i = 0; i < column_filter.length; i++) {
+					var option = sessionStorage.getItem(column_filter[i]);
+					if (option == undefined)
+						continue; /* No values to set */
+
+					if (option == "false")
+						option = false;
+					else
+						option = true;
+
+					var field = get_field(column_filter[i]);
+					field.checked = option;
+				}
+			}
+
+		}
+
+		function save_filters() {
+			var row_filter = new Array(
+				"filter_repo",
+				"filter_type",
+				"filter_severity",
+				"filter_priority",
+				"filter_components",
+				"filter_fix_by",
+				"filter_state",
+				"filter_resolution",
+				"filter_owner"
+				);
+
+			var column_filter = new Array(
+				"show_repo",
+				"show_ID",
+				"show_type",
+				"show_date",
+				"show_severity",
+				"show_priority",
+				"show_component",
+				"show_fix_by",
+				"show_seen_in_build",
+				"show_state",
+				"show_resolution",
+				"show_owner",
+				"show_title"
+				);
+
+			for (var i = 0; i < row_filter.length; i++) {
+				sessionStorage.setItem(row_filter[i], selected_options(get_field(row_filter[i])).join("\\n"));
+			}
+			
+			for (var i = 0; i < column_filter.length; i++) {
+				sessionStorage.setItem(column_filter[i], get_field(column_filter[i]).checked);
+			}
+		}
+
 		function Sort_and_Filter() {
+			load_filters();
+			save_filters();
+
 			var rows = document.getElementsByName("issue_list")[0].rows;
 
 			var row_filter = new Array(
