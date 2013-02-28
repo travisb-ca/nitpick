@@ -1,0 +1,10 @@
+Attachment: 
+Attachment-filename: 
+Attachment-type: application/octet-stream
+Date: 2013-02-28 02:17:21
+Parent: b9de7e12d98042b50622d7db6b8c823a52d665350abda311a12dd1b3a459ea29
+User: travisb@travisbrown.ca
+--
+I've fixed this by cutting out all the sorting and filtering options from the query string.
+
+This works, but pushes offline saving of the filter and column settings to the issue f4a61e539df6ad2a7ec0b53bdf61f6402c62b45bfd74b7a5842018121ef0bd5d

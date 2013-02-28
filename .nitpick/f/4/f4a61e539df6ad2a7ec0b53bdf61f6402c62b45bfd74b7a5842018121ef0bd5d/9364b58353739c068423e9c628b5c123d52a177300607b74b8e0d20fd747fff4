@@ -1,0 +1,10 @@
+Attachment: 
+Attachment-filename: 
+Attachment-type: application/octet-stream
+Date: 2013-02-28 02:18:32
+Parent: issue
+User: travisb@travisbrown.ca
+--
+Since a new readonly view has been created there are now two parts to this. First the support must be added for the normal live web UI, but it must also be added for the static readonly view.
+
+There appears to be a way that the readonly view can use HTML5 sessionStorage to accomplish this. I'm still not sure how to accomplish this with the live view.
