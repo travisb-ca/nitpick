@@ -38,6 +38,7 @@ import cgi
 import datetime
 import json
 import subprocess
+import random
 
 DATEFORMAT = '%Y-%m-%d %H:%M:%S'
 FILLWIDTH = 69
@@ -69,6 +70,7 @@ class config:
 	endweb = False
 	uncommitted_changes = False
 	readonly = False
+	session_settings = {}
 
 default_users = """
 Unassigned
@@ -372,8 +374,13 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.output('<input type="submit" value="Exit Web Interface"/></form></span>\n')
 			if config.uncommitted_changes and config.vcs.real:
 				self.output('<span class="command_button"><form action="/commit" method="post">')
+				if 'session' in self.request_args:
+					self.output('<input type="hidden" name="session" value="%s"/>\n' % self.request_args['session'])
 				self.output('<input type="submit" value="Commit Changes"/></form></span>\n')
+
 				self.output('<span class="command_button"><form action="/revert" method="post">')
+				if 'session' in self.request_args:
+					self.output('<input type="hidden" name="session" value="%s"/>\n' % self.request_args['session'])
 				self.output('<input type="submit" value="Revert Changes"/></form></span>\n')
 			self.output('</div>\n')
 
@@ -418,8 +425,14 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		else:
 			desc = i['Title']
 
-		output = '%s<a title="%s" href="/issue/%s">%s</a>%s' % (leader, title, issue, desc, follower)
+		output = '%s<a title="%s" href="/issue/%s%s">%s</a>%s' % (leader, title, issue, self.session_query(), desc, follower)
 		return output
+
+	def session_query(self):
+		query = ''
+		if 'session' in self.request_args:
+			query = '?session=%s' % self.request_args['session']
+		return query
 
 	def root(self):
 		db.load_issue_db()
@@ -427,12 +440,12 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.start_doc('')
 
 		if not config.readonly:
-			self.output('<p><a href="/new_issue">Create new issue</a>\n')
+			self.output('<p><a href="/new_issue%s">Create new issue</a>\n' % self.session_query())
 
 		if config.use_schedule:
-			self.output(' <a href="/schedule">Show Schedule</a></p>\n')
+			self.output(' <a href="/schedule%s">Show Schedule</a></p>\n' % self.session_query())
 
-		if self.request_args == {}:
+		if self.request_args == {} or self.request_args.keys() == ['session']:
 			# Use defaults since this is the first time here
 			show_repo          = db.has_nonclones()
 			show_ID            = True
@@ -476,10 +489,19 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		sort_field = 'State' # Sort by state by default
 		reverse_sort = False
 
+		# Load session defaults if we have some
+		load_settings = False
+		if 'session' in self.request_args and self.request_args['session'] in config.session_settings:
+			session_settings = config.session_settings[self.request_args['session']]
+			load_settings = True
+
 		def extract_show_field_arg(arg_name, arg_val):
-			if arg_name in self.request_args.keys():
-				arg_val = self.request_args[arg_name] == '1'
-			return arg_val
+			if not load_settings:
+				if arg_name in self.request_args.keys():
+					arg_val = self.request_args[arg_name] == '1'
+				return arg_val
+			else:
+				return session_settings[arg_name]
 
 		if db.has_foreign():
 			show_repo  = extract_show_field_arg('show_repo',          show_repo)
@@ -497,12 +519,15 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		show_title         = extract_show_field_arg('show_title',         show_title)
 
 		def extract_filter_arg(arg_name, arg_val):
-			if arg_name in self.request_args.keys():
-				if type(self.request_args[arg_name]) == type([]):
-					arg_val = self.request_args[arg_name]
-				else:
-					arg_val = [self.request_args[arg_name]]
-			return arg_val
+			if not load_settings:
+				if arg_name in self.request_args.keys():
+					if type(self.request_args[arg_name]) == type([]):
+						arg_val = self.request_args[arg_name]
+					else:
+						arg_val = [self.request_args[arg_name]]
+				return arg_val
+			else:
+				return session_settings[arg_name]
 
 		if db.has_foreign():
 			filter_repo = extract_filter_arg('filter_repo',     filter_repo)
@@ -519,6 +544,45 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			sort_field = self.request_args['sort_field']
 
 		reverse_sort = extract_show_field_arg('reverse_sort', reverse_sort)
+
+		page_args = {
+				'show_repo'          : show_repo,
+				'show_ID'            : show_ID,
+				'show_type'          : show_type,
+				'show_date'          : show_date,
+				'show_severity'      : show_severity,
+				'show_priority'      : show_priority,
+				'show_component'     : show_component,
+				'show_fix_by'        : show_fix_by,
+				'show_seen_in_build' : show_seen_in_build,
+				'show_state'         : show_state,
+				'show_resolution'    : show_resolution,
+				'show_owner'         : show_owner,
+				'show_title'         : show_title,
+				'filter_components'  : filter_components,
+				'filter_fix_by'      : filter_fix_by,
+				'filter_severity'    : filter_severity,
+				'filter_priority'    : filter_priority,
+				'filter_state'       : filter_state,
+				'filter_resolution'  : filter_resolution,
+				'filter_type'        : filter_type,
+				'filter_repo'        : filter_repo,
+				'filter_owner'       : filter_owner,
+				'sort_field'         : sort_field,
+				'reverse_sort'       : reverse_sort,
+			}
+
+		# Store the session settings if we don't already have them saved
+		if 'session' not in self.request_args:
+			while True:
+				session_key = str(random.randint(0, 1000000))
+				if session_key in config.session_settings:
+					continue
+
+				break
+
+			config.session_settings[session_key] = page_args
+			self.request_args['session'] = session_key
 
 		if config.readonly:
 			self.output('<form>\n')
@@ -586,31 +650,6 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.output('<input type="submit" value="Sort and Filter"/></form>')
 
 		self.output('<div class="issue_list"><table class="issue_list" cellspacing="0" name="issue_list"> <tr class="issue_list"> ')
-		
-		page_args = {
-				'show_repo'          : show_repo,
-				'show_ID'            : show_ID,
-				'show_type'          : show_type,
-				'show_date'          : show_date,
-				'show_severity'      : show_severity,
-				'show_priority'      : show_priority,
-				'show_component'     : show_component,
-				'show_fix_by'        : show_fix_by,
-				'show_seen_in_build' : show_seen_in_build,
-				'show_state'         : show_state,
-				'show_resolution'    : show_resolution,
-				'show_owner'         : show_owner,
-				'show_title'         : show_title,
-				'filter_components'  : filter_components,
-				'filter_fix_by'      : filter_fix_by,
-				'filter_severity'    : filter_severity,
-				'filter_priority'    : filter_priority,
-				'filter_state'       : filter_state,
-				'filter_resolution'  : filter_resolution,
-				'filter_type'        : filter_type,
-				'filter_owner'       : filter_owner,
-				'sort_field'         : sort_field
-			}
 
 		def output_row_header(bool, label, request_args):
 			if bool or config.readonly:
@@ -675,7 +714,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		def output_field(issue, bool, field_data):
 			if bool or config.readonly:
-				self.output('<td class="issue_list"><a href="/issue/%s">%s</a></td> ' % (issue, cgi.escape(field_data)))
+				self.output('<td class="issue_list"><a href="/issue/%s%s">%s</a></td> ' % (issue,
+					self.session_query(), cgi.escape(field_data)))
 
 
 		def sort_issues(issue):
@@ -810,10 +850,10 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		if config.readonly:
 			self.output('<p><a href="/?usejs=1">Back to issue list</a> ')
 		else:
-			self.output('<p><a href="/">Back to issue list</a> ')
+			self.output('<p><a href="/%s">Back to issue list</a> ' % self.session_query())
 		self.output('<a href="/export/%s.bug">Export</a></p>\n' % issue_hash)
 
-		self.output('<form action="/update_issue" method="post">\n')
+		self.output('<form action="/update_issue%s" method="post">\n' % self.session_query())
 		self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue_hash)
 
 		self.output('<div class="issue_metadata">\n')
@@ -894,6 +934,10 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.output('<form action="/add_comment" method="get">\n')
 		self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue_hash)
+
+		if 'session' in self.request_args:
+			self.output('<input type="hidden" name="session" value="%s"/>\n' % self.request_args['session'])
+
 		if not config.readonly:
 			self.output('<input type="submit" value="Add Comment" /><br/>')
 		self.output('</form>\n')
@@ -938,6 +982,10 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.output('<form action="/add_comment" method="get">\n')
 			self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue_hash)
 			self.output('<input type="hidden" name="comment" value="%s"/>\n' % comment['hash'])
+
+			if 'session' in self.request_args:
+				self.output('<input type="hidden" name="session" value="%s"/>\n' % self.request_args['session'])
+
 			if not config.readonly:
 				self.output('<input type="submit" value="Reply" /><br/>')
 			self.output('</form>\n')
@@ -968,7 +1016,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		else:
 			issue = self.request_args['issue']
 
-		self.output('<p><a href="/issue/%s">Back to issue %s</a></p>\n' % (issue, issue[:8]))
+		self.output('<p><a href="/issue/%s%s">Back to issue %s</a></p>\n' % (issue, self.session_query(), issue[:8]))
 
 		if not 'comment' in self.request_args.keys():
 			comment = None
@@ -1001,7 +1049,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		# Here we know that the issue and parent are good to use
 		self.output('<div class="add_comment">\n')
-		self.output('<form name="comment" enctype="multipart/form-data" action="/add_comment" method="post">\n')
+		self.output('<form name="comment" enctype="multipart/form-data" action="/add_comment%s" method="post">\n'
+				% self.session_query())
 		self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue)
 		self.output('<input type="hidden" name="parent" value="%s"/>\n' % parent)
 
@@ -1030,10 +1079,10 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 	def new_issue(self):
 		self.start_doc('New Issue')
 
-		self.output('<p><a href="/">Back to issue list</a></p>\n')
+		self.output('<p><a href="/%s">Back to issue list</a></p>\n' % self.session_query())
 
 		self.output('<div class="new_issue">\n')
-		self.output('<form action="/new_issue" method="post">\n')
+		self.output('<form action="/new_issue%s" method="post">\n' % self.session_query())
 
 		self.output('<div class="new_issue_metadata_column">\n')
 		date = time.strftime(DATEFORMAT, time.gmtime())
@@ -1172,7 +1221,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		schedule = schedule_all_tasks()
 		self.start_doc('Project Schedule')
 
-		self.output('<p><a href="/">Back to issue list</a></p>\n')
+		self.output('<p><a href="/%s">Back to issue list</a></p>\n' % self.session_query())
 
 		self.output('<div class="schedule"><table cellspacing="0" rules="all">\n')
 
@@ -1591,8 +1640,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.start_doc('Comment %s added' % comment_filename)
 		self.output('<p>Successfully added the comment</p>\n')
-		self.output('<a href="/">Back to issue list</a> ')
-		self.output('<a href="/issue/%s"> Back to issue %s</a>\n' % (self.request_args['issue'], self.request_args['issue'][:8]))
+		self.output('<a href="/%s">Back to issue list</a> ' % self.session_query())
+		self.output('<a href="/issue/%s%s"> Back to issue %s</a>\n' % (self.request_args['issue'], self.session_query(), 
+			self.request_args['issue'][:8]))
 		self.end_doc()
 
 		config.uncommitted_changes = True
@@ -1634,7 +1684,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			db.issue(issue)['Fix_By'] == self.request_args['fix_by']:
 				self.start_doc('No change')
 				self.output('<p>No change sent, no change made</p>')
-				self.output('<a href="/issue/%s">Back to issue %s</a>\n' % (issue, issue[:8]))
+				self.output('<a href="/issue/%s%s">Back to issue %s</a>\n' % (issue, self.session_query(), issue[:8]))
 				self.end_doc()
 				return
 
@@ -1658,7 +1708,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			if float(self.request_args['units_of_work']) < 0:
 				self.start_doc('Invalid value')
 				self.output('<p>Invalid value for Units_of_Work %s. Must be greater or equal to zero</p>' % self.request_args['units_of_work'])
-				self.output('<a href="/issue/%s">Back to issue %s</a>\n' % (issue, issue[:8]))
+				self.output('<a href="/issue/%s%s">Back to issue %s</a>\n' % (issue, self.session_query(), issue[:8]))
 				self.end_doc()
 				return
 			db.change_issue(issue, 'Units_of_Work', self.request_args['units_of_work'])
@@ -1666,7 +1716,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			if float(self.request_args['percent_complete']) < 0 or float(self.request_args['percent_complete']) > 100:
 				self.start_doc('Invalid value')
 				self.output('<p>Invalid value for Percent_Complete %s. Must be between 0 and 100</p>' % self.request_args['percent_complete'])
-				self.output('<a href="/issue/%s">Back to issue %s</a>\n' % (issue, issue[:8]))
+				self.output('<a href="/issue/%s%s">Back to issue %s</a>\n' % (issue, session_query(), issue[:8]))
 				self.end_doc()
 				return
 			db.change_issue(issue, 'Percent_Complete', self.request_args['percent_complete'])
@@ -1711,8 +1761,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.start_doc('Issues %s updated' % issue[:8])
 		self.output('<p>Successfully updated issue %s</p>\n' % issue[:8])
-		self.output('<a href="/">Back to issue list</a> ')
-		self.output('<a href="/issue/%s">Back to issue %s</a><br/>\n' % (issue, issue[:8]))
+		self.output('<a href="/%s">Back to issue list</a> ' % self.session_query())
+		self.output('<a href="/issue/%s%s">Back to issue %s</a><br/>\n' % (issue, self.session_query(), issue[:8]))
 		self.end_doc()
 
 		config.uncommitted_changes = True
@@ -1781,8 +1831,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.start_doc('Created Issue %s' % issue_filename)
 		self.output('<p>Successfully create the issue</p>\n')
-		self.output('<a href="/">Back to issue list</a> ')
-		self.output('<a href="/issue/%s"> Back to issue %s</a>\n' % (issue_hash, issue_hash[:8]))
+		self.output('<a href="/%s">Back to issue list</a> ' % self.session_query())
+		self.output('<a href="/issue/%s%s"> Back to issue %s</a>\n' % (issue_hash, self.session_query(), issue_hash[:8]))
 		self.end_doc()
 
 		config.uncommitted_changes = True
@@ -1800,12 +1850,12 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 			self.start_doc('Committed Changes')
 			self.output('<p>All changes to the Nitpick database have been committed</p>\n')
-			self.output('<a href="/">Go back to issue index</a>\n');
+			self.output('<a href="/%s">Go back to issue index</a>\n' % self.session_query());
 			self.end_doc()
 		else:
 			self.start_doc('Commit Error')
 			self.output('<p>Some/all changes to the Nitpick database failed to commit. Please check the console output</p>\n')
-			self.output('<a href="/">Go back to issue index</a>\n');
+			self.output('<a href="/%s">Go back to issue index</a>\n' % self.session_query());
 			self.end_doc()
 
 	def revert_post(self):
@@ -1814,12 +1864,10 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.start_doc('Reverted Changes')
 		self.output('<p>All changes to the Nitpick database have been reverted</p>\n')
-		self.output('<a href="/">Go back to issue index</a>\n');
+		self.output('<a href="/%s">Go back to issue index</a>\n' % self.session_query());
 		self.end_doc()
 
-	def do_GET(self):
-		#print 'got get  path %s' % self.path
-
+	def parse_path_args(self):
 		self.request_args = {}
 		args_start = self.path.find('?')
 		if args_start != -1:
@@ -1838,6 +1886,16 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 						self.request_args[key].append(value)
 				else:
 					self.request_args[key] = value
+
+		if 'session' in self.request_args and \
+				self.path.endswith('?session=%s' % self.request_args['session']):
+			self.path = self.path[:-len('?session=%s' % self.request_args['session'])]
+
+
+	def do_GET(self):
+		#print 'got get  path %s' % self.path
+
+		self.parse_path_args()
 
 		if '/' == self.path:
 			self.root()
@@ -1870,7 +1928,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 	def do_POST(self):
 		#print 'got post path %s' % self.path
 
-		self.request_args = {}
+		self.parse_path_args()
 
 		if self.path != '/add_comment':
 			args = self.rfile.read(int(self.headers['Content-Length']))

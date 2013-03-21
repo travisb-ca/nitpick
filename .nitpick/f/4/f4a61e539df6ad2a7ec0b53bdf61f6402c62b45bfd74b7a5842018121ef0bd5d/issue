@@ -4,15 +4,15 @@ Depends_On:
 Duplicate_Of: 
 Fix_By: 1.1
 Owner: travisb@travisbrown.ca
+Percent_Complete: 0
 Priority: 1
 Reported_By: travisb@travisbrown.ca
-Resolution: None
+Resolution: Fixed
 Seen_In_Build: 
 Severity: Minor
-State: Open
+State: Closed
 Title: Remember sort and filter settings between reloads
 Type: Feature
 Units_of_Work: 1000
-Percent_Complete: 0
 --
 If you setup some sort and filter settings for the issue list, navigate away from the issue list and then back again you have to setup the sort and filter selections again. This should be remembered within a single browser view chain.
