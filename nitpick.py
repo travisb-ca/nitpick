@@ -2017,9 +2017,9 @@ class GIT(VCS):
 	@staticmethod
 	def commit():
 		os.system("git add " + GIT.uncommitted_files)
-		os.system("git commit -q -m \"Nitpick commit\" -- " + config.db_path + GIT.uncommitted_files)
+		result = os.system("git commit -q -m \"Nitpick commit\" -- " + config.db_path + GIT.uncommitted_files)
 		GIT.uncommitted_files = ""
-		return True
+		return result == 0
 
 	@staticmethod
 	def revert():
@@ -2046,8 +2046,8 @@ class HG(VCS):
 
 	@staticmethod
 	def commit():
-		os.system("hg ci -q -m \"Nitpick commit\" " + config.db_path)
-		return True
+		result = os.system("hg ci -q -m \"Nitpick commit\" " + config.db_path)
+		return result == 0
 
 	@staticmethod
 	def revert():
