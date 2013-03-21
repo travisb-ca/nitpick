@@ -37,6 +37,7 @@ import uuid
 import cgi
 import datetime
 import json
+import subprocess
 
 DATEFORMAT = '%Y-%m-%d %H:%M:%S'
 FILLWIDTH = 69
@@ -1794,13 +1795,18 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		config.endweb = True
 
 	def commit_post(self):
-		config.vcs.commit()
-		config.uncommitted_changes = False
+		if config.vcs.commit():
+			config.uncommitted_changes = False
 
-		self.start_doc('Committed Changes')
-		self.output('<p>All changes to the Nitpick database have been committed</p>\n')
-		self.output('<a href="/">Go back to issue index</a>\n');
-		self.end_doc()
+			self.start_doc('Committed Changes')
+			self.output('<p>All changes to the Nitpick database have been committed</p>\n')
+			self.output('<a href="/">Go back to issue index</a>\n');
+			self.end_doc()
+		else:
+			self.start_doc('Commit Error')
+			self.output('<p>Some/all changes to the Nitpick database failed to commit. Please check the console output</p>\n')
+			self.output('<a href="/">Go back to issue index</a>\n');
+			self.end_doc()
 
 	def revert_post(self):
 		config.vcs.revert()
@@ -1931,8 +1937,10 @@ class VCS:
 	def commit():
 		"""
 		Ensure that all the registered changes are committed to the VCS repository.
+
+		Returns True on success, False on failure
 		"""
-		return
+		return False
 
 	@staticmethod
 	def revert():
@@ -1964,9 +1972,20 @@ class SVN(VCS):
 
 	@staticmethod
 	def commit():
-		os.system("svn ci -q -m \"Nitpick commit\" " + config.db_path)
+		success = True
+
+		result = os.system("svn ci -q -m \"Nitpick commit\" " + config.db_path)
+		if result != 0:
+			success = False
+
 		if db.has_foreign():
-			os.system("for external in `svn stat %s | grep ^X | awk '{print $2}'`; do svn ci -q -m \"Nitpick commit\" $external;done" % config.db_path)
+			foreign_list = subprocess.check_output("svn stat %s | grep ^X | awk '{print $2}'" % config.db_path, shell=True)
+			for foreign in foreign_list.split('\n'):
+				result = os.system("svn ci -q -m \"Nitpick commit\" %s" % foreign)
+				if result != 0:
+					success = False
+
+		return success
 
 	@staticmethod
 	def revert():
@@ -2000,6 +2019,7 @@ class GIT(VCS):
 		os.system("git add " + GIT.uncommitted_files)
 		os.system("git commit -q -m \"Nitpick commit\" -- " + config.db_path + GIT.uncommitted_files)
 		GIT.uncommitted_files = ""
+		return True
 
 	@staticmethod
 	def revert():
@@ -2027,6 +2047,7 @@ class HG(VCS):
 	@staticmethod
 	def commit():
 		os.system("hg ci -q -m \"Nitpick commit\" " + config.db_path)
+		return True
 
 	@staticmethod
 	def revert():
@@ -3044,9 +3065,7 @@ def cmd_init(args):
 
 	load_db()
 
-	backend.commit()
-
-	return True
+	return backend.commit()
 
 def cmd_new(args):
 	if config.db_path == '':
@@ -3093,9 +3112,7 @@ def cmd_new(args):
 
 	issue_filename, issue_hash = db.add_issue(issue)
 
-	config.vcs.commit()
-
-	return True
+	return config.vcs.commit()
 
 def cmd_list(args):
 	if config.db_path == '':
@@ -3275,55 +3292,47 @@ def cmd_comment(args):
 
 	comment_filename = db.add_comment(issue, comment)
 
-	config.vcs.commit()
-	return True
+	return config.vcs.commit()
 
 def cmd_state(args):
 	if db.change_issue(args.issue, 'State', args.newstate):
-		config.vcs.commit()
-		return True
+		return config.vcs.commit()
 	else:
 		return False
 
 def cmd_severity(args):
 	if db.change_issue(args.issue, 'Severity', args.newseverity):
-		config.vcs.commit()
-		return True
+		return config.vcs.commit()
 	else:
 		return False
 
 def cmd_component(args):
 	if db.change_issue(args.issue, 'Component', args.newcomponent):
-		config.vcs.commit()
-		return True
+		return config.vcs.commit()
 	else:
 		return False
 
 def cmd_priority(args):
 	if db.change_issue(args.issue, 'Priority', args.newpriority):
-		config.vcs.commit()
-		return True
+		return config.vcs.commit()
 	else:
 		return False
 
 def cmd_resolution(args):
 	if db.change_issue(args.issue, 'Resolution', args.newresolution):
-		config.vcs.commit()
-		return True
+		return config.vcs.commit()
 	else:
 		return False
 
 def cmd_type(args):
 	if db.change_issue(args.issue, 'Type', args.newtype):
-		config.vcs.commit()
-		return True
+		return config.vcs.commit()
 	else:
 		return False
 
 def cmd_fixby(args):
 	if db.change_issue(args.issue, 'Fix_By', args.newfixby):
-		config.vcs.commit()
-		return True
+		return config.vcs.commit()
 	else:
 		return False
 
@@ -3342,8 +3351,7 @@ def cmd_owner(args):
 		return False
 
 	if db.change_issue(args.issue, 'Owner', fulluser):
-		config.vcs.commit()
-		return True
+		return config.vcs.commit()
 	else:
 		return False
 
