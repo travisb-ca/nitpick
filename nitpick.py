@@ -430,7 +430,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 	def session_query(self):
 		query = ''
-		if 'session' in self.request_args:
+		if not config.readonly and 'session' in self.request_args:
 			query = '?session=%s' % self.request_args['session']
 		return query
 
