@@ -1,0 +1,18 @@
+Component: Core
+Date: 2013-03-28 01:55:01
+Depends_On: 
+Duplicate_Of: 
+Fix_By: Eventually
+Owner: travisb@travisbrown.ca
+Percent_Complete: 0
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Minor
+State: Open
+Title: Add tags for bugs
+Type: Feature
+Units_of_Work: 1000
+--
+Perhaps it may be useful to have tags for a bug? I've seen some cases where projects use certain bugs like tags. It works, but seems pretty kludgy. It may be worth adding first class tags to Nitpick.
