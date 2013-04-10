@@ -154,7 +154,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				margin-bottom: 1em;
 				margin-left: auto;
 				margin-right: auto;
-				width: 90%%;
+				width: 90%;
 			}
 
 			.issue_list td {
@@ -167,7 +167,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				padding-right: 0.5em;
 				padding-left: 0.5em;
 				text-align: center;
-				font-size: 125%%;
+				font-size: 125%;
 			}
 
 			.issue_list a:link { text-decoration: none; }
@@ -190,7 +190,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				font-family: Monospace;
 			}
 
-			/* .new_issue_metadata {} */
+			.new_issue_metadata {
+				width: 100%;
+			}
 
 			.new_issue {
 				margin: 0.5em 0.5em 0.5em 0.5em;
@@ -201,7 +203,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			}
 
 			.new_issue_text_wrapper {
-				width: 100%%;
+				width: 100%;
 				float: left;
 				margin-bottom: 1em;
 			}
@@ -217,7 +219,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			}
 
 			.command_bar {
-				width: 100%%;
+				width: 100%;
 			}
 
 			.schedule table {
@@ -244,7 +246,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				padding-left: 0.5em;
 				text-align: center;
 				vertical-align: bottom;
-				font-size: 125%%;
+				font-size: 125%;
 			}
 
 			.schedule_user {
@@ -1084,6 +1086,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('<div class="new_issue">\n')
 		self.output('<form action="/new_issue%s" method="post">\n' % self.session_query())
 
+		self.output('<div class="new_issue_metadata">')
 		self.output('<div class="new_issue_metadata_column">\n')
 		date = time.strftime(DATEFORMAT, time.gmtime())
 		self.output('<p>Date: %s<input type="hidden" name="date" value="%s"/></p>\n' % (date, date))
@@ -1169,7 +1172,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.output('<p>Percent_Complete: ')
 		self.output('<input type="number" name="percent_complete" value="0" min="0" max="100" %s/></p>\n' % hide)
 
-		self.output('</div>\n')
+		self.output('</div></div>\n')
 
 		self.output('<div class="new_issue_text_wrapper"><p><textarea name="content" rows="20" cols="80">Enter description here</textarea></p>\n')
 
