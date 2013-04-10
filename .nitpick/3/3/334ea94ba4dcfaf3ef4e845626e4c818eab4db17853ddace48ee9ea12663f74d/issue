@@ -1,0 +1,20 @@
+Component: CLI
+Date: 2013-04-10 03:53:12
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.2
+Owner: travisb@travisbrown.ca
+Percent_Complete: 0
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Major
+State: Open
+Title: Rethink the CLI
+Type: Feature
+Units_of_Work: 1000
+--
+The CLI interface is very utilitarian. It's more suitable to scripting than being used by human beings. This should be fixed.
+
+Likely what is needed is a suite of commands meant for humans and then a separate command which is meant to be used by scripts and would thus have various querying options.
