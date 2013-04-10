@@ -1,0 +1,20 @@
+Component: Core
+Date: 2013-04-10 04:17:07
+Depends_On: 
+Duplicate_Of: 
+Fix_By: Eventually
+Owner: travisb@travisbrown.ca
+Percent_Complete: 0
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Major
+State: Open
+Title: Support git off-branch repositories
+Type: Feature
+Units_of_Work: 1000
+--
+One use case for distributed bug tracking is to have a separate branch which stores all the bug information. Nitpick can currently support this usage, but it involves having a checkout of that special branch where Nitpick is run. It should be possible to have Nitpick access the required branch directly.
+
+The greatest challenge might be portably detecting that this alternate branch should be used.
