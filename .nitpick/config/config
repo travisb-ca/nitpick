@@ -4,7 +4,7 @@ priority: 1 2 3 4 5
 state: New Confirmed Open Diagnosed Closed
 vcs: svn
 schedule: False
-fix_by: 1.1 1.2 Next_Release Eventually 1.0
+fix_by: 1.2 Next_Release Eventually 1.0 1.1
 components: Documentation Web_UI VCS Core CLI
 type: Bug Feature Regression
 project_name: Nitpick
