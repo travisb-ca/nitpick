@@ -845,7 +845,10 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		
 		db.load_issue_db()
 
-		issue = parse_file(db.issue(issue_hash)['path'] + '/issue')
+		try:
+			issue = parse_file(db.issue(issue_hash)['path'] + '/issue')
+		except:
+			return self.root()
 
 		self.start_doc('%s [%s]' % (issue['Title'], issue_hash[:8]))
 
