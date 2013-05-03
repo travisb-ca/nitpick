@@ -1,0 +1,23 @@
+Component: Core
+Date: 2013-05-03 01:59:12
+Depends_On: 
+Duplicate_Of: 
+Fix_By: Eventually
+Owner: travisb@travisbrown.ca
+Percent_Complete: 0
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Minor
+State: Open
+Title: Use Higher density ID encoding
+Type: Feature
+Units_of_Work: 1000
+--
+Currently Nitpick uses a hexidecimal encoding for the issue identifiers. This is common, but the full length identifiers are quite long. As I discussed in http://travisbrown.ca/blog.html#TooMuchAboutDistributedBugTracking2013-04-20 it's possible to use other encodings, most of which have higher densities.
+
+The hexidecimal encoding requires 64 characters for the full identifier.
+One obvious encoding would be base36 (a-z0-9) which would only require 50 characters.
+
+Base32 has a few variants which avoid characters which look alike. It would only require 52 characters.
