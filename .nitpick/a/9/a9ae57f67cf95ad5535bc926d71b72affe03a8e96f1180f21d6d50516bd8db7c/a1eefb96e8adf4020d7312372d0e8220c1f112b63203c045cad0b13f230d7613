@@ -1,0 +1,8 @@
+Attachment: 
+Attachment-filename: 
+Attachment-type: application/octet-stream
+Date: 2013-05-11 02:17:02
+Parent: issue
+User: travisb@travisbrown.ca
+--
+I've thought about this and it doesn't seem worth the effort. Since Nitpick will disambiguate partial bug IDs you won't normally need more than 8 characters anyways and the savings from base32 or base36 aren't that great.
