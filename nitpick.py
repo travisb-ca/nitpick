@@ -39,6 +39,7 @@ import datetime
 import json
 import subprocess
 import random
+import calendar
 
 DATEFORMAT = '%Y-%m-%d %H:%M:%S'
 FILLWIDTH = 69
@@ -823,7 +824,10 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				output_field(issue, show_repo, db.issue(issue)['repo'])
 			output_field(issue, show_ID,            issue[:8])
 			output_field(issue, show_type,          db.issue(issue)['Type'])
-			output_field(issue, show_date,          db.issue(issue)['Date'])
+			if 'localdate' in db.issue(issue):
+				output_field(issue, show_date,          db.issue(issue)['localdate'])
+			else:
+				output_field(issue, show_date,          db.issue(issue)['Date'])
 			output_field(issue, show_severity,      db.issue(issue)['Severity'])
 			output_field(issue, show_priority,      db.issue(issue)['Priority'])
 			output_field(issue, show_component,     db.issue(issue)['Component'])
@@ -866,7 +870,10 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.output('<p>Project: %s</p>\n' % db.issue(issue_hash)['repo'])
 		self.output('<p>Issue: %s</p>\n' % issue_hash)
 		self.output('<p>Title: %s</p>\n' % cgi.escape(issue['Title']))
-		self.output('<p>Date: %s</p>\n' % issue['Date'])
+		if 'localdate' in issue:
+			self.output('<p>Date: %s</p>\n' % issue['localdate'])
+		else:
+			self.output('<p>Date: %s</p>\n' % issue['Date'])
 		self.output('<p>Reported_By: %s</p>\n' % cgi.escape(issue['Reported_By']))
 		self.output('<p>Seen_In_Build: %s</p>\n' % cgi.escape(issue['Seen_In_Build']))
 
@@ -977,7 +984,12 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 								(field, issue_hash, comment['hash'], comment['Attachment'],comment['Attachment-filename'], comment['Attachment-filename']))
 					continue
 
-				self.output('%s: %s<br/>\n' % (field, cgi.escape(comment[field])))
+				value = comment[field]
+
+				if field == 'Date' and 'localdate' in comment.keys():
+					value = comment['localdate']
+
+				self.output('%s: %s<br/>\n' % (field, cgi.escape(value)))
 
 			linked_content = cgi.escape(comment['content'])
 			linked_content = re.sub(URL_REGEX, '<a href="\\1">\\1</a>', linked_content)
@@ -1059,8 +1071,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.output('<input type="hidden" name="issue" value="%s"/>\n' % issue)
 		self.output('<input type="hidden" name="parent" value="%s"/>\n' % parent)
 
+		localdate = time.strftime(DATEFORMAT, time.localtime())
 		date = time.strftime(DATEFORMAT, time.gmtime())
-		self.output('<p>Date: %s<input type="hidden" name="date" value="%s"/></p>\n' % (date, date))
+		self.output('<p>Date: %s<input type="hidden" name="date" value="%s"/></p>\n' % (localdate, date))
 
 		self.output('<p>User: <select name="username">\n')
 		for username in config.users:
@@ -1091,8 +1104,10 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.output('<div class="new_issue_metadata">')
 		self.output('<div class="new_issue_metadata_column">\n')
+		
+		localdate = time.strftime(DATEFORMAT, time.localtime())
 		date = time.strftime(DATEFORMAT, time.gmtime())
-		self.output('<p>Date: %s<input type="hidden" name="date" value="%s"/></p>\n' % (date, date))
+		self.output('<p>Date: %s<input type="hidden" name="date" value="%s"/></p>\n' % (localdate, date))
 
 		if db.has_foreign():
 			self.output('<p>Project: <select name="repo">\n')
@@ -2145,6 +2160,8 @@ def parse_file(path):
 				data['content'] = ""
 		else: # Add to the content
 			data['content'] += line
+	if 'Date' in data and 'localdate' not in data:
+		data['localdate'] = gmtime_to_local_time(data['Date'])
 
 	return data
 
@@ -2230,6 +2247,10 @@ def _load_config(repo_path):
 			config.users.append(name)
 			config.users_times[name] = work_units.split(',')
 
+def gmtime_to_local_time(gmtime_string):
+	gmtime = time.strptime(gmtime_string, DATEFORMAT)
+	localtime = datetime.datetime.fromtimestamp(calendar.timegm(gmtime))
+	return localtime.strftime(DATEFORMAT)
 
 # Load the configuration out of the database.
 #
@@ -3268,7 +3289,7 @@ def cmd_cat(args):
 			print '  ' * depth + '+' + '=' * FILLWIDTH
 
 		for key in comment.keys():
-			if key in ['content', 'children', 'Parent']:
+			if key in ['content', 'children', 'Parent', 'localdate']:
 				continue
 			if key == 'Attachment' and comment['Attachment'] == '':
 				continue
@@ -3276,7 +3297,12 @@ def cmd_cat(args):
 			if not args.noformat:
 				print '  ' * depth + '|',
 
-			print "%s: %s" % (key, comment[key])
+			value = comment[key]
+
+			if key == 'Date' and 'localdate' in comment.keys():
+				value = comment['localdate']
+
+			print "%s: %s" % (key, value)
 		if 'content' in comment.keys():
 			if not args.noformat:
 				print '  ' * depth + '+' + '-' * FILLWIDTH

@@ -49,7 +49,7 @@ The specific metadata varies by object (o denotes the open ended data):
 
 Issue:
 	- Component
-	- Date
+	- Date (YYYY-MM-DD HH:MM:SS in UTC time)
 	- Fix_By
 	- Owner
 	- Reported_By
@@ -68,7 +68,7 @@ Comment:
 	- Attachment
 	- Attachment-filename
 	- Attachment-type
-	- Date
+	- Date (YYYY-MM-DD HH:MM:SS in UTC time)
 	- Parent
 	- User
 	o Comment

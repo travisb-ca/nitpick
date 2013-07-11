@@ -7,13 +7,14 @@ Owner: travisb@travisbrown.ca
 Percent_Complete: 0
 Priority: 1
 Reported_By: travisb@travisbrown.ca
-Resolution: None
+Resolution: Fixed
 Seen_In_Build: 
 Severity: Major
-State: Open
+State: Closed
 Title: Straighten out timezones
 Type: Bug
 Units_of_Work: 1000
+localdate: 2012-09-05 20:40:17
 --
 The timestamp format handling is a bit fast and loose. Currently all timestamps are stored in a GMT time format without timezone information. Additionally the bug interchange import code doesn't parse all the various necessary formats.
 
