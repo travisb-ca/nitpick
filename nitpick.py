@@ -1405,7 +1405,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		self.send_header('Content-type', 'application/javascript')
 		self.end_headers()
 
-		self.output("""
+		output = """
 		function get_field(fieldname) {
 			return document.getElementsByName(fieldname)[0];
 		}
@@ -1426,8 +1426,13 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			return selected;
 		}
 
-		var row_filter = new Array(
-			"filter_repo",
+		var row_filter = new Array("""
+
+		if db.has_foreign():
+			output += """
+			"filter_repo","""
+
+		output += """
 			"filter_type",
 			"filter_severity",
 			"filter_priority",
@@ -1438,8 +1443,13 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			"filter_owner"
 			);
 
-		var column_filter = new Array(
-			"show_repo",
+		var column_filter = new Array("""
+
+		if db.has_foreign():
+			output += """
+			"show_repo","""
+
+		output += """
 			"show_ID",
 			"show_type",
 			"show_date",
@@ -1526,8 +1536,13 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 			var rows = document.getElementsByName("issue_list")[0].rows;
 
-			var row_filter = new Array(
-				selected_options(get_field("filter_repo")),
+			var row_filter = new Array("""
+
+		if db.has_foreign():
+			output += """
+				selected_options(get_field("filter_repo")),"""
+
+		output += """
 				0, /* ID */
 				selected_options(get_field("filter_type")),
 				0, /* Date */
@@ -1542,8 +1557,13 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				0 /* Title */
 				);
 
-			var column_filter = new Array(
-				"show_repo",
+			var column_filter = new Array("""
+
+		if db.has_foreign():
+			output += """
+				"show_repo","""
+
+		output += """
 				"show_ID",
 				"show_type",
 				"show_date",
@@ -1608,7 +1628,9 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		}
 
 		Sort_and_Filter();
-		""")
+		"""
+
+		self.output(output)
 
 	def add_comment_post(self):
 		db.load_issue_db()
