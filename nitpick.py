@@ -3790,7 +3790,9 @@ def cmd_schedule(args):
 	return True
 
 if __name__ == '__main__':
-	load_config()
+	if not load_config():
+		print 'Failed to find Nitpick database'
+		sys.exit(2)
 
 	parser = argparse.ArgumentParser(prog='nitpick', description='Distributed Bug Tracker')
 	subcmds = parser.add_subparsers(help='commands help')
