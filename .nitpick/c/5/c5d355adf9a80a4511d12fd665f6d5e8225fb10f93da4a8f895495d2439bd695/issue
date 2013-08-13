@@ -11,7 +11,7 @@ Resolution: None
 Seen_In_Build: 
 Severity: Major
 State: Open
-Title: arstrst
+Title: Support git off-branch repositories
 Type: Feature
 Units_of_Work: 1000
 localdate: 2013-04-09 21:17:07
