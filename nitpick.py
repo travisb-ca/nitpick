@@ -3406,6 +3406,13 @@ def cmd_comment(args):
 
 	return config.vcs.commit()
 
+def cmd_title(args):
+	load_db()
+	if db.change_issue(args.issue, 'Title', args.newtitle):
+		return config.vcs.commit()
+	else:
+		return False
+
 def cmd_state(args):
 	if db.change_issue(args.issue, 'State', args.newstate):
 		return config.vcs.commit()
@@ -3824,6 +3831,11 @@ if __name__ == '__main__':
 	comment_cmd.add_argument('issue')
 	comment_cmd.add_argument('--comment', help='Respond to specific comment')
 	comment_cmd.set_defaults(func=cmd_comment)
+
+	title_cmd = subcmds.add_parser('title', help='Set the title of an issue')
+	title_cmd.add_argument('issue')
+	title_cmd.add_argument('newtitle')
+	title_cmd.set_defaults(func=cmd_title)
 
 	state_cmd = subcmds.add_parser('state', help='Set the state of an issue')
 	state_cmd.add_argument('issue')
