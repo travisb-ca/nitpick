@@ -11,9 +11,10 @@ Resolution: None
 Seen_In_Build: 
 Severity: Major
 State: Open
-Title: Support git off-branch repositories
+Title: arstrst
 Type: Feature
 Units_of_Work: 1000
+localdate: 2013-04-09 21:17:07
 --
 One use case for distributed bug tracking is to have a separate branch which stores all the bug information. Nitpick can currently support this usage, but it involves having a checkout of that special branch where Nitpick is run. It should be possible to have Nitpick access the required branch directly.
 
