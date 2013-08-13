@@ -3406,13 +3406,6 @@ def cmd_comment(args):
 
 	return config.vcs.commit()
 
-def cmd_title(args):
-	load_db()
-	if db.change_issue(args.issue, 'Title', args.newtitle):
-		return config.vcs.commit()
-	else:
-		return False
-
 def cmd_state(args):
 	if db.change_issue(args.issue, 'State', args.newstate):
 		return config.vcs.commit()
