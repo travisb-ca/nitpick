@@ -3406,49 +3406,71 @@ def cmd_comment(args):
 
 	return config.vcs.commit()
 
+def cmd_title(args):
+	load_db()
+	if db.change_issue(args.issue, 'Title', args.newtitle):
+		return config.vcs.commit()
+	else:
+		return False
 def cmd_state(args):
+	load_db()
+
 	if db.change_issue(args.issue, 'State', args.newstate):
 		return config.vcs.commit()
 	else:
 		return False
 
 def cmd_severity(args):
+	load_db()
+
 	if db.change_issue(args.issue, 'Severity', args.newseverity):
 		return config.vcs.commit()
 	else:
 		return False
 
 def cmd_component(args):
+	load_db()
+
 	if db.change_issue(args.issue, 'Component', args.newcomponent):
 		return config.vcs.commit()
 	else:
 		return False
 
 def cmd_priority(args):
+	load_db()
+
 	if db.change_issue(args.issue, 'Priority', args.newpriority):
 		return config.vcs.commit()
 	else:
 		return False
 
 def cmd_resolution(args):
+	load_db()
+
 	if db.change_issue(args.issue, 'Resolution', args.newresolution):
 		return config.vcs.commit()
 	else:
 		return False
 
 def cmd_type(args):
+	load_db()
+
 	if db.change_issue(args.issue, 'Type', args.newtype):
 		return config.vcs.commit()
 	else:
 		return False
 
 def cmd_fixby(args):
+	load_db()
+
 	if db.change_issue(args.issue, 'Fix_By', args.newfixby):
 		return config.vcs.commit()
 	else:
 		return False
 
 def cmd_owner(args):
+	load_db()
+
 	fulluser = ''
 	for row in config.users:
 		if args.newowner in row:
