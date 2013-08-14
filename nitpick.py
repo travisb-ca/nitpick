@@ -3227,7 +3227,11 @@ def cmd_new(args):
 	issue = parse_file(config.db_path + 'new.tmp')
 	os.unlink(config.db_path + 'new.tmp')
 
+	load_db()
 	issue_filename, issue_hash = db.add_issue(issue)
+	db.save_issue_db()
+
+	print 'Created issue %s' % issue_hash
 
 	if not args.no_commit:
 		return config.vcs.commit()
@@ -3424,6 +3428,7 @@ def cmd_comment(args):
 
 def cmd_title(args):
 	load_db()
+
 	if db.change_issue(args.issue, 'Title', args.newtitle):
 		if not args.no_commit:
 			return config.vcs.commit()
