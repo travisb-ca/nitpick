@@ -2201,6 +2201,8 @@ def format_file(path, data):
         keylist = data.keys()
         keylist.sort()
 	for key in keylist:
+		if key in ['localdate']:
+			continue
 		if key != 'content':
 			file.write("%s: %s\n" % (key, data[key]))
 	file.write('--\n')
