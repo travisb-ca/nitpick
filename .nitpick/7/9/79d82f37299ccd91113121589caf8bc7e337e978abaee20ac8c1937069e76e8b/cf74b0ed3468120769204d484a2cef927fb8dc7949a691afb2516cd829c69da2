@@ -1,0 +1,10 @@
+Attachment: 
+Attachment-filename: 
+Attachment-type: application/octet-stream
+Date: 2013-08-14 02:54:51
+Parent: issue
+User: travisb@travisbrown.ca
+--
+Here's the situation. In subversion 1.6 if you were inside the .nitpick directory and the svn:external was in the project root (to avoid infinitely recursive externals) then the Foreign projects would still be marked as such.
+
+However, with subversion 1.7 this is no longer the case. Inside .nitpick 'svn stat' now shows a status of ? for the external instead of X.
