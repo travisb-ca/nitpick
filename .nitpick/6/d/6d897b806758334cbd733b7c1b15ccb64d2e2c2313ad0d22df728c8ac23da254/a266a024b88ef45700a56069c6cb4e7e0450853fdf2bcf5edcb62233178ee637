@@ -1,0 +1,8 @@
+Attachment: 
+Attachment-filename: 
+Attachment-type: application/octet-stream
+Date: 2013-08-14 03:58:23
+Parent: issue
+User: travisb@travisbrown.ca
+--
+I've used a system where bug dependencies are used much like tags. It works well enough to not be worth bothering about adding tags to bugs. It'd just be more metadata to keep track of.

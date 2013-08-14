@@ -7,10 +7,10 @@ Owner: travisb@travisbrown.ca
 Percent_Complete: 0
 Priority: 1
 Reported_By: travisb@travisbrown.ca
-Resolution: None
+Resolution: WontFix
 Seen_In_Build: 
 Severity: Minor
-State: Open
+State: Closed
 Title: Add tags for bugs
 Type: Feature
 Units_of_Work: 1000
