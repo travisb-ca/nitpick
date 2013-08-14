@@ -869,7 +869,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		if db.has_foreign():
 			self.output('<p>Project: %s</p>\n' % db.issue(issue_hash)['repo'])
 		self.output('<p>Issue: %s</p>\n' % issue_hash)
-		self.output('<p>Title: %s</p>\n' % cgi.escape(issue['Title']))
+		self.output('<p>Title: <input type="text" name="title" size="90" value="%s"/></p>\n' 
+				% cgi.escape(issue['Title']))
 		if 'localdate' in issue:
 			self.output('<p>Date: %s</p>\n' % issue['localdate'])
 		else:
@@ -904,7 +905,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			return output
 
 		self.output('<p>Depends_On: %s</p>\n' % shorten_and_link_issues(issue['Depends_On']))
-		self.output('<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<textarea rows="1" cols="70" name="depends_on">%s</textarea></p>\n' % issue['Depends_On'])
+		self.output('<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<textarea rows="1" cols="80" name="depends_on">%s</textarea></p>\n' % issue['Depends_On'])
 
 		dependents = db.issue_dependent_of(issue_hash)
 		self.output('<p>Dependent_Of: %s</p>\n' % shorten_and_link_issues(dependents))
@@ -912,7 +913,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		duplicate_issues = db.get_issue_duplicates(issue_hash)
 
 		self.output('<p>Duplicate_Of: %s</p>\n' % shorten_and_link_issues(duplicate_issues))
-		self.output('<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<textarea rows="1" cols="70" name="duplicate_of">%s</textarea></p>\n' % issue['Duplicate_Of'])
+		self.output('<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<textarea rows="1" cols="80" name="duplicate_of">%s</textarea></p>\n' % issue['Duplicate_Of'])
 
 		hide = ''
 		if not config.use_schedule:
@@ -1694,6 +1695,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		db.load_issue_db()
 
 		if 'issue' not in self.request_args.keys() or \
+		   'title' not in self.request_args.keys() or \
 		   'severity' not in self.request_args.keys() or \
 		   'component' not in self.request_args.keys() or \
 		   'owner' not in self.request_args.keys() or \
@@ -1713,7 +1715,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		issue = db.disambiguate_hash(self.request_args['issue'])
 
-		if db.issue(issue)['Severity'] == self.request_args['severity'] and \
+		if db.issue(issue)['Title'] == self.request_args['title'] and \
+			db.issue(issue)['Severity'] == self.request_args['severity'] and \
 			db.issue(issue)['Priority'] == self.request_args['priority'] and \
 			db.issue(issue)['Owner'] == self.request_args['owner'] and \
 			db.issue(issue)['State'] == self.request_args['state'] and \
@@ -1731,6 +1734,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				self.end_doc()
 				return
 
+		if db.issue(issue)['Title'] != self.request_args['title']:
+			db.change_issue(issue, 'Title', self.request_args['title'])
 		if db.issue(issue)['Severity'] != self.request_args['severity']:
 			db.change_issue(issue, 'Severity', self.request_args['severity'])
 		if db.issue(issue)['Priority'] != self.request_args['priority']:
