@@ -1,0 +1,12 @@
+Attachment: 
+Attachment-filename: 
+Attachment-type: application/octet-stream
+Date: 2013-08-14 03:54:20
+Parent: issue
+User: travisb@travisbrown.ca
+--
+I've been using a CLI based bug tracking extension to Bugzilla for the past few months and the experience has led me to believe that what is needed is really two levels of interface as part of the CLI.
+
+First there needs to be a way to perform complex bug changes in a single command line. This means taking a bug as a parameter and then a series of options on what actions to perform on that bug. Things like writing a comment using the editor, and changing the state and changing the owner. This is the nitpick <options> bugid CLI.
+
+Beside that there need to be simple commands for the common cases. Such common cases include: a user claiming a bug, commenting on a bug, listing the bugs, viewing a bug. This is a CLI interface more inline with the interface as it stands.
