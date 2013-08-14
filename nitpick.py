@@ -3229,7 +3229,10 @@ def cmd_new(args):
 
 	issue_filename, issue_hash = db.add_issue(issue)
 
-	return config.vcs.commit()
+	if not args.no_commit:
+		return config.vcs.commit()
+	else:
+		return True
 
 def cmd_list(args):
 	if config.db_path == '':
@@ -3414,19 +3417,28 @@ def cmd_comment(args):
 
 	comment_filename = db.add_comment(issue, comment)
 
-	return config.vcs.commit()
+	if not args.no_commit:
+		return config.vcs.commit()
+	else:
+		return True
 
 def cmd_title(args):
 	load_db()
 	if db.change_issue(args.issue, 'Title', args.newtitle):
-		return config.vcs.commit()
+		if not args.no_commit:
+			return config.vcs.commit()
+		else:
+			return True
 	else:
 		return False
 def cmd_state(args):
 	load_db()
 
 	if db.change_issue(args.issue, 'State', args.newstate):
-		return config.vcs.commit()
+		if not args.no_commit:
+			return config.vcs.commit()
+		else:
+			return True
 	else:
 		return False
 
@@ -3434,7 +3446,10 @@ def cmd_severity(args):
 	load_db()
 
 	if db.change_issue(args.issue, 'Severity', args.newseverity):
-		return config.vcs.commit()
+		if not args.no_commit:
+			return config.vcs.commit()
+		else:
+			return True
 	else:
 		return False
 
@@ -3442,7 +3457,10 @@ def cmd_component(args):
 	load_db()
 
 	if db.change_issue(args.issue, 'Component', args.newcomponent):
-		return config.vcs.commit()
+		if not args.no_commit:
+			return config.vcs.commit()
+		else:
+			return True
 	else:
 		return False
 
@@ -3450,7 +3468,10 @@ def cmd_priority(args):
 	load_db()
 
 	if db.change_issue(args.issue, 'Priority', args.newpriority):
-		return config.vcs.commit()
+		if not args.no_commit:
+			return config.vcs.commit()
+		else:
+			return True
 	else:
 		return False
 
@@ -3458,7 +3479,10 @@ def cmd_resolution(args):
 	load_db()
 
 	if db.change_issue(args.issue, 'Resolution', args.newresolution):
-		return config.vcs.commit()
+		if not args.no_commit:
+			return config.vcs.commit()
+		else:
+			return True
 	else:
 		return False
 
@@ -3466,7 +3490,10 @@ def cmd_type(args):
 	load_db()
 
 	if db.change_issue(args.issue, 'Type', args.newtype):
-		return config.vcs.commit()
+		if not args.no_commit:
+			return config.vcs.commit()
+		else:
+			return True
 	else:
 		return False
 
@@ -3474,7 +3501,10 @@ def cmd_fixby(args):
 	load_db()
 
 	if db.change_issue(args.issue, 'Fix_By', args.newfixby):
-		return config.vcs.commit()
+		if not args.no_commit:
+			return config.vcs.commit()
+		else:
+			return True
 	else:
 		return False
 
@@ -3495,7 +3525,10 @@ def cmd_owner(args):
 		return False
 
 	if db.change_issue(args.issue, 'Owner', fulluser):
-		return config.vcs.commit()
+		if not args.no_commit:
+			return config.vcs.commit()
+		else:
+			return True
 	else:
 		return False
 
@@ -3836,6 +3869,7 @@ if __name__ == '__main__':
 	init_cmd.set_defaults(func=cmd_init)
 
 	new_cmd = subcmds.add_parser('new', help='Create a new issue')
+	new_cmd.add_argument('-n', '--no-commit', action='store_true', help="Don't automatically commit after the operation")
 	new_cmd.set_defaults(func=cmd_new)
 
 	list_cmd = subcmds.add_parser('list', help='Print filtered list of issues')
@@ -3855,51 +3889,61 @@ if __name__ == '__main__':
 	comment_cmd = subcmds.add_parser('comment', help='Add a comment to an issue')
 	comment_cmd.add_argument('issue')
 	comment_cmd.add_argument('--comment', help='Respond to specific comment')
+	comment_cmd.add_argument('-n', '--no-commit', action='store_true', help="Don't automatically commit after the operation")
 	comment_cmd.set_defaults(func=cmd_comment)
 
 	title_cmd = subcmds.add_parser('title', help='Set the title of an issue')
 	title_cmd.add_argument('issue')
 	title_cmd.add_argument('newtitle')
+	title_cmd.add_argument('-n', '--no-commit', action='store_true', help="Don't automatically commit after the operation")
 	title_cmd.set_defaults(func=cmd_title)
 
 	state_cmd = subcmds.add_parser('state', help='Set the state of an issue')
 	state_cmd.add_argument('issue')
 	state_cmd.add_argument('newstate', choices=config.issues['state'])
+	state_cmd.add_argument('-n', '--no-commit', action='store_true', help="Don't automatically commit after the operation")
 	state_cmd.set_defaults(func=cmd_state)
 
 	severity_cmd = subcmds.add_parser('severity', help='Set the severity of an issue')
 	severity_cmd.add_argument('issue')
 	severity_cmd.add_argument('newseverity', choices=config.issues['severity'])
+	severity_cmd.add_argument('-n', '--no-commit', action='store_true', help="Don't automatically commit after the operation")
 	severity_cmd.set_defaults(func=cmd_severity)
 
 	component_cmd = subcmds.add_parser('component', help='Set the component of an issue')
 	component_cmd.add_argument('issue')
 	component_cmd.add_argument('newcomponent', choices=config.issues['components'])
+	component_cmd.add_argument('-n', '--no-commit', action='store_true', help="Don't automatically commit after the operation")
 	component_cmd.set_defaults(func=cmd_component)
 
 	priority_cmd = subcmds.add_parser('priority', help='Set the priority of an issue')
 	priority_cmd.add_argument('issue')
 	priority_cmd.add_argument('newpriority', choices=config.issues['priority'])
+	priority_cmd.add_argument('-n', '--no-commit', action='store_true', help="Don't automatically commit after the operation")
 	priority_cmd.set_defaults(func=cmd_priority)
 
 	resolution_cmd = subcmds.add_parser('resolution', help='Set the resolution of an issue')
 	resolution_cmd.add_argument('issue')
 	resolution_cmd.add_argument('newresolution', choices=config.issues['resolution'])
+	resolution_cmd.add_argument('-n', '--no-commit', action='store_true', help="Don't automatically commit after the operation")
 	resolution_cmd.set_defaults(func=cmd_resolution)
 
 	type_cmd = subcmds.add_parser('type', help='Set the type of an issue')
 	type_cmd.add_argument('issue')
 	type_cmd.add_argument('newtype', choices=config.issues['type'])
+	type_cmd.add_argument('-n', '--no-commit', action='store_true', help="Don't automatically commit after the operation")
 	type_cmd.set_defaults(func=cmd_type)
 
 	fixby_cmd = subcmds.add_parser('fixby', help='Set the fixby of an issue')
 	fixby_cmd.add_argument('issue')
 	fixby_cmd.add_argument('newfixby', choices=config.issues['fix_by'])
+	fixby_cmd.add_argument('-n', '--no-commit', action='store_true', help="Don't automatically commit after the operation")
 	fixby_cmd.set_defaults(func=cmd_fixby)
 
 	owner_cmd = subcmds.add_parser('owner', help='Set the owner of an issue')
 	owner_cmd.add_argument('issue')
 	owner_cmd.add_argument('newowner')
+	owner_cmd.add_argument('-n', '--no-commit', action='store_true', help="Don't automatically commit after the operation")
 	owner_cmd.set_defaults(func=cmd_owner)
 
 	users_cmd = subcmds.add_parser('users', help='List configured users')
