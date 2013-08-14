@@ -10,9 +10,10 @@ Reported_By: travisb@travisbrown.ca
 Resolution: None
 Seen_In_Build: 
 Severity: Blocker
-State: New
+State: Open
 Title: Nitpick commits entire project and not just Nitpick database
 Type: Regression
 Units_of_Work: 1000
+localdate: 2013-08-13 08:27:51
 --
 While using Nitpick I think it is committing the entire project from the root and not just limiting itself to the Nitpick database as it used to. This is using the svn VCS backend.

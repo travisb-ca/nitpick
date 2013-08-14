@@ -1,0 +1,8 @@
+Attachment: 
+Attachment-filename: 
+Attachment-type: application/octet-stream
+Date: 2013-08-14 02:47:19
+Parent: issue
+User: travisb@travisbrown.ca
+--
+This doesn't happen with just a plain Nitpick database, but does happen if you have an SVN foreign repository pointing to the same branch.
