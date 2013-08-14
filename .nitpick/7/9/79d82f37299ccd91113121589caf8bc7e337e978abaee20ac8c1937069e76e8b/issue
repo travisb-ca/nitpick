@@ -7,10 +7,10 @@ Owner: travisb@travisbrown.ca
 Percent_Complete: 0
 Priority: 1
 Reported_By: travisb@travisbrown.ca
-Resolution: None
+Resolution: Fixed
 Seen_In_Build: 
 Severity: Blocker
-State: Open
+State: Closed
 Title: Nitpick commits entire project and not just Nitpick database
 Type: Regression
 Units_of_Work: 1000
