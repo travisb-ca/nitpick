@@ -2088,11 +2088,12 @@ class SVN(VCS):
 			foreign_list = subprocess.check_output("svn stat %s | grep '^X *%s' | awk '{print $2}'" % 
 					(config.db_path, config.db_path), shell=True)
 
-			if foreign_list != '':
-				for foreign in foreign_list.split('\n'):
-					result = os.system("svn ci -q -m \"Nitpick commit\" %s" % foreign)
-					if result != 0:
-						success = False
+			for foreign in foreign_list.split('\n'):
+				if foreign == '':
+					continue
+				result = os.system("svn ci -q -m \"Nitpick commit\" %s" % foreign)
+				if result != 0:
+					success = False
 
 		return success
 
