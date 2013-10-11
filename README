@@ -8,6 +8,10 @@ http://travisbrown.ca/projects/nitpick/docs/nitpick.html. A quick look at a
 static dump of the web UI can be see at
 http://travisbrown.ca/projects/nitpick/issues/index.html.
 
+The project mailing list is nitpick@travisbrown.ca and the archives and list
+information can be found at
+http://lists.travisbrown.ca/listinfo.cgi/nitpick-travisbrown.ca
+
 Once the repository has been created you will likely want to configure the
 repository. This is done by editing the files in .nitpick/config.
 
