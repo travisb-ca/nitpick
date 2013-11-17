@@ -331,7 +331,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 	def html_preamble(self, title, onload_focus):
 		if onload_focus is not None:
-			focus_script = 'OnLoad="document.%s.focus();"' % onload_focus
+			focus_script = 'OnLoad="document.%s.focus(); document.%s.select();"' % (onload_focus, onload_focus)
 		else:
 			focus_script = ''
 
