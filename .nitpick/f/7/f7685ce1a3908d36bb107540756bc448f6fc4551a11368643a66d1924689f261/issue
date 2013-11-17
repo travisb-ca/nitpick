@@ -1,0 +1,20 @@
+Component: VCS
+Date: 2013-11-17 19:20:46
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.2
+Owner: travisb@travisbrown.ca
+Percent_Complete: 0
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Major
+State: Open
+Title: Detect VCS Used
+Type: Feature
+Units_of_Work: 1000
+--
+Currently Nitpick stores the VCS used inside the repository configuration. This works fine as long as you only use one VCS with the repository. However there are situations, such as the Nitpick source itself, where multiple VCSes could be used.
+
+For example, primary of the Nitpick development happens in SVN, but there is a Git mirror which users and other developers use. It's also possible that somebody could download a tarball and want to use Nitpick on that bug repository.
