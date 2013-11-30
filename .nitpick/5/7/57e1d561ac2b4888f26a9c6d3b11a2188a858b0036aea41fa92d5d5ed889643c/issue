@@ -1,0 +1,18 @@
+Component: Web_UI
+Date: 2013-11-30 22:11:34
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.2
+Owner: travisb@travisbrown.ca
+Percent_Complete: 0
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Major
+State: Open
+Title: Can't create bug with double quotes in title
+Type: Bug
+Units_of_Work: 1000
+--
+When creating a new bug or updating the title of an existing but it is impossible to have a double quote in the title. All text after and including the doubt quote is truncated.
