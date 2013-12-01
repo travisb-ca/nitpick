@@ -1,0 +1,8 @@
+Attachment: 
+Attachment-filename: 
+Attachment-type: application/octet-stream
+Date: 2013-12-01 02:43:54
+Parent: issue
+User: travisb@travisbrown.ca
+--
+It looks to be not that you can't create such an issue or change the name to contain a double quote, but that when you do the cached version isn't updated to match. If you reload nitpick it displays fine.
