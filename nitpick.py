@@ -428,7 +428,8 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 		else:
 			desc = i['Title']
 
-		output = '%s<a title="%s" href="/issue/%s%s">%s</a>%s' % (leader, title, issue, self.session_query(), desc, follower)
+		output = '%s<a title="%s" href="/issue/%s%s">%s</a>%s' % (leader, cgi.escape(title, quote=True),
+				issue, self.session_query(), desc, follower)
 		return output
 
 	def session_query(self):
@@ -870,7 +871,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.output('<p>Project: %s</p>\n' % db.issue(issue_hash)['repo'])
 		self.output('<p>Issue: %s</p>\n' % issue_hash)
 		self.output('<p>Title: <input type="text" name="title" size="90" value="%s"/></p>\n' 
-				% cgi.escape(issue['Title']))
+				% cgi.escape(issue['Title'], quote=True))
 		if 'localdate' in issue:
 			self.output('<p>Date: %s</p>\n' % issue['localdate'])
 		else:

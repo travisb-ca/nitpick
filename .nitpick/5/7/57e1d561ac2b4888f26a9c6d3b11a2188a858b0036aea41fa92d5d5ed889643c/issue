@@ -1,16 +1,16 @@
 Component: Web_UI
 Date: 2013-11-30 22:11:34
-Depends_On: 
+Depends_On: b2e8b465312314278e15e28d8f078f6dc0342c809f61add294cedfde81c9876b 
 Duplicate_Of: 
 Fix_By: 1.2
 Owner: travisb@travisbrown.ca
 Percent_Complete: 0
 Priority: 1
 Reported_By: travisb@travisbrown.ca
-Resolution: None
+Resolution: Fixed
 Seen_In_Build: 
 Severity: Major
-State: Open
+State: Closed
 Title: Can't create bug with double quotes in title
 Type: Bug
 Units_of_Work: 1000

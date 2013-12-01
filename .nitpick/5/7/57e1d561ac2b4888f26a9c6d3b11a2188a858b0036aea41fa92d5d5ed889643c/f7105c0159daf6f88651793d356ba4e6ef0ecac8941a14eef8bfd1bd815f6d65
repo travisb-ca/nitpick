@@ -1,0 +1,8 @@
+Attachment: 
+Attachment-filename: 
+Attachment-type: application/octet-stream
+Date: 2013-12-01 02:53:24
+Parent: e02721522466eec2442b08c90e294a843bd814c87d531adeeb2fe6069fb20171
+User: travisb@travisbrown.ca
+--
+The precise symptom is that though you could create a bug, or modify an existing bug, to have a double quote in it's title you wouldn't see any test in the issue page in the title field after and including the quote. It would appear in the database and in the issue listings just fine. The title wasn't being sufficiently quoted to the bare double quotes escaped into the <input value="..."> on the page and terminated the quoted portion early.
