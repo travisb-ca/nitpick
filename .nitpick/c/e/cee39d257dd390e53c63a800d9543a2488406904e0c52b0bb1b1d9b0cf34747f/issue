@@ -1,0 +1,18 @@
+Component: Core
+Date: 2014-01-11 02:55:07
+Depends_On: 
+Duplicate_Of: 
+Fix_By: Eventually
+Owner: travisb@travisbrown.ca
+Percent_Complete: 0
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Minor
+State: Open
+Title: Split Issues
+Type: Feature
+Units_of_Work: 1000
+--
+Often during the course of development a bug will be created which turns out to actually be two separate, but related, issues. It would be useful in this case to be able to split all the comments in an issue into two issues. This would avoid confusion to be able to do this instead of declare that a new issue has been created, but still need to skip or reference the original confusing comments.
