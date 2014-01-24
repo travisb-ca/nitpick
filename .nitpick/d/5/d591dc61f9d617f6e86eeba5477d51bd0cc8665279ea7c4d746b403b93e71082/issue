@@ -1,0 +1,20 @@
+Component: Web_UI
+Date: 2014-01-24 05:17:46
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.2
+Owner: travisb@travisbrown.ca
+Percent_Complete: 0
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Minor
+State: Open
+Title: Option to dynamicall collapse comment threads
+Type: Feature
+Units_of_Work: 1000
+--
+Sooner than later I'm going to start integrating Lousy into Nitpick. When I do that the number of comments on a bug will start to increase. This means there will be comment threads I don't want to read at this moment. I could implement some filtering functionality, but dynamic collapsing is more generally applicable.
+
+This should be a javascript thing in the web interface so it's fast.
