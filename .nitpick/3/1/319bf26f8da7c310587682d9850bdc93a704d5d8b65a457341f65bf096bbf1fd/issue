@@ -1,0 +1,18 @@
+Component: Core
+Date: 2014-02-12 19:00:35
+Depends_On: 
+Duplicate_Of: 
+Fix_By: Eventually
+Owner: travisb@travisbrown.ca
+Percent_Complete: 0
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Trivial
+State: New
+Title: PEP8 Naming and check?
+Type: Bug
+Units_of_Work: 1000
+--
+There's a lot of good stuff in PEP8 and I'm sure that not all the code is PEP8 compliant. Should I add a checker and fix all the useful errors? Apparently there is a small pep8 checker or something.
