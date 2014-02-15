@@ -721,7 +721,6 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				self.output('<td class="issue_list"><a href="/issue/%s%s">%s</a></td> ' % (issue,
 					self.session_query(), cgi.escape(field_data)))
 
-
 		def sort_issues(issue):
 			issue_obj = db.issue(issue)
 
@@ -780,7 +779,6 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 			print 'Unhandled sort_field "%s"' % sort_field
 			return issue
-
 
 		self.output('</tr>\n')
 		issues = db.issues()
