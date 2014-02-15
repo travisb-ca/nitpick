@@ -176,11 +176,11 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 			/* Separate tr1 and tr2 to alternate colours */
 			.issue_list_tr0 {
-				background: White;
+				background: #FFFFFF;
 			}
 
 			.issue_list_tr1 {
-				background: LightGrey;
+				background: #D3D3D3;
 			}
 
 			.add_comment p {
