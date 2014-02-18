@@ -1,0 +1,20 @@
+Component: Web_UI
+Date: 2014-02-18 05:28:01
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.2
+Owner: travisb@travisbrown.ca
+Percent_Complete: 0
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Major
+State: Open
+Title: Hide by default in static view
+Type: Feature
+Units_of_Work: 1000
+--
+If you go to use the static view but have Javascript disabled then you just get all the issues all visible at once along with all the columns being visible. This is too wide for many screens and has other issues.
+
+It'd be nice to hide some columns by default to make the index more usable. It might also be nice to hide closed issues, but that's less clearly a win and would make finding closed bugs hard to find.
