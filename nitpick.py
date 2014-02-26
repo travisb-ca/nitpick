@@ -51,6 +51,10 @@ POSIX_GUI_BROWSERS = [ ('chrome', 'google-chrome'), ('firefox-bin', 'firefox') ]
 NUM_FIXBY_COLOURS = 13
 USE_UPLOADED_NAME = 'filename.bin'
 
+# Columns which are hidden by default in the read only view
+READ_ONLY_HIDDEN_COLS = ['Project', 'Type', 'Date', 'Seen_In_Build', 'Component', 'Fix_By',
+		'Resolution']
+
 # Contains the defaults used to initalize a database
 class config:
 	issues = {
@@ -692,7 +696,12 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 						arg_string += '%s=%s&' % (urllib.quote(argname), urllib.quote_plus(myargs[argname]))
 				arg_string = arg_string[:-1]
 
-				self.output('<th class="issue_list"><a href="/%s">%s&nbsp;%s&nbsp;%s</a></th> ' % (arg_string, sort_token, label, sort_token))
+				if config.readonly and label in READ_ONLY_HIDDEN_COLS:
+					hidden = ' style="display: none"'
+				else:
+					hidden = ''
+
+				self.output('<th class="issue_list"%s><a href="/%s">%s&nbsp;%s&nbsp;%s</a></th> ' % (hidden, arg_string, sort_token, label, sort_token))
 
 		if db.has_foreign():
 			output_row_header(show_repo,  'Project', page_args)
@@ -716,9 +725,14 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			else:
 				return False
 
-		def output_field(issue, bool, field_data):
+		def output_field(issue, bool, label, field_data):
 			if bool or config.readonly:
-				self.output('<td class="issue_list"><a href="/issue/%s%s">%s</a></td> ' % (issue,
+				if config.readonly and label in READ_ONLY_HIDDEN_COLS:
+					hidden = ' style="display: none"'
+				else:
+					hidden = ''
+
+				self.output('<td class="issue_list"%s><a href="/issue/%s%s">%s</a></td> ' % (hidden, issue,
 					self.session_query(), cgi.escape(field_data)))
 
 		def sort_issues(issue):
@@ -820,22 +834,22 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			row_colour = (row_colour + 1) % 2
 
 			if db.has_foreign():
-				output_field(issue, show_repo, db.issue(issue)['repo'])
-			output_field(issue, show_ID,            issue[:8])
-			output_field(issue, show_type,          db.issue(issue)['Type'])
+				output_field(issue, show_repo,  'Project',       db.issue(issue)['repo'])
+			output_field(issue, show_ID,            'ID',            issue[:8])
+			output_field(issue, show_type,          'Type',          db.issue(issue)['Type'])
 			if 'localdate' in db.issue(issue):
-				output_field(issue, show_date,          db.issue(issue)['localdate'])
+				output_field(issue, show_date,  'Date',          db.issue(issue)['localdate'])
 			else:
-				output_field(issue, show_date,          db.issue(issue)['Date'])
-			output_field(issue, show_severity,      db.issue(issue)['Severity'])
-			output_field(issue, show_priority,      db.issue(issue)['Priority'])
-			output_field(issue, show_component,     db.issue(issue)['Component'])
-			output_field(issue, show_fix_by,        db.issue(issue)['Fix_By'])
-			output_field(issue, show_seen_in_build, db.issue(issue)['Seen_In_Build'])
-			output_field(issue, show_state,         db.issue(issue)['State'])
-			output_field(issue, show_resolution,    db.issue(issue)['Resolution'])
-			output_field(issue, show_owner,         db.issue(issue)['Owner'])
-			output_field(issue, show_title,         db.issue(issue)['Title'])
+				output_field(issue, show_date,  'Date',          db.issue(issue)['Date'])
+			output_field(issue, show_severity,      'Severity',      db.issue(issue)['Severity'])
+			output_field(issue, show_priority,      'Priority',      db.issue(issue)['Priority'])
+			output_field(issue, show_component,     'Component',     db.issue(issue)['Component'])
+			output_field(issue, show_fix_by,        'Fix_By',        db.issue(issue)['Fix_By'])
+			output_field(issue, show_seen_in_build, 'Seen_In_Build', db.issue(issue)['Seen_In_Build'])
+			output_field(issue, show_state,         'State',         db.issue(issue)['State'])
+			output_field(issue, show_resolution,    'Resolution',    db.issue(issue)['Resolution'])
+			output_field(issue, show_owner,         'Owner',         db.issue(issue)['Owner'])
+			output_field(issue, show_title,          'Title',        db.issue(issue)['Title'])
 
 			self.output('</tr>\n')
 

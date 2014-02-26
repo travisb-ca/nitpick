@@ -1,0 +1,8 @@
+Attachment: 
+Attachment-filename: 
+Attachment-type: application/octet-stream
+Date: 2014-02-26 05:32:34
+Parent: issue
+User: travisb@travisbrown.ca
+--
+I've decided to just hide the columns which are hidden by default in the web view. These are the most important fields and this makes Nitpick usable with the static view if Javascript is disabled.
