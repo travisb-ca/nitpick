@@ -1,0 +1,20 @@
+Component: VCS
+Date: 2014-03-19 03:33:07
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.2
+Owner: travisb@travisbrown.ca
+Percent_Complete: 0
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Major
+State: Open
+Title: Support SVN foreign projects through symlinks
+Type: Feature
+Units_of_Work: 1000
+--
+Nitpick supports foreign projects using SVN externals pretty well. However a meta-tracker with a large number of foreign projects using externals makes running svn update pretty slow.
+
+It should be possible to symlink to these sub-trackers as long as they are within the same checkout. Currently this doesn't work though because Nitpick treats the entire directory as either a svn working copy or as containing svn externals. Symlinks are neither and thus don't work.
