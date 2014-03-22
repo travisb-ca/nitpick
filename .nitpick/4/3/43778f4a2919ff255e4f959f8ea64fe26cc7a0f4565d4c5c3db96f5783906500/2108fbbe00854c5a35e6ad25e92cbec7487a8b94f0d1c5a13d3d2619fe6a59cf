@@ -1,0 +1,8 @@
+Attachment: 
+Attachment-filename: 
+Attachment-type: application/octet-stream
+Date: 2014-03-22 05:10:37
+Parent: issue
+User: travisb@travisbrown.ca
+--
+Not that read only archives is really an issue. It should still be possible to add new comments to archived bugs in the standard manner and have the data merged seamlessly. It shouldn't be any more complicated than what is done now to merge issue comments.
