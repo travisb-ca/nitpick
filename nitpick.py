@@ -2418,6 +2418,7 @@ class IssueDB:
 			self.db = {'format' : ISSUE_CACHE_FORMAT}
 
 		checked_issues = {}
+		seen_uuids = []
 		if os.path.exists(config.db_path + 'foreign') and os.path.isdir(config.db_path + 'foreign'):
 			self.foreign_repos = True
 
@@ -2438,6 +2439,7 @@ class IssueDB:
 
 				checked_issues[foreign_uuid].extend(
 						self.update_cache_from_repo(foreign_path, foreign_uuid, foreign_repo))
+				seen_uuids.append(foreign_uuid)
 
 				_load_config(foreign_path)
 
@@ -2452,9 +2454,17 @@ class IssueDB:
 
 		checked_issues[self.uuid].extend(
 				self.update_cache_from_repo(config.db_path, self.uuid, 'Local'))
+		seen_uuids.append(self.uuid)
 		
+		# Delete any foreign repositories which have been removed
+		for repo in self.db.keys():
+			if repo == 'format':
+				continue
 
-		# Delete any issues which no longer exist
+			if repo not in seen_uuids:
+				del self.db[repo]
+
+		# Delete any issues which no longer exist in repositories we have seen
 		for repo in checked_issues.keys():
 			for issue in self.db[repo].keys():
 				if issue not in checked_issues[repo]:

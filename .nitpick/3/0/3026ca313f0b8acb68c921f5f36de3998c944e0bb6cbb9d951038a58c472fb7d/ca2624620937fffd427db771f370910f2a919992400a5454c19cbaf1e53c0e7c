@@ -1,0 +1,8 @@
+Attachment: 
+Attachment-filename: 
+Attachment-type: application/octet-stream
+Date: 2014-03-22 05:27:54
+Parent: issue
+User: travisb@travisbrown.ca
+--
+The root cause was that we weren't checking for foreign repositories which had disappeared since the last time the database cache was updated. Now we check and delete those repositories.

@@ -7,10 +7,10 @@ Owner: travisb@travisbrown.ca
 Percent_Complete: 0
 Priority: 1
 Reported_By: travisb@travisbrown.ca
-Resolution: None
+Resolution: Fixed
 Seen_In_Build: 
 Severity: Blocker
-State: Open
+State: Closed
 Title: Exception when looking for a removed foreign project
 Type: Bug
 Units_of_Work: 1000
