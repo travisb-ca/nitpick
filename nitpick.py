@@ -2082,12 +2082,36 @@ class SVN(VCS):
 	real = True
 
 	@staticmethod
+	def _cdpath(path):
+		cd = '.'
+		if '%sforeign' % config.db_path in path:
+			foreign_relative = re.sub('%sforeign/' % config.db_path, '', path)
+			cd, path = foreign_relative.split('/', 1)
+			cd = '%sforeign/%s' % (config.db_path, cd)
+
+		return (cd, path)
+
+	@staticmethod
 	def mkdir(path):
-		os.system("svn mkdir -q --parents " + path)
+		os.system('cd %s; svn mkdir -q --parents %s' % SVN._cdpath(path))
 
 	@staticmethod
 	def add_changes(path):
-		os.system("svn add -q " + path);
+		os.system('cd %s; svn add -q %s' % SVN._cdpath(path))
+
+	@staticmethod
+	def _get_foreigns():
+		# Get the SVN external based foreign projects
+		foreign_list = subprocess.check_output("svn stat %s | grep '^X *%s' | awk '{print $2}'" % 
+				(config.db_path, config.db_path), shell=True)
+		foreign_list = foreign_list.split('\n')
+
+		# Get the symlink based foreign projects
+		for file in os.listdir(config.db_path + 'foreign'):
+			path = config.db_path + 'foreign/' + file
+			if os.path.islink(path) and os.path.isdir(os.readlink(path)):
+				foreign_list.append(path)
+		return foreign_list
 
 	@staticmethod
 	def commit():
@@ -2098,13 +2122,10 @@ class SVN(VCS):
 			success = False
 
 		if db.has_foreign():
-			foreign_list = subprocess.check_output("svn stat %s | grep '^X *%s' | awk '{print $2}'" % 
-					(config.db_path, config.db_path), shell=True)
-
-			for foreign in foreign_list.split('\n'):
+			for foreign in SVN._get_foreigns():
 				if foreign == '':
 					continue
-				result = os.system("svn ci -q -m \"Nitpick commit\" %s" % foreign)
+				result = os.system('cd %s; svn ci -q -m "Nitpick commit" .' % foreign)
 				if result != 0:
 					success = False
 
@@ -2114,7 +2135,10 @@ class SVN(VCS):
 	def revert():
 		os.system("svn revert -q -R " + config.db_path)
 		if db.has_foreign():
-			os.system("for external in `svn stat %s | grep ^X | awk '{print $2}'`; do svn revert -q -R $external;done" % config.db_path)
+			for foreign in SVN._get_foreigns():
+				if foreign == '':
+					continue
+				os.system('cd %s; svn revert -q -R .; svn stat | grep ^? | xargs rm -rf' % foreign)
 		os.system("svn stat " + config.db_path + " | grep ^?| xargs rm -rf")
 
 	@staticmethod
