@@ -2109,7 +2109,7 @@ class SVN(VCS):
 		# Get the symlink based foreign projects
 		for file in os.listdir(config.db_path + 'foreign'):
 			path = config.db_path + 'foreign/' + file
-			if os.path.islink(path) and os.path.isdir(os.readlink(path)):
+			if os.path.islink(path) and os.path.isdir(path):
 				foreign_list.append(path)
 		return foreign_list
 
