@@ -1,0 +1,20 @@
+Component: Core
+Date: 2014-04-25 17:17:37
+Depends_On: 
+Duplicate_Of: 
+Fix_By: Eventually
+Owner: travisb@travisbrown.ca
+Percent_Complete: 0
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Minor
+State: New
+Title: Restrict list to doable bugs
+Type: Feature
+Units_of_Work: 1000
+--
+One useful thing about the bug scheduling is that it tells you which bugs you should work on next. But it requires that you put in deadlines and time estimates; which is often more work than the output is worth.
+
+However, it might be useful to be able to filter the list of bugs to only those with no open dependencies. They could then be sorted in order of 'nearest' release and how many other bugs they would open up to be done.
