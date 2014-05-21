@@ -2057,7 +2057,7 @@ class VCS:
 
 		Returns True on success, False on failure
 		"""
-		return False
+		return True
 
 	@staticmethod
 	def revert():
