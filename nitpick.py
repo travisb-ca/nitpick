@@ -34,10 +34,8 @@ import re
 import base64
 import cgi
 import uuid
-import cgi
 import datetime
 import json
-import subprocess
 import random
 import calendar
 
