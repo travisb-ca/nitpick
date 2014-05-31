@@ -127,6 +127,14 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				padding-left: 3em;
 			}
 
+			.issue_comment_summary {
+				display: none;
+			}
+
+			.issue_comment_container {
+				display: block;
+			}
+
 			.field_select_box {
 				padding: 0.5 0.5 0.5em;
 				margin: 1em;
@@ -867,6 +875,32 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 
 		self.start_doc('%s [%s]' % (issue['Title'], issue_hash[:8]))
 
+		js = '''
+		<script type="text/javascript">
+			function show_comment(id) {
+				var sum = document.getElementById("sum_" + id);
+				var cont = document.getElementById("cont_" + id);
+
+				sum.style.display = "none";
+				cont.style.display = "block";
+
+				return false;
+			}
+
+			function hide_comment(id) {
+				var sum = document.getElementById("sum_" + id);
+				var cont = document.getElementById("cont_" + id);
+
+				sum.style.display = "block";
+				cont.style.display = "none";
+
+				return false;
+			}
+
+		</script>
+		'''
+		self.output(js)
+
 		if config.readonly:
 			self.output('<p><a href="/?usejs=1">Back to issue list</a> ')
 		else:
@@ -986,6 +1020,20 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				self.output('</div></div>\n' * (old_depth - depth + 1))
 
 			self.output('<div class="issue_comment">\n')
+
+			self.output('<div class="issue_comment_summary" id="sum_%s">\n' % comment['hash'])
+			self.output('<a href="javascript:void(0);" onclick="show_comment(\'%s\');">+</a>' % comment['hash'])
+			self.output('%s' % cgi.escape(comment['User']))
+			if 'localdate' in comment.keys():
+				date = comment['localdate']
+			else:
+				date = comment['Date']
+			self.output(' %s' % cgi.escape(date))
+			self.output('</div>\n')
+
+			self.output('<div class="issue_comment_container" id="cont_%s">\n' % comment['hash'])
+			self.output('<a href="javascript:void(0);" onclick="hide_comment(\'%s\');">-</a>' % comment['hash'])
+
 			self.output('<div class="issue_comment_content">\n')
 			for field in ['hash', 'Date', 'User', 'Attachment']:
 				if field in ['content', 'children', 'Parent', 'Attachment-filename', 'Attachment-type']:
@@ -1028,7 +1076,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			else:
 				comment_depth.extend([depth + 1] * len(comment['children']))
 			parent_children_stack.extend([len(comment['children'])] * len(comment['children']))
-		self.output('</div></div>\n' * depth)
+		self.output('</div></div></div>\n' * depth)
 
 		self.output('</div></div>\n') # End the issue description children div and comment div
 		self.output('</div>\n') # End the issue_comments
