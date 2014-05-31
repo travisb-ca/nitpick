@@ -135,6 +135,19 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 				display: block;
 			}
 
+			.issue_comment_collapser {
+				margin-left: -0.5em;
+				font-size: large;
+				float: left;
+				background: #D3D3D3;
+				width: 0.5em;
+				text-align: center;
+			}
+
+			.issue_comment_collapser a {
+				text-decoration: none;
+			}
+
 			.field_select_box {
 				padding: 0.5 0.5 0.5em;
 				margin: 1em;
@@ -1022,7 +1035,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.output('<div class="issue_comment">\n')
 
 			self.output('<div class="issue_comment_summary" id="sum_%s">\n' % comment['hash'])
-			self.output('<a href="javascript:void(0);" onclick="show_comment(\'%s\');">+</a>' % comment['hash'])
+			self.output('<div class="issue_comment_collapser"><a href="javascript:void(0);" onclick="show_comment(\'%s\');">+</a></div>' % comment['hash'])
 			self.output('%s' % cgi.escape(comment['User']))
 			if 'localdate' in comment.keys():
 				date = comment['localdate']
@@ -1032,7 +1045,7 @@ class nitpick_web(BaseHTTPServer.BaseHTTPRequestHandler):
 			self.output('</div>\n')
 
 			self.output('<div class="issue_comment_container" id="cont_%s">\n' % comment['hash'])
-			self.output('<a href="javascript:void(0);" onclick="hide_comment(\'%s\');">-</a>' % comment['hash'])
+			self.output('<div class="issue_comment_collapser"><a href="javascript:void(0);" onclick="hide_comment(\'%s\');">-</a></div>' % comment['hash'])
 
 			self.output('<div class="issue_comment_content">\n')
 			for field in ['hash', 'Date', 'User', 'Attachment']:
