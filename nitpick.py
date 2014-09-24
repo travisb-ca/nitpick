@@ -2512,9 +2512,14 @@ class IssueDB:
 
 				foreign_path = config.db_path + 'foreign/' + foreign_repo + '/'
 
-				uuid_file = open(foreign_path + 'uuid', 'r')
-				foreign_uuid = uuid_file.read()
-				uuid_file.close()
+				try:
+					uuid_file = open(foreign_path + 'uuid', 'r')
+					foreign_uuid = uuid_file.read()
+					uuid_file.close()
+				except:
+					# If loading the foreign project fails warn and carry on
+					print 'WARNING: Unableto load foreign project "%s"' % foreign_repo
+					continue
 
 
 				if foreign_uuid not in checked_issues.keys():
