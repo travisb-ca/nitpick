@@ -1,0 +1,20 @@
+Component: VCS
+Date: 2014-10-16 15:23:47
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.2
+Owner: travisb@travisbrown.ca
+Percent_Complete: 0
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Major
+State: Open
+Title: Support foreign projects using different VCS
+Type: Bug
+Units_of_Work: 1000
+--
+It turns out that Nitpick currently expects that all the foreign repositories will use the same VCS as the primary repository. This is an unnecessary restriction and there are good reasons and use cases for a repository to have foreign projects with different VCSes.
+
+One such example is a personal meta-tracker which covers multiple external projects. There is no reason these projects must all use the same VCS and certainly no reason they must use the same VCS as the meta-repository.
