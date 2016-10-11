@@ -1,0 +1,20 @@
+Component: Core
+Date: 2016-10-11 14:07:38
+Depends_On: 
+Duplicate_Of: 
+Fix_By: 1.2
+Owner: travisb@travisbrown.ca
+Percent_Complete: 0
+Priority: 1
+Reported_By: travisb@travisbrown.ca
+Resolution: None
+Seen_In_Build: 
+Severity: Blocker
+State: Confirmed
+Title: Support UTF8
+Type: Bug
+Units_of_Work: 1000
+--
+Currently nitpick doesn't make any allowances for different character sets. One person made an attempt at https://github.com/tst2005/nitpick/issues/1 but failed to get it to work.
+
+This seems like a generally good idea.
