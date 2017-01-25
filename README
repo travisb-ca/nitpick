@@ -5,7 +5,7 @@ follow the code via whatever VCS or distribution mechanism.
 This is an abbreviated guide to configuring a Nitpick repository. For a user
 guide and tutorial you should look at docs/nitpick.html or
 http://travisbrown.ca/projects/nitpick/docs/nitpick.html. A quick look at a
-static dump of the web UI can be see at
+static dump of the web UI can be seen at
 http://travisbrown.ca/projects/nitpick/issues/index.html.
 
 The project mailing list is nitpick@travisbrown.ca and the archives and list

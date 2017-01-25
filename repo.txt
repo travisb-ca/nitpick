@@ -2,7 +2,7 @@ The design of the nitpick repository is meant to keep the amount of manual
 merging to a minimum. Some merging will undoubtedly be necessary.
 
 To effect this every file is named after the sha256 hash of the contents and
-are referrenced as such. Within the top level .nitpick directory of the project
+is referenced as such. Within the top level .nitpick directory of the project
 there is the following structure:
 
 .nitpick/
@@ -26,7 +26,7 @@ there is the following structure:
 
 Not all indirect issue directories will exist as they are created as needed.
 
-The file formats follow a simple, easily hand editted format of some metadata
+The file formats follow a simple, easily hand edited format of some metadata
 followed by two dashes, followed by the free form data. ie.
 
 """
