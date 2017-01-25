@@ -1,0 +1,8 @@
+Attachment: 
+Attachment-filename: 
+Attachment-type: application/octet-stream
+Date: 2017-01-25 15:25:07
+Parent: issue
+User: travisb@travisbrown.ca
+--
+It would be convenient if Nitpick could truly detect the VCS instead. Perhaps this might be best accomplished by adding a new VCS type "detect" which searches up the tree from .nitpick for the various markers of particular VCSes such as .git, .svn, .hg and the like. It would then still be possible to override the choice if detection were difficult to implemented, such as the case for Perforce, or the software has a complex configuration which confused the detection.
